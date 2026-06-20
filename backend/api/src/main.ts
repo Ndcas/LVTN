@@ -5,15 +5,16 @@ import { correlationIdMiddleware } from './middlewares/correlation_id.middleware
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const FRONTEND_DOMAIN = process.env.FRONTEND_DOMAIN;
-  const PORT = process.env.PORT;
+  const PORT = parseInt(process.env.PORT!);
 
   app.use(correlationIdMiddleware);
 
   app.enableCors({
-    origin: [FRONTEND_DOMAIN, 'http://localhost:5173'],
+    origin: [FRONTEND_DOMAIN],
     credentials: true
   });
-  await app.listen(PORT ?? 8080);
+
+  await app.listen(PORT);
 }
 
 bootstrap();
