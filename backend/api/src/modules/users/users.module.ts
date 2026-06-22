@@ -1,13 +1,20 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
-import { User } from './entities/user.entity';
+import { UsersService } from './users.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { join } from 'path';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User]),
+    ClientsModule.register([{
+      name: 'USER_PACKAGE',
+      transport: Transport.GRPC,
+      options: {
+        package: 'user',
+        protoPath: join(process.cwd(), process.env.PROTO_PATH!),
+        url: process.env.URL!,
+      },
+    }]),
     ClientsModule.register([
       {
         name: 'LOG_SERVICE',
@@ -20,8 +27,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
       }
     ])
   ],
-  providers: [UsersService],
   controllers: [UsersController],
-  exports: [UsersService]
+  providers: [UsersService],
 })
 export class UsersModule {}

@@ -1,8 +1,18 @@
 import { Injectable } from '@nestjs/common';
+import logger from './logger';
 
 @Injectable()
 export class AppService {
-  getHello(): string {
-    return 'Hello World!';
+
+  handleSystemLog(data: any): void {
+    const { level = 'info', message, service, timestamp, ...meta } = data;
+
+    logger.log({
+      level: level,
+      message: message,
+      service: service || 'unknown_service',
+      timestamp: timestamp,
+      ...meta,
+    });
   }
 }
