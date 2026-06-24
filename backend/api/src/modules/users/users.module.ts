@@ -12,7 +12,7 @@ import { join } from 'path';
       options: {
         package: 'user',
         protoPath: join(process.cwd(), process.env.PROTO_PATH!),
-        url: process.env.URL!,
+        url: process.env.USER_SERVICE_URL!,
       },
     }]),
     ClientsModule.register([
@@ -30,4 +30,4 @@ import { join } from 'path';
   controllers: [UsersController],
   providers: [UsersService],
 })
-export class UsersModule {}
+export class UsersModule { }

@@ -1,7 +1,10 @@
-import { Controller, Post, Body, HttpCode, HttpStatus, Req, Inject } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, Req, Inject, HttpException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import type { Request } from 'express';
 import { ClientProxy } from '@nestjs/microservices';
+import { RegisterDto } from './dto/register.dto';
+import { LoginDto } from './dto/login.dto';
+import { RefreshDto } from './dto/refresh.dto';
 
 @Controller('users')
 export class UsersController {
@@ -10,97 +13,121 @@ export class UsersController {
     @Inject('LOG_SERVICE') private logClient: ClientProxy
   ) { }
 
-  private processLog(action: string, phase: string, correlationId: string, info: string) {
+  private processLog(action: string, correlationId: string, info: string, level: string = 'info') {
     this.logClient.emit('system_log', {
-      level: 'info',
-      message: `[${phase}] ${action} ${info}`,
+      level: level,
+      message: `${action} ${info}`,
       service: 'api_gateway',
-      correlationID: correlationId,
+      correlationId: correlationId,
       timestamp: new Date().toISOString(),
     });
   }
 
   /**
    * Đăng ký tài khoản người dùng mới
-   * @param body.email - Email đăng nhập
-   * @param body.password - Mật khẩu (sẽ được mã hóa bcrypt)
-   * @param body.phone - Số điện thoại liên lạc
-   * @param body.fullName - Họ tên đầy đủ
-   * @param req.headers['correlation-id'] - (Tùy chọn) Mã theo dõi request
+   * @param {RegisterDto} body - Chứa thông tin đăng ký (email, password, phone, fullName)
+   * @param {Request} req - Request object để lấy headers
    */
   @Post('register')
-  async register(@Body() body: any, @Req() req: Request) {
+  async register(@Body() body: RegisterDto, @Req() req: Request) {
     const correlationId = req.headers['correlation-id'] as string;
 
-    this.processLog('Register', 'Start', correlationId, 'Bắt đầu xử lý đăng kí bệnh nhân');
+    this.processLog('Register', correlationId, 'Nhận được yêu cầu đăng kí bệnh nhân');
 
     const result = await this.usersService.register({ ...body, correlationId });
 
-    this.processLog('Register', 'End', correlationId, 'Kết thúc xử lý đăng kí bệnh nhân');
+    if (!result.ok) {
+      this.processLog('Register', correlationId, `Không thành công ${result.error}`, 'warn');
 
-    return result;
+      throw new HttpException(result.error, result.status);
+    }
+
+    this.processLog('Register', correlationId, 'Thành công');
+
+    const { ok, status, error, ...data } = result;
+    return data;
   }
 
   /**
    * Đăng nhập hệ thống
-   * @param body.email - Email đăng nhập
-   * @param body.password - Mật khẩu chưa mã hóa
-   * @param req.headers['correlation-id'] - (Tùy chọn) Mã theo dõi request
+   * @param {LoginDto} body - Chứa thông tin đăng nhập (email, password)
+   * @param {Request} req - Request object để lấy headers
    */
-  @HttpCode(HttpStatus.OK)
   @Post('login')
-  async login(@Body() body: any, @Req() req: Request) {
+  async login(@Body() body: LoginDto, @Req() req: Request) {
     const correlationId = req.headers['correlation-id'] as string;
 
-    this.processLog('Login', 'Start', correlationId, 'Bắt đầu xử lý đăng nhập');
+    this.processLog('Login', correlationId, 'Nhận được yêu cầu đăng nhập');
 
     const result = await this.usersService.login({ ...body, correlationId });
 
-    this.processLog('Login', 'End', correlationId, 'Kết thúc xử lý đăng nhập');
+    if (!result.ok) {
+      this.processLog('Login', correlationId, `Không thành công ${result.error}`, 'warn');
 
-    return result;
+      throw new HttpException(result.error, result.status);
+    }
+
+    this.processLog('Login', correlationId, 'Thành công');
+
+    const { ok, status, error, ...data } = result;
+    return data;
   }
 
   /**
    * Cấp mới Access Token sử dụng Refresh Token
-   * @param body.refreshToken - Refresh token hợp lệ chưa bị thu hồi
-   * @param req.headers['correlation-id'] - (Tùy chọn) Mã theo dõi request
+   * @param {RefreshDto} body - Chứa refresh token hợp lệ
+   * @param {Request} req - Request object để lấy headers
    */
-  @HttpCode(HttpStatus.OK)
   @Post('refresh')
-  async refresh(@Body() body: any, @Req() req: Request) {
+  async refresh(@Body() body: RefreshDto, @Req() req: Request) {
     const correlationId = req.headers['correlation-id'] as string;
 
-    this.processLog('Refresh', 'Start', correlationId, 'Bắt đầu xử lý cấp mới access token');
+    this.processLog('Refresh', correlationId, 'Nhận được yêu cầu cấp mới access token');
 
     const result = await this.usersService.refresh({ ...body, correlationId });
 
-    this.processLog('Refresh', 'End', correlationId, 'Kết thúc xử lý cấp mới access token');
+    if (!result.ok) {
+      this.processLog('Refresh', correlationId, `Không thành công ${result.error}`, 'warn');
 
-    return result;
+      throw new HttpException(result.error, result.status);
+    }
+
+    this.processLog('Refresh', correlationId, 'Thành công');
+
+    const { ok, status, error, ...data } = result;
+    return data;
   }
 
   /**
    * Đăng xuất và đưa token vào Blacklist
-   * Yêu cầu xác thực JWT (Access Token trong Header)
-   * @param body.refreshToken - Refresh token cần thu hồi
-   * @param req.headers.authorization - Access Token hiện tại
-   * @param req.headers['correlation-id'] - (Tùy chọn) Mã theo dõi request
+   * @param {Request} req - Request object chứa refresh token trong authorization header
    */
-  @HttpCode(HttpStatus.OK)
   @Post('logout')
-  async logout(@Body() body: any, @Req() req: Request) {
+  async logout(@Req() req: Request) {
     const correlationId = req.headers['correlation-id'] as string;
 
-    this.processLog('Logout', 'Start', correlationId, 'Bắt đầu xử lý đăng xuất');
+    this.processLog('Logout', correlationId, 'Nhận được yêu cầu đăng xuất');
 
     const authHeader = req.headers.authorization;
-    const accessToken = authHeader?.split(' ')[1];
+    const refreshToken = authHeader?.split(' ')[1];
 
-    const result = await this.usersService.logout({ ...body, accessToken, correlationId });
+    if (!refreshToken) {
+      this.processLog('Logout', correlationId, 'Không tìm thấy refresh token', 'warn');
 
-    this.processLog('Logout', 'End', correlationId, 'Kết thúc xử lý đăng xuất');
+      throw new HttpException('Refresh token không được để trống', HttpStatus.BAD_REQUEST);
+    }
 
-    return result;
+    const result = await this.usersService.logout({ refreshToken, correlationId });
+
+    if (!result.ok) {
+      this.processLog('Logout', correlationId, `Không thành công ${result.error}`, 'warn');
+
+      throw new HttpException(result.error, result.status);
+    }
+
+    this.processLog('Logout', correlationId, 'Thành công');
+
+    const { ok, status, error, ...data } = result;
+    return data;
   }
 }

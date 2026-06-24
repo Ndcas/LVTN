@@ -34,7 +34,7 @@ export class User {
   gender: string;
 
   @Column({ type: 'date', nullable: true })
-  dob: string | null;
+  dob: Date | null;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   address: string | null;

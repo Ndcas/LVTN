@@ -17,8 +17,10 @@ message PingResponse {
 }
 
 message BaseResponse {
-  int32 status = 1;
-  string message = 2;
+  bool ok = 1;
+  int32 status = 2;
+  string error = 3;
+  string message = 4;
 }
 
 message RegisterRequest {
@@ -26,6 +28,9 @@ message RegisterRequest {
   string password = 2;
   string phone = 3;
   string fullName = 4;
+  string gender = 5;
+  string dob = 6;
+  string address = 7;
   string correlationId = 100;
 }
 
@@ -42,7 +47,6 @@ message RefreshRequest {
 
 message LogoutRequest {
   string refreshToken = 1;
-  string accessToken = 2;
   string correlationId = 100;
 }
 
@@ -52,8 +56,10 @@ message ForgotPasswordRequest {
 }
 
 message AuthResponse {
-  int32 status = 1;
-  string message = 2;
-  string accessToken = 3;
-  string refreshToken = 4;
+  bool ok = 1;
+  int32 status = 2;
+  string error = 3;
+  string message = 4;
+  string accessToken = 5;
+  string refreshToken = 6;
 }

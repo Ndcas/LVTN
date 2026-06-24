@@ -18,92 +18,165 @@ export class UsersService {
   ) { }
 
   async register(data: any): Promise<any> {
-    const existingUser = await this.userRepository.findOne({ where: { email: data.email } });
+    const existingUser = await this.userRepository.exists({
+      where: { email: data.email }
+    });
 
     if (existingUser) {
-      return { status: 400, message: 'Email already exists' };
+      return {
+        ok: false,
+        status: 400,
+        error: 'Email đã được sử dụng'
+      };
     }
 
-    const saltRounds = this.configService.get<number>('BCRYPT_SALT_ROUNDS');
+    const saltRounds = this.configService.get<number>('BCRYPT_SALT_ROUNDS')!;
     const hashedPassword = await bcrypt.hash(data.password, saltRounds);
-
     const newUser = this.userRepository.create({
-      ...data,
+      roleId: 3,
+      phone: data.phone,
       password: hashedPassword,
-      roleId: 2, // Mặc định tất cả người đăng ký mới đều là Bệnh nhân
+      email: data.email,
+      fullName: data.fullName,
+      gender: data.gender,
+      dob: data.dob ? new Date(data.dob) : null,
+      address: data.address || null
     });
+
     await this.userRepository.save(newUser);
 
     return {
+      ok: true,
       status: 200,
-      message: 'Register successful',
+      message: 'Đăng ký thành công',
     };
   }
 
   async login(data: any): Promise<any> {
-    const user = await this.userRepository.findOne({ where: { email: data.email } });
+    const user = await this.userRepository.findOne({
+      where: { email: data.email }
+    });
+
     if (!user) {
-      return { status: 404, message: 'User not found' };
+      return {
+        ok: false,
+        status: 404,
+        error: 'Thông tin đăng nhập không chính xác'
+      };
+    }
+
+    if (user.isActive == '0') {
+      return {
+        ok: false,
+        status: 403,
+        error: 'Tài khoản đã bị vô hiệu hóa'
+      };
     }
 
     const isMatch = await bcrypt.compare(data.password, user.password);
+
     if (!isMatch) {
-      return { status: 401, message: 'Invalid credentials' };
+      return {
+        ok: false,
+        status: 401,
+        error: 'Thông tin đăng nhập không chính xác'
+      };
     }
 
-    const payload = { sub: user.id, email: user.email, roleId: user.roleId };
+    const payload = {
+      userId: user.id,
+      fullName: user.fullName,
+      roleId: user.roleId
+    };
 
-    const accessToken = await this.jwtService.signAsync(payload, { expiresIn: '10m' });
-    const refreshToken = await this.jwtService.signAsync(payload, { expiresIn: '30d' });
+    const accessToken = await this.jwtService.signAsync(payload);
+    const refreshToken = await this.jwtService.signAsync(payload, {
+      expiresIn: '30d',
+      secret: this.configService.get<string>('JWT_REFRESH_SECRET')
+    });
+
+    await this.cacheManager.set(`RT_${user.id}`, refreshToken, 2592000000);
 
     return {
+      ok: true,
       status: 200,
-      message: 'Login successful',
+      message: 'Đăng nhập thành công',
       accessToken,
       refreshToken
     };
   }
 
   async refresh(data: any): Promise<any> {
+    let payload: any = {};
+
     try {
-      const isBlacklisted = await this.cacheManager.get(`blacklist_rt_${data.refreshToken}`);
-      if (isBlacklisted) {
-        return { status: 401, message: 'Refresh token has been revoked' };
-      }
-
-      const payload = await this.jwtService.verifyAsync(data.refreshToken);
-      const newPayload = { sub: payload.sub, email: payload.email, roleId: payload.roleId };
-      const newAccessToken = await this.jwtService.signAsync(newPayload, { expiresIn: '10m' });
-      const newRefreshToken = await this.jwtService.signAsync(newPayload, { expiresIn: '30d' });
-
+      payload = await this.jwtService.verifyAsync(data.refreshToken, {
+        secret: this.configService.get<string>('JWT_REFRESH_SECRET')
+      });
+    } catch (error) {
       return {
-        status: 200,
-        message: 'Token refreshed',
-        accessToken: newAccessToken,
-        refreshToken: newRefreshToken
+        ok: false,
+        status: 401,
+        error: 'Refresh token không hợp lệ'
       };
-    } catch (e) {
-      return { status: 401, message: 'Invalid refresh token' };
     }
+
+    const cachedToken = await this.cacheManager.get(`RT_${payload.userId}`);
+
+    if (!cachedToken || cachedToken != data.refreshToken) {
+      return {
+        ok: false,
+        status: 401,
+        error: 'Refresh token không hợp lệ'
+      };
+    }
+
+    const isBlacklisted = await this.cacheManager.get(`BL_${payload.userId}`);
+
+    if (isBlacklisted) {
+      return {
+        ok: false,
+        status: 401,
+        error: 'Refresh token không hợp lệ'
+      };
+    }
+
+    const newPayload = {
+      userId: payload.userId,
+      fullName: payload.fullName,
+      roleId: payload.roleId
+    };
+    const newAccessToken = await this.jwtService.signAsync(newPayload);
+
+    return {
+      ok: true,
+      status: 200,
+      message: 'Cấp lại token thành công',
+      accessToken: newAccessToken,
+      refreshToken: data.refreshToken
+    };
   }
 
   async logout(data: any): Promise<any> {
-    if (data.refreshToken) {
-      await this.cacheManager.set(`blacklist_rt_${data.refreshToken}`, 'revoked', 30 * 24 * 60 * 60 * 1000);
-    }
-    if (data.accessToken) {
-      await this.cacheManager.set(`blacklist_at_${data.accessToken}`, 'revoked', 10 * 60 * 1000);
-    }
+    try {
+      const payload = await this.jwtService.verifyAsync(data.refreshToken, {
+        secret: this.configService.get<string>('JWT_REFRESH_SECRET')
+      });
+      await this.cacheManager.del(`RT_${payload.userId}`);
+    } catch (e) { }
+
     return {
+      ok: true,
       status: 200,
-      message: 'Logged out successfully'
+      message: 'Đăng xuất thành công'
     };
   }
 
   async forgotPassword(data: any): Promise<any> {
     return {
+      ok: true,
       status: 200,
-      message: 'Password reset link sent to your email'
+      message: 'Link đặt lại mật khẩu đã được gửi đến email của bạn'
     };
   }
 }
