@@ -3,10 +3,12 @@ import type { ClientGrpc } from '@nestjs/microservices';
 import { Observable, lastValueFrom } from 'rxjs';
 
 interface UserServiceClient {
+  getRegisterOtp(data: any): Observable<any>;
   register(data: any): Observable<any>;
   login(data: any): Observable<any>;
   refresh(data: any): Observable<any>;
   logout(data: any): Observable<any>;
+  getForgotPasswordOtp(data: any): Observable<any>;
   forgotPassword(data: any): Observable<any>;
 }
 
@@ -18,6 +20,10 @@ export class UsersService implements OnModuleInit {
 
   onModuleInit() {
     this.userService = this.client.getService<UserServiceClient>('UserService');
+  }
+
+  getRegisterOtp(data: any) {
+    return lastValueFrom(this.userService.getRegisterOtp(data));
   }
 
   register(data: any) {
@@ -34,5 +40,13 @@ export class UsersService implements OnModuleInit {
 
   logout(data: any) {
     return lastValueFrom(this.userService.logout(data));
+  }
+
+  getForgotPasswordOtp(data: any) {
+    return lastValueFrom(this.userService.getForgotPasswordOtp(data));
+  }
+
+  forgotPassword(data: any) {
+    return lastValueFrom(this.userService.forgotPassword(data));
   }
 }

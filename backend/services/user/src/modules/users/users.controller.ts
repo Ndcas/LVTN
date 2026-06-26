@@ -21,12 +21,44 @@ export class UsersController {
   }
 
   /**
+   * Lấy OTP đăng ký qua gRPC
+   * @param {Object} data - Dữ liệu yêu cầu
+   * @param {string} data.email - Email cần lấy OTP
+   * @param {string} data.correlationId - ID theo dõi request
+   */
+  @GrpcMethod('UserService', 'GetRegisterOtp')
+  async getRegisterOtp(data: any) {
+    try {
+      this.processLog('GetRegisterOtp', data.correlationId, 'Nhận được yêu cầu lấy OTP đăng ký');
+
+      const result = await this.usersService.getRegisterOtp(data);
+
+      this.processLog('GetRegisterOtp', data.correlationId, 'Kết thúc xử lý lấy OTP đăng ký');
+
+      return result;
+    } catch (e) {
+      this.processLog('GetRegisterOtp', data.correlationId, `Lỗi khi xử lý lấy OTP đăng ký: ${e}`, 'error');
+
+      return {
+        ok: false,
+        status: 500,
+        error: 'Lỗi hệ thống',
+      };
+    }
+  }
+
+  /**
    * Xử lý đăng ký user mới qua gRPC
-   * @param data.email - Email đăng nhập
-   * @param data.password - Mật khẩu đã được mã hóa
-   * @param data.phone - Số điện thoại
-   * @param data.fullName - Họ tên đầy đủ
-   * @param data.correlationId - ID theo dõi request
+   * @param {Object} data - Dữ liệu yêu cầu
+   * @param {string} data.email - Email đăng nhập
+   * @param {string} data.password - Mật khẩu plain text
+   * @param {string} data.phone - Số điện thoại
+   * @param {string} data.fullName - Họ tên đầy đủ
+   * @param {string} data.gender - Giới tính ('M', 'F', 'O')
+   * @param {string} data.dob - Ngày sinh
+   * @param {string} data.address - Địa chỉ
+   * @param {string} data.otp - Mã OTP xác thực
+   * @param {string} data.correlationId - ID theo dõi request
    */
   @GrpcMethod('UserService', 'Register')
   async register(data: any) {
@@ -51,9 +83,10 @@ export class UsersController {
 
   /**
    * Xử lý đăng nhập qua gRPC
-   * @param data.email - Email đăng nhập
-   * @param data.password - Mật khẩu plain text
-   * @param data.correlationId - ID theo dõi request
+   * @param {Object} data - Dữ liệu yêu cầu
+   * @param {string} data.email - Email đăng nhập
+   * @param {string} data.password - Mật khẩu plain text
+   * @param {string} data.correlationId - ID theo dõi request
    */
   @GrpcMethod('UserService', 'Login')
   async login(data: any) {
@@ -78,8 +111,9 @@ export class UsersController {
 
   /**
    * Cấp mới Access Token qua gRPC
-   * @param data.refreshToken - Refresh token cũ hợp lệ
-   * @param data.correlationId - ID theo dõi request
+   * @param {Object} data - Dữ liệu yêu cầu
+   * @param {string} data.refreshToken - Refresh token cũ hợp lệ
+   * @param {string} data.correlationId - ID theo dõi request
    */
   @GrpcMethod('UserService', 'Refresh')
   async refresh(data: any) {
@@ -104,8 +138,9 @@ export class UsersController {
 
   /**
    * Xử lý đăng xuất và thu hồi token qua gRPC
-   * @param data.refreshToken - Refresh token cần revoke
-   * @param data.correlationId - ID theo dõi request
+   * @param {Object} data - Dữ liệu yêu cầu
+   * @param {string} data.refreshToken - Refresh token cần revoke
+   * @param {string} data.correlationId - ID theo dõi request
    */
   @GrpcMethod('UserService', 'Logout')
   async logout(data: any) {
@@ -129,9 +164,39 @@ export class UsersController {
   }
 
   /**
-   * Xử lý gửi email quên mật khẩu qua gRPC
-   * @param data.email - Email cần lấy lại mật khẩu
-   * @param data.correlationId - ID theo dõi request
+   * Lấy OTP quên mật khẩu qua gRPC
+   * @param {Object} data - Dữ liệu yêu cầu
+   * @param {string} data.email - Email cần lấy OTP
+   * @param {string} data.correlationId - ID theo dõi request
+   */
+  @GrpcMethod('UserService', 'GetForgotPasswordOtp')
+  async getForgotPasswordOtp(data: any) {
+    try {
+      this.processLog('GetForgotPasswordOtp', data.correlationId, 'Nhận được yêu cầu lấy OTP quên mật khẩu');
+
+      const result = await this.usersService.getForgotPasswordOtp(data);
+
+      this.processLog('GetForgotPasswordOtp', data.correlationId, 'Kết thúc xử lý lấy OTP quên mật khẩu');
+
+      return result;
+    } catch (e) {
+      this.processLog('GetForgotPasswordOtp', data.correlationId, `Lỗi khi xử lý lấy OTP quên mật khẩu: ${e}`, 'error');
+
+      return {
+        ok: false,
+        status: 500,
+        error: 'Lỗi hệ thống',
+      };
+    }
+  }
+
+  /**
+   * Xử lý đặt lại mật khẩu qua gRPC
+   * @param {Object} data - Dữ liệu yêu cầu
+   * @param {string} data.email - Email cần lấy lại mật khẩu
+   * @param {string} data.otp - Mã OTP xác thực
+   * @param {string} data.password - Mật khẩu mới
+   * @param {string} data.correlationId - ID theo dõi request
    */
   @GrpcMethod('UserService', 'ForgotPassword')
   async forgotPassword(data: any) {

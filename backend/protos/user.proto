@@ -3,10 +3,12 @@ syntax = "proto3";
 package user;
 
 service UserService {
+  rpc GetRegisterOtp(GetRegisterOtpRequest) returns (BaseResponse) {}
   rpc Register(RegisterRequest) returns (BaseResponse) {}
   rpc Login(LoginRequest) returns (AuthResponse) {}
   rpc Refresh(RefreshRequest) returns (AuthResponse) {}
   rpc Logout(LogoutRequest) returns (BaseResponse) {}
+  rpc GetForgotPasswordOtp(GetForgotPasswordOtpRequest) returns (BaseResponse) {}
   rpc ForgotPassword(ForgotPasswordRequest) returns (BaseResponse) {}
 }
 
@@ -23,6 +25,11 @@ message BaseResponse {
   string message = 4;
 }
 
+message GetRegisterOtpRequest {
+  string email = 1;
+  string correlationId = 2;
+}
+
 message RegisterRequest {
   string email = 1;
   string password = 2;
@@ -31,28 +38,36 @@ message RegisterRequest {
   string gender = 5;
   string dob = 6;
   string address = 7;
-  string correlationId = 100;
+  string otp = 8;
+  string correlationId = 9;
 }
 
 message LoginRequest {
   string email = 1;
   string password = 2;
-  string correlationId = 100;
+  string correlationId = 3;
 }
 
 message RefreshRequest {
   string refreshToken = 1;
-  string correlationId = 100;
+  string correlationId = 2;
 }
 
 message LogoutRequest {
   string refreshToken = 1;
-  string correlationId = 100;
+  string correlationId = 2;
+}
+
+message GetForgotPasswordOtpRequest {
+  string email = 1;
+  string correlationId = 2;
 }
 
 message ForgotPasswordRequest {
   string email = 1;
-  string correlationId = 100;
+  string otp = 2;
+  string password = 3;
+  string correlationId = 4;
 }
 
 message AuthResponse {
@@ -62,4 +77,5 @@ message AuthResponse {
   string message = 4;
   string accessToken = 5;
   string refreshToken = 6;
+  int32 role = 7;
 }

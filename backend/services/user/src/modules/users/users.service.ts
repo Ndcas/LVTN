@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { ConfigService } from '@nestjs/config';
+import { MailService } from '../mail/mail.service';
 
 @Injectable()
 export class UsersService {
@@ -15,9 +16,65 @@ export class UsersService {
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     private readonly jwtService: JwtService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private readonly mailService: MailService,
   ) { }
 
+  async getRegisterOtp(data: any): Promise<any> {
+    const email = data.email;
+
+    const existingUser = await this.userRepository.exists({
+      where: { email: data.email }
+    });
+
+    if (existingUser) {
+      return {
+        ok: false,
+        status: 400,
+        error: 'Email đã được sử dụng'
+      };
+    }
+
+    const existingOtp = await this.cacheManager.get(`OTP_R_${email}`);
+
+    if (existingOtp) {
+      return {
+        ok: false,
+        status: 400,
+        error: 'OTP đã được gửi đến email của bạn'
+      };
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    await this.mailService.sendMail(
+      email,
+      'Xác nhận đăng ký tài khoản',
+      `Mã OTP của bạn là: ${otp}. Mã này sẽ hết hạn sau 15 phút`,
+      `Mã OTP của bạn là: ${otp}. Mã này sẽ hết hạn sau 15 phút`
+    );
+
+    await this.cacheManager.set(`OTP_R_${email}`, otp, 900000);
+
+    return {
+      ok: true,
+      status: 200,
+      message: 'OTP đã được gửi đến email của bạn'
+    };
+  }
+
   async register(data: any): Promise<any> {
+    const otp = await this.cacheManager.get(`OTP_R_${data.email}`);
+
+    if (!otp || otp != data.otp) {
+      return {
+        ok: false,
+        status: 400,
+        error: 'OTP không hợp lệ'
+      };
+    }
+
+    await this.cacheManager.del(`OTP_R_${data.email}`);
+
     const existingUser = await this.userRepository.exists({
       where: { email: data.email }
     });
@@ -102,7 +159,8 @@ export class UsersService {
       status: 200,
       message: 'Đăng nhập thành công',
       accessToken,
-      refreshToken
+      refreshToken,
+      role: user.roleId
     };
   }
 
@@ -110,9 +168,7 @@ export class UsersService {
     let payload: any = {};
 
     try {
-      payload = await this.jwtService.verifyAsync(data.refreshToken, {
-        secret: this.configService.get<string>('JWT_REFRESH_SECRET')
-      });
+      payload = await this.jwtService.verifyAsync(data.refreshToken, { secret: this.configService.get<string>('JWT_REFRESH_SECRET') });
     } catch (error) {
       return {
         ok: false,
@@ -153,7 +209,8 @@ export class UsersService {
       status: 200,
       message: 'Cấp lại token thành công',
       accessToken: newAccessToken,
-      refreshToken: data.refreshToken
+      refreshToken: data.refreshToken,
+      role: payload.roleId
     };
   }
 
@@ -172,11 +229,83 @@ export class UsersService {
     };
   }
 
-  async forgotPassword(data: any): Promise<any> {
+  async getForgotPasswordOtp(data: any): Promise<any> {
+    const email = data.email;
+
+    let existingUser = await this.userRepository.exists({
+      where: { email: email }
+    });
+
+    if (!existingUser) {
+      return {
+        ok: false,
+        status: 404,
+        error: 'Email không tồn tại'
+      };
+    }
+
+    let existingOtp = await this.cacheManager.get(`OTP_FP_${email}`);
+
+    if (existingOtp) {
+      return {
+        ok: false,
+        status: 400,
+        error: 'OTP đã được gửi đến email của bạn'
+      };
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    await this.mailService.sendMail(
+      email,
+      'Xác nhận quên mật khẩu',
+      `Mã OTP của bạn là: ${otp}. Mã này sẽ hết hạn sau 15 phút`,
+      `Mã OTP của bạn là: ${otp}. Mã này sẽ hết hạn sau 15 phút`
+    );
+
+    await this.cacheManager.set(`OTP_FP_${email}`, otp, 900000);
+
     return {
       ok: true,
       status: 200,
-      message: 'Link đặt lại mật khẩu đã được gửi đến email của bạn'
+      message: 'OTP đã được gửi đến email của bạn'
+    };
+  }
+
+  async forgotPassword(data: any): Promise<any> {
+    const otp = await this.cacheManager.get(`OTP_FP_${data.email}`);
+
+    if (!otp || otp != data.otp) {
+      return {
+        ok: false,
+        status: 400,
+        error: 'OTP không hợp lệ'
+      };
+    }
+
+    await this.cacheManager.del(`OTP_FP_${data.email}`);
+
+    const user = await this.userRepository.findOne({
+      where: { email: data.email }
+    });
+
+    if (!user) {
+      return {
+        ok: false,
+        status: 404,
+        error: 'Email không tồn tại'
+      };
+    }
+
+    const saltRounds = this.configService.get<number>('BCRYPT_SALT_ROUNDS')!;
+    const hashedPassword = await bcrypt.hash(data.password, saltRounds);
+    user.password = hashedPassword;
+    await this.userRepository.save(user);
+
+    return {
+      ok: true,
+      status: 200,
+      message: 'Đặt lại mật khẩu thành công'
     };
   }
 }

@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsString, MinLength, Matches, IsIn } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, MinLength, Matches, IsIn, IsNumberString, MaxLength } from 'class-validator';
 
 export class RegisterDto {
   @IsEmail({}, { message: 'Email không hợp lệ' })
@@ -22,4 +22,9 @@ export class RegisterDto {
   dob: string;
 
   address: string;
+
+  @IsNumberString({}, { message: 'Mã OTP không hợp lệ' })
+  @MinLength(6, { message: 'Mã OTP không hợp lệ' })
+  @MaxLength(6, { message: 'Mã OTP không hợp lệ' })
+  otp: string;
 }

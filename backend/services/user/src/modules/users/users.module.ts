@@ -4,6 +4,7 @@ import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
 import { User } from './entities/user.entity';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { MailModule } from '../mail/mail.module';
 
 @Module({
   imports: [
@@ -18,10 +19,11 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
           queueOptions: { durable: true }
         }
       }
-    ])
+    ]),
+    MailModule
   ],
   providers: [UsersService],
   controllers: [UsersController],
   exports: [UsersService]
 })
-export class UsersModule {}
+export class UsersModule { }
