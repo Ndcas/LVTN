@@ -10,6 +10,7 @@ interface UserServiceClient {
   logout(data: any): Observable<any>;
   getForgotPasswordOtp(data: any): Observable<any>;
   forgotPassword(data: any): Observable<any>;
+  updateFcmToken(data: any): Observable<any>;
 }
 
 @Injectable()
@@ -48,5 +49,9 @@ export class UsersService implements OnModuleInit {
 
   forgotPassword(data: any) {
     return lastValueFrom(this.userService.forgotPassword(data));
+  }
+
+  updateFcmToken(data: any) {
+    return lastValueFrom(this.userService.updateFcmToken(data));
   }
 }

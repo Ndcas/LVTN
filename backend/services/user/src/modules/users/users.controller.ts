@@ -218,4 +218,34 @@ export class UsersController {
       };
     }
   }
+
+  /**
+   * Cập nhật FCM token qua gRPC
+   * @param {Object} data - Dữ liệu yêu cầu
+   * @param {number} data.userId - ID của user
+   * @param {string} data.deviceId - ID thiết bị
+   * @param {string} data.fcmToken - FCM token
+   * @param {string} data.deviceName - Tên thiết bị
+   * @param {string} data.correlationId - ID theo dõi request
+   */
+  @GrpcMethod('UserService', 'UpdateFcmToken')
+  async updateFcmToken(data: any) {
+    try {
+      this.processLog('UpdateFcmToken', data.correlationId, 'Nhận được yêu cầu cập nhật FCM token');
+
+      const result = await this.usersService.updateFcmToken(data);
+
+      this.processLog('UpdateFcmToken', data.correlationId, 'Kết thúc xử lý cập nhật FCM token');
+
+      return result;
+    } catch (e) {
+      this.processLog('UpdateFcmToken', data.correlationId, `Lỗi khi xử lý cập nhật FCM token: ${e}`, 'error');
+
+      return {
+        ok: false,
+        status: 500,
+        error: 'Lỗi hệ thống',
+      };
+    }
+  }
 }

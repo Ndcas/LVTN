@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsString, MinLength, Matches, IsIn, IsNumberString, MaxLength } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, MinLength, Matches, IsIn, IsNumberString, MaxLength, IsOptional, IsDateString } from 'class-validator';
 
 export class RegisterDto {
   @IsEmail({}, { message: 'Email không hợp lệ' })
@@ -19,8 +19,12 @@ export class RegisterDto {
   @IsIn(['MALE', 'FEMALE', 'OTHER'])
   gender: string;
 
+  @IsOptional()
+  @IsDateString({}, { message: 'Ngày sinh không hợp lệ' })
   dob: string;
 
+  @IsOptional()
+  @IsString({ message: 'Địa chỉ không hợp lệ' })
   address: string;
 
   @IsNumberString({}, { message: 'Mã OTP không hợp lệ' })

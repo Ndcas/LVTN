@@ -1,7 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, OneToOne, OneToMany } from 'typeorm';
 import { Role } from '../../catalogs/entities/role.entity';
 import { DoctorMetadata } from '../../doctors/entities/doctor-metadata.entity';
-import { UserFcmToken } from '../../fcm-tokens/entities/user-fcm-token.entity';
 
 @Entity('users')
 export class User {
@@ -48,6 +47,12 @@ export class User {
   @OneToOne(() => DoctorMetadata, (metadata) => metadata.user)
   doctorMetadata: DoctorMetadata;
 
-  @OneToMany(() => UserFcmToken, (token) => token.user)
-  fcmTokens: UserFcmToken[];
+  @Column({ name: 'device_id', type: 'varchar', length: 100, nullable: true })
+  deviceId: string | null;
+
+  @Column({ name: 'fcm_token', type: 'text', nullable: true })
+  fcmToken: string | null;
+
+  @Column({ name: 'device_name', type: 'varchar', length: 100, nullable: true })
+  deviceName: string | null;
 }

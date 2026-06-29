@@ -6,7 +6,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './modules/users/users.module';
 import { DoctorsModule } from './modules/doctors/doctors.module';
 import { CatalogsModule } from './modules/catalogs/catalogs.module';
-import { FcmTokensModule } from './modules/fcm-tokens/fcm-tokens.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import KeyvRedis from '@keyv/redis';
 import { JwtModule } from '@nestjs/jwt';
@@ -35,8 +34,7 @@ import { JwtModule } from '@nestjs/jwt';
     }),
     UsersModule,
     DoctorsModule,
-    CatalogsModule,
-    FcmTokensModule
+    CatalogsModule
   ],
   controllers: [AppController],
   providers: [AppService],

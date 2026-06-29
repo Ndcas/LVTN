@@ -10,6 +10,7 @@ service UserService {
   rpc Logout(LogoutRequest) returns (BaseResponse) {}
   rpc GetForgotPasswordOtp(GetForgotPasswordOtpRequest) returns (BaseResponse) {}
   rpc ForgotPassword(ForgotPasswordRequest) returns (BaseResponse) {}
+  rpc UpdateFcmToken(UpdateFcmTokenRequest) returns (BaseResponse) {}
 }
 
 message PingRequest {}
@@ -36,8 +37,8 @@ message RegisterRequest {
   string phone = 3;
   string fullName = 4;
   string gender = 5;
-  string dob = 6;
-  string address = 7;
+  optional string dob = 6;
+  optional string address = 7;
   string otp = 8;
   string correlationId = 9;
 }
@@ -46,6 +47,9 @@ message LoginRequest {
   string email = 1;
   string password = 2;
   string correlationId = 3;
+  optional string deviceId = 4;
+  optional string fcmToken = 5;
+  optional string deviceName = 6;
 }
 
 message RefreshRequest {
@@ -68,6 +72,14 @@ message ForgotPasswordRequest {
   string otp = 2;
   string password = 3;
   string correlationId = 4;
+}
+
+message UpdateFcmTokenRequest {
+  int32 userId = 1;
+  optional string deviceId = 2;
+  optional string fcmToken = 3;
+  optional string deviceName = 4;
+  string correlationId = 5;
 }
 
 message AuthResponse {

@@ -140,6 +140,12 @@ export class UsersService {
       };
     }
 
+    user.deviceId = data.deviceId || null;
+    user.fcmToken = data.fcmToken || null;
+    user.deviceName = data.deviceName || null;
+
+    await this.userRepository.save(user);
+
     const payload = {
       userId: user.id,
       fullName: user.fullName,
@@ -220,6 +226,12 @@ export class UsersService {
         secret: this.configService.get<string>('JWT_REFRESH_SECRET')
       });
       await this.cacheManager.del(`RT_${payload.userId}`);
+
+      await this.userRepository.update(payload.userId, {
+        deviceId: null,
+        fcmToken: null,
+        deviceName: null
+      });
     } catch (e) { }
 
     return {
@@ -306,6 +318,22 @@ export class UsersService {
       ok: true,
       status: 200,
       message: 'Đặt lại mật khẩu thành công'
+    };
+  }
+
+  async updateFcmToken(data: any): Promise<any> {
+    const { userId, deviceId, fcmToken, deviceName } = data;
+
+    await this.userRepository.update(userId, {
+      deviceId: deviceId || null,
+      fcmToken: fcmToken || null,
+      deviceName: deviceName || null
+    });
+
+    return {
+      ok: true,
+      status: 200,
+      message: 'Cập nhật FCM Token thành công'
     };
   }
 }

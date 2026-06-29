@@ -1,4 +1,4 @@
-import { Controller, Post, Body, HttpStatus, Req, Inject, HttpException, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Req, Inject, HttpException, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import type { Request } from 'express';
 import { ClientProxy } from '@nestjs/microservices';
@@ -8,6 +8,7 @@ import { RefreshDto } from './dto/refresh.dto';
 import { RefreshGuard } from 'src/guards/refresh.guard';
 import { GetOtpDto } from './dto/getotp.dto';
 import { ForgotPasswordDto } from './dto/forgotpassword.dto';
+import { UpdateFcmTokenDto } from './dto/update-fcm.dto';
 
 @Controller('users')
 export class UsersController {
@@ -145,17 +146,18 @@ export class UsersController {
 
   /**
    * Đăng xuất và đưa token vào Blacklist
-   * @param {Request} req - Request object chứa refresh token trong authorization header
+   * @param {Object} body - Dữ liệu yêu cầu
+   * @param {string} body.refreshToken - Refresh token cũ hợp lệ
+   * @param {Request} req - Request object để lấy headers
    */
   @Post('logout')
-  async logout(@Req() req: Request) {
+  @UseGuards(RefreshGuard)
+  async logout(@Body() body: RefreshDto, @Req() req: Request) {
     const correlationId = req.headers['correlation-id'] as string;
 
     this.processLog('Logout', correlationId, 'Nhận được yêu cầu đăng xuất');
 
-    const refreshToken = req.body.refreshToken;
-
-    const result = await this.usersService.logout({ refreshToken, correlationId });
+    const result = await this.usersService.logout({ ...body, correlationId });
 
     if (!result.ok) {
       this.processLog('Logout', correlationId, `Không thành công ${result.error}`, 'warn');
@@ -220,6 +222,36 @@ export class UsersController {
     }
 
     this.processLog('ForgotPassword', correlationId, 'Thành công');
+
+    const { ok, status, error, ...data } = result;
+
+    return data;
+  }
+
+  /**
+   * Cập nhật FCM token
+   * @param {Object} body - Dữ liệu yêu cầu
+   * @param {string} body.deviceId - ID thiết bị
+   * @param {string} body.fcmToken - FCM token
+   * @param {string} body.deviceName - Tên thiết bị
+   * @param {Request} req - Request object để lấy headers
+   */
+  @Post('update-fcm-token')
+  async updateFcmToken(@Body() body: UpdateFcmTokenDto, @Req() req: any) {
+    const correlationId = req.headers['correlation-id'] as string;
+    const userId = req.user.userId;
+
+    this.processLog('UpdateFcmToken', correlationId, 'Nhận được yêu cầu cập nhật FCM token');
+
+    const result = await this.usersService.updateFcmToken({ ...body, userId, correlationId });
+
+    if (!result.ok) {
+      this.processLog('UpdateFcmToken', correlationId, `Không thành công ${result.error}`, 'warn');
+
+      throw new HttpException(result.error, result.status);
+    }
+
+    this.processLog('UpdateFcmToken', correlationId, 'Thành công');
 
     const { ok, status, error, ...data } = result;
 
