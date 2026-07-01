@@ -21,11 +21,11 @@ export class RegisterDto {
 
   @IsOptional()
   @IsDateString({}, { message: 'Ngày sinh không hợp lệ' })
-  dob: string;
+  dob?: string;
 
   @IsOptional()
   @IsString({ message: 'Địa chỉ không hợp lệ' })
-  address: string;
+  address?: string;
 
   @IsNumberString({}, { message: 'Mã OTP không hợp lệ' })
   @MinLength(6, { message: 'Mã OTP không hợp lệ' })

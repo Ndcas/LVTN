@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 /**
  * Axios instance chính — tự gắn Bearer token và tự refresh khi 401.
@@ -31,6 +31,7 @@ const processQueue = (error: unknown, token: string | null = null) => {
       prom.resolve(token!);
     }
   });
+
   failedQueue = [];
 };
 
@@ -38,9 +39,11 @@ const processQueue = (error: unknown, token: string | null = null) => {
 api.interceptors.request.use(
   (config) => {
     const accessToken = localStorage.getItem('accessToken');
+
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
+
     return config;
   },
   (error) => Promise.reject(error)
@@ -60,9 +63,13 @@ api.interceptors.response.use(
     // Nếu request refresh chính nó bị 401 → logout
     if (originalRequest.url?.includes('/users/refresh')) {
       localStorage.removeItem('accessToken');
+
       localStorage.removeItem('refreshToken');
+
       localStorage.removeItem('user');
+
       window.location.href = '/login';
+
       return Promise.reject(error);
     }
 
@@ -72,9 +79,10 @@ api.interceptors.response.use(
         failedQueue.push({
           resolve: (token: string) => {
             originalRequest.headers.Authorization = `Bearer ${token}`;
+
             resolve(api(originalRequest));
           },
-          reject,
+          reject
         });
       });
     }
@@ -86,20 +94,21 @@ api.interceptors.response.use(
 
     if (!refreshToken) {
       localStorage.removeItem('accessToken');
+
       localStorage.removeItem('user');
+
       window.location.href = '/login';
+
       return Promise.reject(error);
     }
 
     try {
-      const { data } = await axios.post(`${API_BASE_URL}/users/refresh`, {
-        refreshToken,
-      });
-
+      const { data } = await axios.post(`${API_BASE_URL}/users/refresh`, { refreshToken });
       const newAccessToken = data.accessToken;
       const newRefreshToken = data.refreshToken;
 
       localStorage.setItem('accessToken', newAccessToken);
+
       localStorage.setItem('refreshToken', newRefreshToken);
 
       api.defaults.headers.common.Authorization = `Bearer ${newAccessToken}`;
@@ -110,10 +119,16 @@ api.interceptors.response.use(
       return api(originalRequest);
     } catch (refreshError) {
       processQueue(refreshError, null);
+
       localStorage.removeItem('accessToken');
+
       localStorage.removeItem('refreshToken');
+
+
       localStorage.removeItem('user');
+
       window.location.href = '/login';
+
       return Promise.reject(refreshError);
     } finally {
       isRefreshing = false;

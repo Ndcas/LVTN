@@ -19,7 +19,14 @@ export const AuthContext = createContext<AuthContextType | null>(null);
 function decodeJwtPayload(token: string): Record<string, unknown> | null {
   try {
     const base64 = token.split('.')[1];
-    const json = atob(base64.replace(/-/g, '+').replace(/_/g, '/'));
+    const binary = atob(base64.replace(/-/g, '+').replace(/_/g, '/'));
+    const bytes = new Uint8Array(binary.length);
+
+    for (let i = 0; i < binary.length; i++) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+
+    const json = new TextDecoder('utf-8').decode(bytes);
 
     return JSON.parse(json);
   } catch {
@@ -37,7 +44,7 @@ function isTokenValid(token: string): boolean {
     return false;
   }
 
-  return payload.exp * 1000 > Date.now() + 30_000;
+  return payload.exp * 1000 > Date.now() + 30000;
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {

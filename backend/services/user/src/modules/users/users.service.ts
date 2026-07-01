@@ -165,8 +165,7 @@ export class UsersService {
       status: 200,
       message: 'Đăng nhập thành công',
       accessToken,
-      refreshToken,
-      role: user.roleId
+      refreshToken
     };
   }
 
@@ -215,8 +214,7 @@ export class UsersService {
       status: 200,
       message: 'Cấp lại token thành công',
       accessToken: newAccessToken,
-      refreshToken: data.refreshToken,
-      role: payload.roleId
+      refreshToken: data.refreshToken
     };
   }
 
