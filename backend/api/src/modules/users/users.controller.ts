@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Req, Inject, HttpException, UseGuards } from '@nestjs/common';
+import { Controller, Post, Get, Patch, Body, Req, Param, Query, Inject, HttpException, UseGuards, ParseIntPipe } from '@nestjs/common';
 import { UsersService } from './users.service';
 import type { Request } from 'express';
 import { ClientProxy } from '@nestjs/microservices';
@@ -6,9 +6,12 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { RefreshDto } from './dto/refresh.dto';
 import { RefreshGuard } from 'src/guards/refresh.guard';
+import { AccessGuard } from 'src/guards/access.guard';
+import { Roles } from 'src/decorators/roles.decorator';
 import { GetOtpDto } from './dto/getotp.dto';
 import { ForgotPasswordDto } from './dto/forgotpassword.dto';
 import { UpdateFcmTokenDto } from './dto/update-fcm.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('users')
 export class UsersController {
@@ -252,6 +255,177 @@ export class UsersController {
     }
 
     this.processLog('UpdateFcmToken', correlationId, 'Thành công');
+
+    const { ok, status, error, ...data } = result;
+
+    return data;
+  }
+
+  /**
+   * Lấy danh sách users (phân trang, search, filter)
+   * @param {number} page - Trang hiện tại
+   * @param {number} limit - Số bản ghi mỗi trang
+   * @param {string} search - Tìm kiếm theo tên, email, SĐT
+   * @param {number} roleId - Lọc theo role
+   * @param {string} isActive - Lọc theo trạng thái ('0', '1')
+   * @param {Request} req - Request object để lấy headers
+   */
+  @Get('list')
+  @UseGuards(AccessGuard)
+  @Roles(['Admin'])
+  async getAllUsers(
+    @Query('page') page: string,
+    @Query('limit') limit: string,
+    @Query('search') search: string,
+    @Query('roleId') roleId: string,
+    @Query('isActive') isActive: string,
+    @Req() req: Request
+  ) {
+    const correlationId = req.headers['correlation-id'] as string;
+
+    this.processLog('GetAllUsers', correlationId, 'Nhận được yêu cầu lấy danh sách users');
+
+    const result = await this.usersService.getAllUsers({
+      page: parseInt(page) || 1,
+      limit: parseInt(limit) || 10,
+      search: search || undefined,
+      roleId: roleId ? parseInt(roleId) : undefined,
+      isActive: isActive || undefined,
+      correlationId,
+    });
+
+    if (!result.ok) {
+      this.processLog('GetAllUsers', correlationId, `Không thành công ${result.error}`, 'warn');
+
+      throw new HttpException(result.error, result.status);
+    }
+
+    this.processLog('GetAllUsers', correlationId, 'Thành công');
+
+    const { ok, status, error, ...data } = result;
+
+    return data;
+  }
+
+  /**
+   * Lấy thông tin cá nhân của người dùng đang đăng nhập
+   * @param {Request} req - Request object để lấy headers
+   */
+  @Get('me')
+  @UseGuards(AccessGuard)
+  async getMyProfile(@Req() req: any) {
+    const correlationId = req.headers['correlation-id'] as string;
+    const userId = req.user.userId;
+    const roleId = req.user.roleId;
+
+    this.processLog('GetMyProfile', correlationId, 'Nhận được yêu cầu lấy thông tin cá nhân');
+
+    let result;
+
+    if (roleId === 3) {
+      result = await this.usersService.getDoctorById({ id: userId, correlationId });
+    } else {
+      result = await this.usersService.getUserById({ id: userId, correlationId });
+    }
+
+    if (!result.ok) {
+      this.processLog('GetMyProfile', correlationId, `Không thành công ${result.error}`, 'warn');
+
+      throw new HttpException(result.error, result.status);
+    }
+
+    this.processLog('GetMyProfile', correlationId, 'Thành công');
+
+    const { ok, status, error, ...data } = result;
+
+    return data;
+  }
+
+  /**
+   * Lấy thông tin chi tiết user theo ID
+   * @param {number} id - ID của user
+   * @param {Request} req - Request object để lấy headers
+   */
+  @Get(':id')
+  @UseGuards(AccessGuard)
+  @Roles(['Admin'])
+  async getUserById(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
+    const correlationId = req.headers['correlation-id'] as string;
+
+    this.processLog('GetUserById', correlationId, 'Nhận được yêu cầu lấy thông tin user');
+
+    const result = await this.usersService.getUserById({ id, correlationId });
+
+    if (!result.ok) {
+      this.processLog('GetUserById', correlationId, `Không thành công ${result.error}`, 'warn');
+
+      throw new HttpException(result.error, result.status);
+    }
+
+    this.processLog('GetUserById', correlationId, 'Thành công');
+
+    const { ok, status, error, ...data } = result;
+
+    return data;
+  }
+
+  /**
+   * Cập nhật thông tin user
+   * @param {number} id - ID của user
+   * @param {Object} body - Dữ liệu cập nhật (partial)
+   * @param {string} [body.phone] - Số điện thoại
+   * @param {string} [body.email] - Email
+   * @param {string} [body.fullName] - Họ tên
+   * @param {string} [body.gender] - Giới tính ('MALE', 'FEMALE', 'OTHER')
+   * @param {string} [body.dob] - Ngày sinh
+   * @param {string} [body.address] - Địa chỉ
+   * @param {Request} req - Request object để lấy headers
+   */
+  @Patch(':id')
+  @UseGuards(AccessGuard)
+  @Roles(['Admin'])
+  async updateUser(@Param('id', ParseIntPipe) id: number, @Body() body: UpdateUserDto, @Req() req: Request) {
+    const correlationId = req.headers['correlation-id'] as string;
+
+    this.processLog('UpdateUser', correlationId, 'Nhận được yêu cầu cập nhật user');
+
+    const result = await this.usersService.updateUser({ id, ...body, correlationId });
+
+    if (!result.ok) {
+      this.processLog('UpdateUser', correlationId, `Không thành công ${result.error}`, 'warn');
+
+      throw new HttpException(result.error, result.status);
+    }
+
+    this.processLog('UpdateUser', correlationId, 'Thành công');
+
+    const { ok, status, error, ...data } = result;
+
+    return data;
+  }
+
+  /**
+   * Bật/Tắt trạng thái active của user
+   * @param {number} id - ID của user
+   * @param {Request} req - Request object để lấy headers
+   */
+  @Patch(':id/toggle-active')
+  @UseGuards(AccessGuard)
+  @Roles(['Admin'])
+  async toggleUserActive(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
+    const correlationId = req.headers['correlation-id'] as string;
+
+    this.processLog('ToggleUserActive', correlationId, 'Nhận được yêu cầu thay đổi trạng thái user');
+
+    const result = await this.usersService.toggleUserActive({ id, correlationId });
+
+    if (!result.ok) {
+      this.processLog('ToggleUserActive', correlationId, `Không thành công ${result.error}`, 'warn');
+
+      throw new HttpException(result.error, result.status);
+    }
+
+    this.processLog('ToggleUserActive', correlationId, 'Thành công');
 
     const { ok, status, error, ...data } = result;
 

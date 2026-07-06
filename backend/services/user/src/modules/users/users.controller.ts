@@ -16,7 +16,7 @@ export class UsersController {
       message: `${action} ${info}`,
       service: 'user_service',
       correlationID: correlationId,
-      timestamp: new Date().toISOString(),
+      timestamp: new Date().toISOString()
     });
   }
 
@@ -42,7 +42,7 @@ export class UsersController {
       return {
         ok: false,
         status: 500,
-        error: 'Lỗi hệ thống',
+        error: 'Lỗi hệ thống'
       };
     }
   }
@@ -76,7 +76,7 @@ export class UsersController {
       return {
         ok: false,
         status: 500,
-        error: 'Lỗi hệ thống',
+        error: 'Lỗi hệ thống'
       };
     }
   }
@@ -104,7 +104,7 @@ export class UsersController {
       return {
         ok: false,
         status: 500,
-        error: 'Lỗi hệ thống',
+        error: 'Lỗi hệ thống'
       };
     }
   }
@@ -131,7 +131,7 @@ export class UsersController {
       return {
         ok: false,
         status: 500,
-        error: 'Lỗi hệ thống',
+        error: 'Lỗi hệ thống'
       };
     }
   }
@@ -158,7 +158,7 @@ export class UsersController {
       return {
         ok: false,
         status: 500,
-        error: 'Lỗi hệ thống',
+        error: 'Lỗi hệ thống'
       };
     }
   }
@@ -185,7 +185,7 @@ export class UsersController {
       return {
         ok: false,
         status: 500,
-        error: 'Lỗi hệ thống',
+        error: 'Lỗi hệ thống'
       };
     }
   }
@@ -214,7 +214,7 @@ export class UsersController {
       return {
         ok: false,
         status: 500,
-        error: 'Lỗi hệ thống',
+        error: 'Lỗi hệ thống'
       };
     }
   }
@@ -244,7 +244,125 @@ export class UsersController {
       return {
         ok: false,
         status: 500,
-        error: 'Lỗi hệ thống',
+        error: 'Lỗi hệ thống'
+      };
+    }
+  }
+
+  /**
+   * Lấy danh sách tất cả users (phân trang + filter) qua gRPC
+   * @param {Object} data - Dữ liệu yêu cầu
+   * @param {number} data.page - Trang hiện tại
+   * @param {number} data.limit - Số bản ghi mỗi trang
+   * @param {string} data.search - Tìm kiếm theo tên, email, SĐT
+   * @param {number} data.roleId - Lọc theo role
+   * @param {string} data.isActive - Lọc theo trạng thái ('0', '1')
+   * @param {string} data.correlationId - ID theo dõi request
+   */
+  @GrpcMethod('UserService', 'GetAllUsers')
+  async getAllUsers(data: any) {
+    try {
+      this.processLog('GetAllUsers', data.correlationId, 'Nhận được yêu cầu lấy danh sách users');
+
+      const result = await this.usersService.getAll(data);
+
+      this.processLog('GetAllUsers', data.correlationId, 'Kết thúc xử lý lấy danh sách users');
+
+      return result;
+    } catch (e) {
+      this.processLog('GetAllUsers', data.correlationId, `Lỗi khi xử lý lấy danh sách users: ${e}`, 'error');
+
+      return {
+        ok: false,
+        status: 500,
+        error: 'Lỗi hệ thống'
+      };
+    }
+  }
+
+  /**
+   * Lấy thông tin chi tiết user theo ID qua gRPC
+   * @param {Object} data - Dữ liệu yêu cầu
+   * @param {number} data.id - ID của user
+   * @param {string} data.correlationId - ID theo dõi request
+   */
+  @GrpcMethod('UserService', 'GetUserById')
+  async getUserById(data: any) {
+    try {
+      this.processLog('GetUserById', data.correlationId, 'Nhận được yêu cầu lấy thông tin user');
+
+      const result = await this.usersService.getById(data);
+
+      this.processLog('GetUserById', data.correlationId, 'Kết thúc xử lý lấy thông tin user');
+
+      return result;
+    } catch (e) {
+      this.processLog('GetUserById', data.correlationId, `Lỗi khi xử lý lấy thông tin user: ${e}`, 'error');
+
+      return {
+        ok: false,
+        status: 500,
+        error: 'Lỗi hệ thống'
+      };
+    }
+  }
+
+  /**
+   * Cập nhật thông tin user qua gRPC
+   * @param {Object} data - Dữ liệu yêu cầu
+   * @param {number} data.id - ID của user
+   * @param {string} data.phone - Số điện thoại mới
+   * @param {string} data.email - Email mới
+   * @param {string} data.fullName - Họ tên mới
+   * @param {string} data.gender - Giới tính mới
+   * @param {string} data.dob - Ngày sinh mới
+   * @param {string} data.address - Địa chỉ mới
+   * @param {string} data.correlationId - ID theo dõi request
+   */
+  @GrpcMethod('UserService', 'UpdateUser')
+  async updateUser(data: any) {
+    try {
+      this.processLog('UpdateUser', data.correlationId, 'Nhận được yêu cầu cập nhật user');
+
+      const result = await this.usersService.updateUser(data);
+
+      this.processLog('UpdateUser', data.correlationId, 'Kết thúc xử lý cập nhật user');
+
+      return result;
+    } catch (e) {
+      this.processLog('UpdateUser', data.correlationId, `Lỗi khi xử lý cập nhật user: ${e}`, 'error');
+
+      return {
+        ok: false,
+        status: 500,
+        error: 'Lỗi hệ thống'
+      };
+    }
+  }
+
+  /**
+   * Bật/Tắt trạng thái active của user qua gRPC
+   * @param {Object} data - Dữ liệu yêu cầu
+   * @param {number} data.id - ID của user
+   * @param {string} data.correlationId - ID theo dõi request
+   */
+  @GrpcMethod('UserService', 'ToggleUserActive')
+  async toggleUserActive(data: any) {
+    try {
+      this.processLog('ToggleUserActive', data.correlationId, 'Nhận được yêu cầu thay đổi trạng thái user');
+
+      const result = await this.usersService.toggleActive(data);
+
+      this.processLog('ToggleUserActive', data.correlationId, 'Kết thúc xử lý thay đổi trạng thái user');
+
+      return result;
+    } catch (e) {
+      this.processLog('ToggleUserActive', data.correlationId, `Lỗi khi xử lý thay đổi trạng thái user: ${e}`, 'error');
+
+      return {
+        ok: false,
+        status: 500,
+        error: 'Lỗi hệ thống'
       };
     }
   }

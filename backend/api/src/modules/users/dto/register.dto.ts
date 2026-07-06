@@ -9,14 +9,14 @@ export class RegisterDto {
   password: string;
 
   @IsString()
-  @Matches(/(84|0[3|5|7|8|9])+([0-9]{8})\b/, { message: 'Số điện thoại không hợp lệ' })
+  @Matches(/^(84|0)\d{9}$/, { message: 'Số điện thoại không hợp lệ' })
   phone: string;
 
   @IsString()
   @IsNotEmpty({ message: 'Họ tên không được để trống' })
   fullName: string;
 
-  @IsIn(['MALE', 'FEMALE', 'OTHER'])
+  @IsIn(['MALE', 'FEMALE', 'OTHER'], { message: 'Giới tính không hợp lệ' })
   gender: string;
 
   @IsOptional()

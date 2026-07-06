@@ -1,0 +1,49 @@
+import { IsEmail, IsOptional, IsString, IsInt, Matches, IsIn, IsDateString, Min } from 'class-validator';
+
+export class UpdateDoctorDto {
+  @IsOptional()
+  @IsString()
+  @Matches(/^(84|0)\d{9}$/, { message: 'Số điện thoại không hợp lệ' })
+  phone?: string;
+
+  @IsOptional()
+  @IsEmail({}, { message: 'Email không hợp lệ' })
+  email?: string;
+
+  @IsOptional()
+  @IsString()
+  fullName?: string;
+
+  @IsOptional()
+  @IsIn(['MALE', 'FEMALE', 'OTHER'], { message: 'Giới tính không hợp lệ' })
+  gender?: string;
+
+  @IsOptional()
+  @IsDateString({}, { message: 'Ngày sinh không hợp lệ' })
+  dob?: string;
+
+  @IsOptional()
+  @IsString()
+  address?: string;
+
+  @IsOptional()
+  @IsInt({ message: 'ID chuyên khoa phải là số nguyên' })
+  specialtyId?: number;
+
+  @IsOptional()
+  @IsInt({ message: 'ID bằng cấp phải là số nguyên' })
+  degreeId?: number;
+
+  @IsOptional()
+  @IsInt({ message: 'Số năm kinh nghiệm phải là số nguyên' })
+  @Min(0, { message: 'Số năm kinh nghiệm phải lớn hơn hoặc bằng 0' })
+  experienceYears?: number;
+
+  @IsOptional()
+  @IsString()
+  biography?: string;
+
+  @IsOptional()
+  @IsIn(['ONLINE', 'OFFLINE', 'BOTH'], { message: 'Loại hình khám không hợp lệ' })
+  workType?: string;
+}

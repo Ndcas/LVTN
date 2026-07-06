@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Heart, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
@@ -32,22 +32,29 @@ export default function Login() {
     }
 
     setErrors(newErrors);
+
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validate()) return;
+
+    if (!validate()) {
+      return;
+    }
 
     setIsSubmitting(true);
+
     try {
       await login(email, password);
+
       toast.success('Đăng nhập thành công');
 
-      // Lấy user info từ localStorage (vừa được set bởi login)
       const storedUser = localStorage.getItem('user');
+
       if (storedUser) {
         const user = JSON.parse(storedUser);
+
         if (user.roleId === Role.Nurse) {
           navigate('/payment/invoices', { replace: true });
         } else {
@@ -56,11 +63,10 @@ export default function Login() {
       } else {
         navigate('/', { replace: true });
       }
-    } catch (err: unknown) {
-      const message =
-        (err as { response?: { data?: string } })?.response?.data ||
-        'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.';
-      toast.error(message as string);
+    } catch (err: any) {
+      const message = err?.response?.data?.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.';
+
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -86,11 +92,14 @@ export default function Login() {
               id="login-email"
               type="email"
               className={`form-input${errors.email ? ' error' : ''}`}
-              placeholder="admin@clinic.com"
+              placeholder="Nhập email của bạn"
               value={email}
               onChange={(e) => {
                 setEmail(e.target.value);
-                if (errors.email) setErrors((prev) => ({ ...prev, email: undefined }));
+
+                if (errors.email) {
+                  setErrors((prev) => ({ ...prev, email: undefined }))
+                }
               }}
               autoComplete="email"
               autoFocus
@@ -111,8 +120,10 @@ export default function Login() {
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);
-                  if (errors.password)
-                    setErrors((prev) => ({ ...prev, password: undefined }));
+
+                  if (errors.password) {
+                    setErrors((prev) => ({ ...prev, password: undefined }))
+                  }
                 }}
                 autoComplete="current-password"
               />

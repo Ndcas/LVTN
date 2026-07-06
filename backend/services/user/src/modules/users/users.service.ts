@@ -1,10 +1,10 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import type { Cache } from 'cache-manager';
+import { type Cache } from 'cache-manager';
 import bcrypt from 'bcrypt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, Not } from 'typeorm';
 import { User } from './entities/user.entity';
 import { ConfigService } from '@nestjs/config';
 import { MailService } from '../mail/mail.service';
@@ -16,7 +16,7 @@ export class UsersService {
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     private readonly jwtService: JwtService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
-    private readonly mailService: MailService,
+    private readonly mailService: MailService
   ) { }
 
   async getRegisterOtp(data: any): Promise<any> {
@@ -332,6 +332,205 @@ export class UsersService {
       ok: true,
       status: 200,
       message: 'Cập nhật FCM Token thành công'
+    };
+  }
+
+  async getAll(data: any): Promise<any> {
+    const { page = 1, limit = 10, search, roleId, isActive } = data;
+    const skip = (page - 1) * limit;
+
+    const qb = this.userRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.role', 'role')
+      .select([
+        'user.id',
+        'user.roleId',
+        'user.phone',
+        'user.email',
+        'user.isActive',
+        'user.fullName',
+        'user.gender',
+        'user.dob',
+        'user.address',
+        'user.createdAt',
+        'role.name'
+      ]);
+
+    if (search) {
+      qb.andWhere(
+        '(user.fullName LIKE :search OR user.email LIKE :search OR user.phone LIKE :search)',
+        { search: `%${search}%` }
+      );
+    }
+
+    if (roleId) {
+      qb.andWhere('user.roleId = :roleId', { roleId });
+    }
+
+    if (isActive != undefined && isActive != null && isActive != '') {
+      qb.andWhere('user.isActive = :isActive', { isActive });
+    }
+
+    qb.orderBy('user.createdAt', 'DESC').skip(skip).take(limit);
+
+    const [users, total] = await qb.getManyAndCount();
+
+    return {
+      ok: true,
+      status: 200,
+      data: users.map(u => ({
+        id: u.id,
+        roleId: u.roleId,
+        roleName: u.role?.name || '',
+        phone: u.phone,
+        email: u.email,
+        isActive: u.isActive,
+        fullName: u.fullName,
+        gender: u.gender,
+        dob: u.dob ? u.dob.toString() : '',
+        address: u.address || '',
+        createdAt: u.createdAt.toISOString()
+      })),
+      total,
+      page,
+      limit
+    };
+  }
+
+  async getById(data: any): Promise<any> {
+    const user = await this.userRepository.findOne({
+      where: { id: data.id },
+      relations: { role: true }
+    });
+
+    if (!user) {
+      return {
+        ok: false,
+        status: 404,
+        error: 'Người dùng không tồn tại'
+      };
+    }
+
+    return {
+      ok: true,
+      status: 200,
+      data: {
+        id: user.id,
+        roleId: user.roleId,
+        roleName: user.role?.name || '',
+        phone: user.phone,
+        email: user.email,
+        isActive: user.isActive,
+        fullName: user.fullName,
+        gender: user.gender,
+        dob: user.dob ? user.dob.toString() : '',
+        address: user.address || '',
+        createdAt: user.createdAt.toISOString()
+      }
+    };
+  }
+
+  async updateUser(data: any): Promise<any> {
+    const user = await this.userRepository.findOne({
+      where: { id: data.id }
+    });
+
+    if (!user) {
+      return {
+        ok: false,
+        status: 404,
+        error: 'Người dùng không tồn tại'
+      };
+    }
+
+    if (data.email && data.email != user.email) {
+      const emailExists = await this.userRepository.exists({
+        where: {
+          email: data.email,
+          id: Not(data.id)
+        }
+      });
+
+      if (emailExists) {
+        return {
+          ok: false,
+          status: 400,
+          error: 'Email đã được sử dụng'
+        };
+      }
+
+      user.email = data.email;
+    }
+
+    if (data.phone && data.phone != user.phone) {
+      const phoneExists = await this.userRepository.exists({
+        where: {
+          phone: data.phone,
+          id: Not(data.id)
+        }
+      });
+
+      if (phoneExists) {
+        return {
+          ok: false,
+          status: 400,
+          error: 'Số điện thoại đã được sử dụng'
+        };
+      }
+
+      user.phone = data.phone;
+    }
+
+    if (data.fullName) {
+      user.fullName = data.fullName;
+    }
+
+    if (data.gender) {
+      user.gender = data.gender;
+    }
+
+    if (data.dob != undefined) {
+      user.dob = data.dob ? new Date(data.dob) : null;
+    }
+
+    if (data.address != undefined) {
+      user.address = data.address || null;
+    }
+
+    await this.userRepository.save(user);
+
+    await this.cacheManager.del(`RT_${user.id}`);
+
+    return {
+      ok: true,
+      status: 200,
+      message: 'Cập nhật người dùng thành công'
+    };
+  }
+
+  async toggleActive(data: any): Promise<any> {
+    const user = await this.userRepository.findOne({
+      where: { id: data.id }
+    });
+
+    if (!user) {
+      return {
+        ok: false,
+        status: 404,
+        error: 'Người dùng không tồn tại'
+      };
+    }
+
+    user.isActive = user.isActive === '1' ? '0' : '1';
+
+    await this.userRepository.save(user);
+
+    await this.cacheManager.del(`RT_${user.id}`);
+
+    return {
+      ok: true,
+      status: 200,
+      message: 'Cập nhật trạng thái thành công'
     };
   }
 }

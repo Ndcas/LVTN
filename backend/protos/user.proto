@@ -3,6 +3,8 @@ syntax = "proto3";
 package user;
 
 service UserService {
+
+  // === Auth ===
   rpc GetRegisterOtp(GetRegisterOtpRequest) returns (BaseResponse) {}
   rpc Register(RegisterRequest) returns (BaseResponse) {}
   rpc Login(LoginRequest) returns (AuthResponse) {}
@@ -11,12 +13,33 @@ service UserService {
   rpc GetForgotPasswordOtp(GetForgotPasswordOtpRequest) returns (BaseResponse) {}
   rpc ForgotPassword(ForgotPasswordRequest) returns (BaseResponse) {}
   rpc UpdateFcmToken(UpdateFcmTokenRequest) returns (BaseResponse) {}
+
+  // === CRUD Users ===
+  rpc GetAllUsers(GetAllUsersRequest) returns (UserListResponse) {}
+  rpc GetUserById(GetByIdRequest) returns (UserDetailResponse) {}
+  rpc UpdateUser(UpdateUserRequest) returns (BaseResponse) {}
+  rpc ToggleUserActive(GetByIdRequest) returns (BaseResponse) {}
+
+  // === CRUD Doctors ===
+  rpc GetAllDoctors(GetAllDoctorsRequest) returns (DoctorListResponse) {}
+  rpc GetDoctorById(GetByIdRequest) returns (DoctorDetailResponse) {}
+  rpc CreateDoctor(CreateDoctorRequest) returns (BaseResponse) {}
+  rpc UpdateDoctor(UpdateDoctorRequest) returns (BaseResponse) {}
+
+  // === Catalogs ===
+  rpc GetAllSpecialties(EmptyRequest) returns (SpecialtyListResponse) {}
+  rpc CreateSpecialty(CreateSpecialtyRequest) returns (BaseResponse) {}
+  rpc UpdateSpecialty(UpdateSpecialtyRequest) returns (BaseResponse) {}
+  rpc GetAllDegrees(EmptyRequest) returns (DegreeListResponse) {}
+  rpc CreateDegree(CreateDegreeRequest) returns (BaseResponse) {}
+  rpc UpdateDegree(UpdateDegreeRequest) returns (BaseResponse) {}
+  rpc GetAllRoles(EmptyRequest) returns (RoleListResponse) {}
 }
 
-message PingRequest {}
+// === Common Messages ===
 
-message PingResponse {
-  string message = 1;
+message EmptyRequest {
+  string correlationId = 1;
 }
 
 message BaseResponse {
@@ -25,6 +48,13 @@ message BaseResponse {
   string error = 3;
   string message = 4;
 }
+
+message GetByIdRequest {
+  int32 id = 1;
+  string correlationId = 2;
+}
+
+// === Auth Messages ===
 
 message GetRegisterOtpRequest {
   string email = 1;
@@ -89,4 +119,211 @@ message AuthResponse {
   string message = 4;
   string accessToken = 5;
   string refreshToken = 6;
+}
+
+// === User CRUD Messages ===
+
+message GetAllUsersRequest {
+  int32 page = 1;
+  int32 limit = 2;
+  optional string search = 3;
+  optional int32 roleId = 4;
+  optional string isActive = 5;
+  string correlationId = 6;
+}
+
+message UserItem {
+  int32 id = 1;
+  int32 roleId = 2;
+  string roleName = 3;
+  string phone = 4;
+  string email = 5;
+  string isActive = 6;
+  string fullName = 7;
+  string gender = 8;
+  string dob = 9;
+  string address = 10;
+  string createdAt = 11;
+}
+
+message UserListResponse {
+  bool ok = 1;
+  int32 status = 2;
+  string error = 3;
+  repeated UserItem data = 4;
+  int32 total = 5;
+  int32 page = 6;
+  int32 limit = 7;
+}
+
+message UserDetailResponse {
+  bool ok = 1;
+  int32 status = 2;
+  string error = 3;
+  UserItem data = 4;
+}
+
+message UpdateUserRequest {
+  int32 id = 1;
+  optional string phone = 2;
+  optional string email = 3;
+  optional string fullName = 4;
+  optional string gender = 5;
+  optional string dob = 6;
+  optional string address = 7;
+  string correlationId = 8;
+}
+
+// === Doctor CRUD Messages ===
+
+message GetAllDoctorsRequest {
+  int32 page = 1;
+  int32 limit = 2;
+  optional string search = 3;
+  optional int32 specialtyId = 4;
+  optional string isActive = 5;
+  string correlationId = 6;
+}
+
+message DoctorItem {
+  int32 id = 1;
+  string fullName = 2;
+  string phone = 3;
+  string email = 4;
+  string gender = 5;
+  string isActive = 6;
+  string dob = 7;
+  string address = 8;
+  int32 specialtyId = 9;
+  string specialtyName = 10;
+  int32 degreeId = 11;
+  string degreeName = 12;
+  int32 experienceYears = 13;
+  string biography = 14;
+  string workType = 15;
+  string createdAt = 16;
+}
+
+message DoctorListResponse {
+  bool ok = 1;
+  int32 status = 2;
+  string error = 3;
+  repeated DoctorItem data = 4;
+  int32 total = 5;
+  int32 page = 6;
+  int32 limit = 7;
+}
+
+message DoctorDetailResponse {
+  bool ok = 1;
+  int32 status = 2;
+  string error = 3;
+  DoctorItem data = 4;
+}
+
+message CreateDoctorRequest {
+  string email = 1;
+  string password = 2;
+  string phone = 3;
+  string fullName = 4;
+  string gender = 5;
+  optional string dob = 6;
+  optional string address = 7;
+  int32 specialtyId = 8;
+  int32 degreeId = 9;
+  int32 experienceYears = 10;
+  optional string biography = 11;
+  optional string workType = 12;
+  string correlationId = 13;
+}
+
+message UpdateDoctorRequest {
+  int32 id = 1;
+  optional string phone = 2;
+  optional string email = 3;
+  optional string fullName = 4;
+  optional string gender = 5;
+  optional string dob = 6;
+  optional string address = 7;
+  optional int32 specialtyId = 8;
+  optional int32 degreeId = 9;
+  optional int32 experienceYears = 10;
+  optional string biography = 11;
+  optional string workType = 12;
+  string correlationId = 13;
+}
+
+// === Catalog Messages ===
+
+message SpecialtyItem {
+  int32 id = 1;
+  string name = 2;
+  string code = 3;
+  string description = 4;
+  double defaultFee = 5;
+  string createdAt = 6;
+}
+
+message SpecialtyListResponse {
+  bool ok = 1;
+  int32 status = 2;
+  string error = 3;
+  repeated SpecialtyItem data = 4;
+}
+
+message CreateSpecialtyRequest {
+  string name = 1;
+  string code = 2;
+  optional string description = 3;
+  optional double defaultFee = 4;
+  string correlationId = 5;
+}
+
+message UpdateSpecialtyRequest {
+  int32 id = 1;
+  optional string name = 2;
+  optional string code = 3;
+  optional string description = 4;
+  optional double defaultFee = 5;
+  string correlationId = 6;
+}
+
+message DegreeItem {
+  int32 id = 1;
+  string name = 2;
+  string description = 3;
+  string createdAt = 4;
+}
+
+message DegreeListResponse {
+  bool ok = 1;
+  int32 status = 2;
+  string error = 3;
+  repeated DegreeItem data = 4;
+}
+
+message CreateDegreeRequest {
+  string name = 1;
+  optional string description = 2;
+  string correlationId = 3;
+}
+
+message UpdateDegreeRequest {
+  int32 id = 1;
+  optional string name = 2;
+  optional string description = 3;
+  string correlationId = 4;
+}
+
+message RoleItem {
+  int32 id = 1;
+  string name = 2;
+  string description = 3;
+}
+
+message RoleListResponse {
+  bool ok = 1;
+  int32 status = 2;
+  string error = 3;
+  repeated RoleItem data = 4;
 }
