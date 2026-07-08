@@ -129,12 +129,12 @@ export default function ForgotPassword() {
 
         {/* Step indicator */}
         <div className="step-indicator">
-          <div className={`step-dot ${step === 'email' ? 'active' : 'done'}`}>1</div>
-          <div className={`step-line ${step === 'reset' ? 'active' : ''}`} />
-          <div className={`step-dot ${step === 'reset' ? 'active' : ''}`}>2</div>
+          <div className={`step-dot ${step == 'email' ? 'active' : 'done'}`}>1</div>
+          <div className={`step-line ${step == 'reset' ? 'active' : ''}`} />
+          <div className={`step-dot ${step == 'reset' ? 'active' : ''}`}>2</div>
         </div>
 
-        {step === 'email' ? (
+        {step == 'email' ? (
           <form className="auth-form" onSubmit={handleRequestOtp} noValidate>
             <div className="form-group">
               <label className="form-label" htmlFor="forgot-email">

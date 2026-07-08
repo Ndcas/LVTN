@@ -52,3 +52,103 @@ export interface NavSection {
   title: string;
   items: NavItem[];
 }
+
+// ─────────────────────────────────────────────
+// Domain Types — User Management
+// ─────────────────────────────────────────────
+
+/** Vai trò (read-only catalog) */
+export interface RoleItem {
+  id: number;
+  name: string;
+  description: string | null;
+  createdAt: string;
+}
+
+/** Chuyên khoa */
+export interface Specialty {
+  id: number;
+  name: string;
+  code: string;
+  description: string | null;
+  defaultFee: number;
+  createdAt: string;
+}
+
+/** Bằng cấp */
+export interface Degree {
+  id: number;
+  name: string;
+  description: string | null;
+  createdAt: string;
+}
+
+/** User (Bệnh nhân / Admin / Nurse) */
+export interface User {
+  id: number;
+  roleId: number;
+  phone: string;
+  email: string;
+  isActive: '0' | '1';
+  fullName: string;
+  gender: 'MALE' | 'FEMALE' | 'OTHER';
+  dob: string | null;
+  address: string | null;
+  createdAt: string;
+  updatedAt: string;
+  role?: RoleItem;
+}
+
+/** Doctor metadata */
+export interface DoctorMetadata {
+  id: number;
+  userId: number;
+  specialtyId: number;
+  degreeId: number;
+  experienceYears: number;
+  biography: string | null;
+  workType: 'ONLINE' | 'OFFLINE' | 'BOTH';
+  createdAt: string;
+  updatedAt: string;
+  specialty?: Specialty;
+  degree?: Degree;
+}
+
+/** Doctor = User + metadata (response từ API) */
+export interface Doctor extends User {
+  specialtyId?: number;
+  specialtyName?: string;
+  degreeId?: number;
+  degreeName?: string;
+  experienceYears?: number;
+  biography?: string;
+  workType?: 'ONLINE' | 'OFFLINE' | 'BOTH';
+}
+
+/** Phân trang — response chuẩn từ backend */
+export interface PaginatedResponse<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+/** Params phân trang chuẩn */
+export interface PaginationParams {
+  page: number;
+  limit: number;
+  search?: string;
+}
+
+/** Params lấy danh sách Users */
+export interface GetUsersParams extends PaginationParams {
+  roleId?: number;
+  isActive?: string;
+}
+
+/** Params lấy danh sách Doctors */
+export interface GetDoctorsParams extends PaginationParams {
+  specialtyId?: number;
+  isActive?: string;
+}

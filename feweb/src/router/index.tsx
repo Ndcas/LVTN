@@ -1,12 +1,16 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { Role } from '../types';
+
 // Layout
 import DashboardLayout from '../components/Layout/DashboardLayout';
+
 // Pages
 import Login from '../pages/Login';
 import ForgotPassword from '../pages/ForgotPassword';
 import Dashboard from '../pages/Dashboard';
+import Users from '../pages/Users';
+import Doctors from '../pages/Doctors';
 
 /**
  * Route guard cho trang yêu cầu auth.
@@ -37,9 +41,10 @@ function ProtectedRoute({
   // Kiểm tra role nếu được chỉ định
   if (roles && user && !roles.includes(user.roleId as Role)) {
     // Nurse bị truy cập trang Admin → redirect về invoices
-    if (user.roleId === Role.Nurse) {
+    if (user.roleId == Role.Nurse) {
       return <Navigate to="/payment/invoices" replace />;
     }
+
     return <Navigate to="/" replace />;
   }
 
@@ -58,9 +63,10 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
   }
 
   if (isAuthenticated && user) {
-    if (user.roleId === Role.Nurse) {
+    if (user.roleId == Role.Nurse) {
       return <Navigate to="/payment/invoices" replace />;
     }
+
     return <Navigate to="/" replace />;
   }
 
@@ -132,7 +138,7 @@ export default function AppRouter() {
             path="/users"
             element={
               <ProtectedRoute roles={[Role.Admin]}>
-                <ComingSoon title="Quản lý bệnh nhân" />
+                <Users />
               </ProtectedRoute>
             }
           />
@@ -140,7 +146,7 @@ export default function AppRouter() {
             path="/doctors"
             element={
               <ProtectedRoute roles={[Role.Admin]}>
-                <ComingSoon title="Quản lý bác sĩ" />
+                <Doctors />
               </ProtectedRoute>
             }
           />

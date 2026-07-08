@@ -33,10 +33,10 @@ export default function Login() {
 
     setErrors(newErrors);
 
-    return Object.keys(newErrors).length === 0;
+    return Object.keys(newErrors).length == 0;
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault();
 
     if (!validate()) {
@@ -55,7 +55,7 @@ export default function Login() {
       if (storedUser) {
         const user = JSON.parse(storedUser);
 
-        if (user.roleId === Role.Nurse) {
+        if (user.roleId == Role.Nurse) {
           navigate('/payment/invoices', { replace: true });
         } else {
           navigate('/', { replace: true });
