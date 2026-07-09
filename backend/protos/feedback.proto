@@ -1,0 +1,82 @@
+syntax = "proto3";
+
+package feedback;
+
+service FeedbackService {
+    rpc GetAllFeedbacks(GetAllFeedbacksRequest) returns (GetAllFeedbacksResponse) {}
+    rpc GetFeedbackById(GetFeedbackByIdRequest) returns (FeedbackDetailResponse) {}
+    rpc CreateFeedback(CreateFeedbackRequest) returns (BaseResponse) {}
+    rpc MarkAsRead(MarkAsReadRequest) returns (BaseResponse) {}
+    rpc GetUnreadCount(EmptyRequest) returns (UnreadCountResponse) {}
+}
+
+message EmptyRequest {
+    string correlationId = 1;
+}
+
+message BaseResponse {
+    bool ok = 1;
+    int32 status = 2;
+    string error = 3;
+    string message = 4;
+}
+
+message GetAllFeedbacksRequest {
+    int32 page = 1;
+    int32 limit = 2;
+    optional string read = 3;
+    string correlationId = 4;
+}
+
+message FeedbackItem {
+    int32 id = 1;
+    int32 userId = 2;
+    string title = 3;
+    string content = 4;
+    string isRead = 5;
+    string createdAt = 6;
+}
+
+message GetAllFeedbacksResponse {
+    bool ok = 1;
+    int32 status = 2;
+    string error = 3;
+    string message = 4;
+    repeated FeedbackItem data = 5;
+    int32 total = 6;
+    int32 page = 7;
+    int32 limit = 8;
+}
+
+message FeedbackDetailResponse {
+    bool ok = 1;
+    int32 status = 2;
+    string error = 3;
+    string message = 4;
+    FeedbackItem data = 5;
+}
+
+message GetFeedbackByIdRequest {
+    int32 id = 1;
+    string correlationId = 2;
+}
+
+message CreateFeedbackRequest {
+    int32 userId = 1;
+    string title = 2;
+    string content = 3;
+    string correlationId = 4;
+}
+
+message MarkAsReadRequest {
+    int32 id = 1;
+    string correlationId = 2;
+}
+
+message UnreadCountResponse {
+    bool ok = 1;
+    int32 status = 2;
+    string error = 3;
+    string message = 4;
+    int32 count = 5;
+}

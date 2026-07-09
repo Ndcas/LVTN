@@ -1,6 +1,6 @@
 import { Controller, Post, Get, Patch, Body, Req, Param, Query, Inject, HttpException, UseGuards, ParseIntPipe } from '@nestjs/common';
-import { UsersService } from './users.service';
-import type { Request } from 'express';
+import { UsersService } from './user.service';
+import { type Request } from 'express';
 import { ClientProxy } from '@nestjs/microservices';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';

@@ -1,50 +1,81 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Role } from './entities/role.entity';
 import { Degree } from './entities/degree.entity';
 import { Specialty } from './entities/specialty.entity';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { type Cache } from 'cache-manager';
 
 @Injectable()
 export class CatalogsService {
   constructor(
     @InjectRepository(Role) private readonly roleRepository: Repository<Role>,
     @InjectRepository(Degree) private readonly degreeRepository: Repository<Degree>,
-    @InjectRepository(Specialty) private readonly specialtyRepository: Repository<Specialty>
+    @InjectRepository(Specialty) private readonly specialtyRepository: Repository<Specialty>,
+    @Inject(CACHE_MANAGER) private readonly cache: Cache
   ) { }
 
   async getAllRoles(): Promise<any> {
+    const cachedRoles = await this.cache.get('roles');
+
+    if (cachedRoles) {
+      return {
+        ok: true,
+        status: 200,
+        data: cachedRoles
+      };
+    }
+
     const roles = await this.roleRepository.find({
       order: { id: 'ASC' }
     });
 
+    const data = roles.map(r => ({
+      id: r.id,
+      name: r.name,
+      description: r.description || ''
+    }));
+
+    await this.cache.set('roles', data, 1800000);
+
     return {
       ok: true,
       status: 200,
-      data: roles.map(r => ({
-        id: r.id,
-        name: r.name,
-        description: r.description || ''
-      }))
+      data
     };
   }
 
   async getAllSpecialties(): Promise<any> {
+    const cachedSpecialties = await this.cache.get('specialties');
+
+    if (cachedSpecialties) {
+      return {
+        ok: true,
+        status: 200,
+        data: cachedSpecialties
+      };
+    }
+
     const specialties = await this.specialtyRepository.find({
       order: { name: 'ASC' }
     });
 
+    const data = specialties.map(s => ({
+      id: s.id,
+      name: s.name,
+      code: s.code,
+      description: s.description || '',
+      defaultFee: Number(s.defaultFee),
+      createdAt: s.createdAt.toISOString()
+    }));
+
+    await this.cache.set('specialties', data, 1800000);
+
     return {
       ok: true,
       status: 200,
-      data: specialties.map(s => ({
-        id: s.id,
-        name: s.name,
-        code: s.code,
-        description: s.description || '',
-        defaultFee: Number(s.defaultFee),
-        createdAt: s.createdAt.toISOString()
-      }))
+      data
     };
   }
 
@@ -69,6 +100,8 @@ export class CatalogsService {
     });
 
     await this.specialtyRepository.save(specialty);
+
+    await this.cache.del('specialties');
 
     return {
       ok: true,
@@ -108,6 +141,8 @@ export class CatalogsService {
 
     await this.specialtyRepository.save(specialty);
 
+    await this.cache.del('specialties');
+
     return {
       ok: true,
       status: 200,
@@ -116,19 +151,33 @@ export class CatalogsService {
   }
 
   async getAllDegrees(): Promise<any> {
+    const cachedDegrees = await this.cache.get('degrees');
+
+    if (cachedDegrees) {
+      return {
+        ok: true,
+        status: 200,
+        data: cachedDegrees
+      };
+    }
+
     const degrees = await this.degreeRepository.find({
       order: { id: 'ASC' }
     });
 
+    const data = degrees.map(d => ({
+      id: d.id,
+      name: d.name,
+      description: d.description || '',
+      createdAt: d.createdAt.toISOString()
+    }));
+
+    await this.cache.set('degrees', data, 1800000);
+
     return {
       ok: true,
       status: 200,
-      data: degrees.map(d => ({
-        id: d.id,
-        name: d.name,
-        description: d.description || '',
-        createdAt: d.createdAt.toISOString()
-      }))
+      data
     };
   }
 
@@ -151,6 +200,8 @@ export class CatalogsService {
     });
 
     await this.degreeRepository.save(degree);
+
+    await this.cache.del('degrees');
 
     return {
       ok: true,
@@ -181,6 +232,8 @@ export class CatalogsService {
     }
 
     await this.degreeRepository.save(degree);
+
+    await this.cache.del('degrees');
 
     return {
       ok: true,

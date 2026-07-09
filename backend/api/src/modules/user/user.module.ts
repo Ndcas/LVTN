@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { UsersController } from './users.controller';
 import { DoctorsController } from './doctors.controller';
 import { CatalogsController } from './catalogs.controller';
-import { UsersService } from './users.service';
+import { UsersService } from './user.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { join } from 'path';
 
@@ -13,7 +13,7 @@ import { join } from 'path';
       transport: Transport.GRPC,
       options: {
         package: 'user',
-        protoPath: join(process.cwd(), process.env.PROTO_PATH!),
+        protoPath: join(process.cwd(), process.env.USER_PROTO_PATH!),
         url: process.env.USER_SERVICE_URL!,
       },
     }]),
@@ -32,4 +32,4 @@ import { join } from 'path';
   controllers: [UsersController, DoctorsController, CatalogsController],
   providers: [UsersService]
 })
-export class UsersModule { }
+export class UserModule { }

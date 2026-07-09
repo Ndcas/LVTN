@@ -208,13 +208,23 @@ export class UsersService {
       roleId: payload.roleId
     };
     const newAccessToken = await this.jwtService.signAsync(newPayload);
+    let refreshToken = data.refreshToken;
+
+    if (payload.exp * 1000 < Date.now() - 1296000000) {
+      refreshToken = await this.jwtService.signAsync(newPayload, {
+        expiresIn: '30d',
+        secret: this.configService.get<string>('JWT_REFRESH_SECRET')
+      });
+
+      await this.cacheManager.set(`RT_${payload.userId}`, refreshToken, 2592000000);
+    }
 
     return {
       ok: true,
       status: 200,
       message: 'Cấp lại token thành công',
       accessToken: newAccessToken,
-      refreshToken: data.refreshToken
+      refreshToken
     };
   }
 
@@ -521,11 +531,17 @@ export class UsersService {
       };
     }
 
-    user.isActive = user.isActive === '1' ? '0' : '1';
+    user.isActive = user.isActive == '1' ? '0' : '1';
 
     await this.userRepository.save(user);
 
     await this.cacheManager.del(`RT_${user.id}`);
+
+    if (user.isActive == '0') {
+      await this.cacheManager.set(`BL_${user.id}`, '1');
+    } else {
+      await this.cacheManager.del(`BL_${user.id}`);
+    }
 
     return {
       ok: true,

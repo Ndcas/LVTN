@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './modules/users/users.module';
@@ -29,14 +27,11 @@ import { JwtModule } from '@nestjs/jwt';
       password: process.env.DATABASE_PASSWORD,
       port: parseInt(process.env.DATABASE_PORT!),
       database: process.env.DATABASE_NAME,
-      autoLoadEntities: true,
-      synchronize: true,
+      autoLoadEntities: true
     }),
     UsersModule,
     DoctorsModule,
     CatalogsModule
-  ],
-  controllers: [AppController],
-  providers: [AppService],
+  ]
 })
 export class AppModule { }

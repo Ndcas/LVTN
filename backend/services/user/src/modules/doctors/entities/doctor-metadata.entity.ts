@@ -8,34 +8,56 @@ export class DoctorMetadata {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'user_id', type: 'int', unique: true })
+  @Column({
+    name: 'user_id',
+    type: 'int',
+    unique: true
+  })
   userId: number;
 
   @OneToOne(() => User, (user) => user.doctorMetadata)
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @Column({ name: 'specialty_id', type: 'int' })
+  @Column({
+    name: 'specialty_id',
+    type: 'int'
+  })
   specialtyId: number;
 
   @ManyToOne(() => Specialty, (specialty) => specialty.doctorMetadatas)
   @JoinColumn({ name: 'specialty_id' })
   specialty: Specialty;
 
-  @Column({ name: 'degree_id', type: 'int' })
+  @Column({
+    name: 'degree_id',
+    type: 'int'
+  })
   degreeId: number;
 
   @ManyToOne(() => Degree, (degree) => degree.doctorMetadatas)
   @JoinColumn({ name: 'degree_id' })
   degree: Degree;
 
-  @Column({ type: 'text', nullable: true })
+  @Column({
+    type: 'text',
+    nullable: true
+  })
   biography: string | null;
 
-  @Column({ name: 'experience_years', type: 'int', default: 0 })
+  @Column({
+    name: 'experience_years',
+    type: 'int',
+    default: 0
+  })
   experienceYears: number;
 
-  @Column({ name: 'work_type', type: 'enum', enum: ['ONLINE', 'OFFLINE', 'BOTH'], default: 'BOTH' })
+  @Column({
+    name: 'work_type',
+    type: 'enum',
+    enum: ['ONLINE', 'OFFLINE', 'BOTH'],
+    default: 'BOTH'
+  })
   workType: string;
 
   @CreateDateColumn({ name: 'created_at' })
