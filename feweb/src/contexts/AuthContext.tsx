@@ -55,7 +55,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   /** Khôi phục session từ localStorage khi mount */
   useEffect(() => {
     const storedToken = localStorage.getItem('accessToken');
-    const storedRefresh = localStorage.getItem('refreshToken');
     const storedUser = localStorage.getItem('user');
 
     if (storedToken && storedUser) {
@@ -63,13 +62,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setAccessToken(storedToken);
 
         setUser(JSON.parse(storedUser));
-      } else if (storedRefresh) {
-        // Access token hết hạn → thử refresh
-        api.post('/users/refresh', { refreshToken: storedRefresh })
+      } else {
+        // Access token hết hạn → thử refresh (refresh token đã nằm trong HttpOnly cookie)
+        api.post('/users/refresh', {})
           .then(({ data }) => {
             localStorage.setItem('accessToken', data.accessToken);
-
-            localStorage.setItem('refreshToken', data.refreshToken);
 
             setAccessToken(data.accessToken);
 
@@ -78,12 +75,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           .catch(() => {
             localStorage.removeItem('accessToken');
 
-            localStorage.removeItem('refreshToken');
-
             localStorage.removeItem('user');
           });
       }
     }
+
     setIsLoading(false);
   }, []);
 
@@ -100,8 +96,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     localStorage.setItem('accessToken', data.accessToken);
 
-    localStorage.setItem('refreshToken', data.refreshToken);
-
     localStorage.setItem('user', JSON.stringify(authUser));
 
     setAccessToken(data.accessToken);
@@ -111,18 +105,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   /** Đăng xuất */
   const logout = useCallback(async () => {
-    const refreshToken = localStorage.getItem('refreshToken');
-
     try {
-      if (refreshToken) {
-        await api.post('/users/logout', { refreshToken });
-      }
+      await api.post('/users/logout', {});
     } catch {
-      // Logout thất bại vẫn xóa local
     } finally {
       localStorage.removeItem('accessToken');
-
-      localStorage.removeItem('refreshToken');
 
       localStorage.removeItem('user');
 

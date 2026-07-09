@@ -76,14 +76,14 @@ export class UsersService {
     await this.cacheManager.del(`OTP_R_${data.email}`);
 
     const existingUser = await this.userRepository.exists({
-      where: { email: data.email }
+      where: [{ email: data.email }, { phone: data.phone }]
     });
 
     if (existingUser) {
       return {
         ok: false,
         status: 400,
-        error: 'Email đã được sử dụng'
+        error: 'Email hoặc số điện thoại đã được sử dụng'
       };
     }
 
@@ -437,6 +437,42 @@ export class UsersService {
         address: user.address || '',
         createdAt: user.createdAt.toISOString()
       }
+    };
+  }
+
+  async createUser(data: any): Promise<any> {
+    const existingUser = await this.userRepository.findOne({
+      where: [{ email: data.email }, { phone: data.phone }]
+    });
+
+    if (existingUser) {
+      return {
+        ok: false,
+        status: 400,
+        error: 'Email hoặc số điện thoại đã được sử dụng'
+      };
+    }
+
+    const saltRounds = this.configService.get<number>('BCRYPT_SALT_ROUNDS')!;
+    const hashedPassword = await bcrypt.hash(data.password, saltRounds);
+
+    const newUser = this.userRepository.create({
+      email: data.email,
+      password: hashedPassword,
+      phone: data.phone,
+      fullName: data.fullName,
+      gender: data.gender,
+      dob: data.dob ? new Date(data.dob) : null,
+      address: data.address || null,
+      roleId: data.roleId
+    });
+
+    await this.userRepository.save(newUser);
+
+    return {
+      ok: true,
+      status: 201,
+      message: 'Tạo tài khoản thành công'
     };
   }
 

@@ -1,6 +1,6 @@
-import { Controller, Post, Get, Patch, Body, Req, Param, Query, Inject, HttpException, UseGuards, ParseIntPipe } from '@nestjs/common';
+import { Controller, Post, Get, Patch, Body, Req, Param, Query, Inject, HttpException, UseGuards, ParseIntPipe, Res } from '@nestjs/common';
 import { UsersService } from './user.service';
-import { type Request } from 'express';
+import { type Response, type Request } from 'express';
 import { ClientProxy } from '@nestjs/microservices';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -12,6 +12,7 @@ import { GetOtpDto } from './dto/getotp.dto';
 import { ForgotPasswordDto } from './dto/forgotpassword.dto';
 import { UpdateFcmTokenDto } from './dto/update-fcm.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Controller('users')
 export class UsersController {
@@ -99,7 +100,11 @@ export class UsersController {
    * @param {Request} req - Request object để lấy headers
    */
   @Post('login')
-  async login(@Body() body: LoginDto, @Req() req: Request) {
+  async login(@Body() body: LoginDto, @Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    if (req.headers['client-type'] != 'web' && req.headers['client-type'] != 'mobile') {
+      throw new HttpException('Client type không hợp lệ', 400);
+    }
+
     const correlationId = req.headers['correlation-id'] as string;
 
     this.processLog('Login', correlationId, 'Nhận được yêu cầu đăng nhập');
@@ -116,18 +121,37 @@ export class UsersController {
 
     const { ok, status, error, ...data } = result;
 
+    if (req.headers['client-type'] == 'web') {
+      res.cookie('refreshToken', data.refreshToken, {
+        httpOnly: true,
+        signed: true,
+        secure: true,
+        sameSite: 'none',
+        maxAge: 2592000000
+      });
+
+      return {
+        message: data.message,
+        accessToken: data.accessToken
+      };
+    }
+
     return data;
   }
 
   /**
    * Cấp mới Access Token sử dụng Refresh Token
    * @param {Object} body - Dữ liệu yêu cầu
-   * @param {string} body.refreshToken - Refresh token cũ hợp lệ
+   * @param {string} body.refreshToken - Refresh token cũ hợp lệ (mobile)
    * @param {Request} req - Request object để lấy headers
    */
   @Post('refresh')
   @UseGuards(RefreshGuard)
-  async refresh(@Body() body: RefreshDto, @Req() req: Request) {
+  async refresh(@Body() body: RefreshDto, @Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    if (req.headers['client-type'] != 'web' && req.headers['client-type'] != 'mobile') {
+      throw new HttpException('Client type không hợp lệ', 400);
+    }
+
     const correlationId = req.headers['correlation-id'] as string;
 
     this.processLog('Refresh', correlationId, 'Nhận được yêu cầu cấp mới access token');
@@ -144,6 +168,21 @@ export class UsersController {
 
     const { ok, status, error, ...data } = result;
 
+    if (req.headers['client-type'] == 'web') {
+      res.cookie('refreshToken', data.refreshToken, {
+        httpOnly: true,
+        signed: true,
+        secure: true,
+        sameSite: 'none',
+        maxAge: 2592000000
+      });
+
+      return {
+        message: data.message,
+        accessToken: data.accessToken
+      };
+    }
+
     return data;
   }
 
@@ -155,7 +194,7 @@ export class UsersController {
    */
   @Post('logout')
   @UseGuards(RefreshGuard)
-  async logout(@Body() body: RefreshDto, @Req() req: Request) {
+  async logout(@Body() body: RefreshDto, @Req() req: Request, @Res({ passthrough: true }) res: Response) {
     const correlationId = req.headers['correlation-id'] as string;
 
     this.processLog('Logout', correlationId, 'Nhận được yêu cầu đăng xuất');
@@ -169,6 +208,15 @@ export class UsersController {
     }
 
     this.processLog('Logout', correlationId, 'Thành công');
+
+    if (req.headers['client-type'] == 'web') {
+      res.clearCookie('refreshToken', {
+        httpOnly: true,
+        signed: true,
+        secure: true,
+        sameSite: 'none'
+      });
+    }
 
     const { ok, status, error, ...data } = result;
 
@@ -363,6 +411,34 @@ export class UsersController {
     }
 
     this.processLog('GetUserById', correlationId, 'Thành công');
+
+    const { ok, status, error, ...data } = result;
+
+    return data;
+  }
+
+  /**
+   * Tạo tài khoản người dùng mới (Dành cho Admin)
+   * @param {Object} body - Dữ liệu đăng ký
+   * @param {Request} req - Request object để lấy headers
+   */
+  @Post()
+  @UseGuards(AccessGuard)
+  @Roles(['Admin'])
+  async createUser(@Body() body: CreateUserDto, @Req() req: Request) {
+    const correlationId = req.headers['correlation-id'] as string;
+
+    this.processLog('CreateUser', correlationId, 'Nhận được yêu cầu tạo user mới');
+
+    const result = await this.usersService.createUser({ ...body, correlationId });
+
+    if (!result.ok) {
+      this.processLog('CreateUser', correlationId, `Không thành công ${result.error}`, 'warn');
+
+      throw new HttpException(result.error, result.status);
+    }
+
+    this.processLog('CreateUser', correlationId, 'Thành công');
 
     const { ok, status, error, ...data } = result;
 

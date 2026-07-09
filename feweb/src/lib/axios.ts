@@ -10,7 +10,9 @@ const api = axios.create({
   timeout: 15000,
   headers: {
     'Content-Type': 'application/json',
+    'Client-Type': 'web'
   },
+  withCredentials: true
 });
 
 /** Đang refresh token hay không (chặn gọi trùng) */
@@ -56,15 +58,13 @@ api.interceptors.response.use(
     const originalRequest = error.config;
 
     // Chỉ xử lý 401 và request chưa retry
-    if (error.response?.status !== 401 || originalRequest._retry) {
+    if (error.response?.status != 401 || originalRequest._retry) {
       return Promise.reject(error);
     }
 
     // Nếu request refresh chính nó bị 401 → logout
     if (originalRequest.url?.includes('/users/refresh')) {
       localStorage.removeItem('accessToken');
-
-      localStorage.removeItem('refreshToken');
 
       localStorage.removeItem('user');
 
@@ -90,12 +90,10 @@ api.interceptors.response.use(
     originalRequest._retry = true;
     isRefreshing = true;
 
-    const refreshToken = localStorage.getItem('refreshToken');
+    const user = localStorage.getItem('user');
 
-    if (!refreshToken) {
+    if (!user) {
       localStorage.removeItem('accessToken');
-
-      localStorage.removeItem('user');
 
       window.location.href = '/login';
 
@@ -103,13 +101,15 @@ api.interceptors.response.use(
     }
 
     try {
-      const { data } = await axios.post(`${API_BASE_URL}/users/refresh`, { refreshToken });
+      const { data } = await axios.post(`${API_BASE_URL}/users/refresh`, {}, {
+        withCredentials: true,
+        headers: {
+          'Client-Type': 'web'
+        }
+      });
       const newAccessToken = data.accessToken;
-      const newRefreshToken = data.refreshToken;
 
       localStorage.setItem('accessToken', newAccessToken);
-
-      localStorage.setItem('refreshToken', newRefreshToken);
 
       api.defaults.headers.common.Authorization = `Bearer ${newAccessToken}`;
       originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
@@ -121,9 +121,6 @@ api.interceptors.response.use(
       processQueue(refreshError, null);
 
       localStorage.removeItem('accessToken');
-
-      localStorage.removeItem('refreshToken');
-
 
       localStorage.removeItem('user');
 

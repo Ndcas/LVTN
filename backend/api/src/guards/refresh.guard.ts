@@ -9,17 +9,34 @@ export class RefreshGuard implements CanActivate {
     async canActivate(context: ExecutionContext): Promise<boolean> {
         try {
             const request = context.switchToHttp().getRequest();
+            const clientType = request.headers['client-type'];
+            let token = null;
 
-            if (!request.body.refreshToken) {
+            if (clientType == 'web') {
+                token = request.signedCookies['refreshToken'];
+            } else if (clientType == 'mobile') {
+                token = request.body.refreshToken;
+            } else {
+                throw new UnauthorizedException('Client type không hợp lệ');
+            }
+
+            if (!token) {
                 throw new UnauthorizedException('Refresh token không được cung cấp');
             }
 
-            const token = request.body.refreshToken;
             const payload = await this.jwtService.verifyAsync(token, { secret: this.configService.get<string>('JWT_REFRESH_SECRET') });
             request.user = payload;
+            request.body = {
+                ...request.body,
+                refreshToken: token
+            };
 
             return true;
         } catch (e) {
+            if (e instanceof UnauthorizedException) {
+                throw e;
+            }
+
             throw new UnauthorizedException('Refresh token không hợp lệ hoặc đã hết hạn');
         }
     }

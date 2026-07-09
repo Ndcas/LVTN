@@ -28,6 +28,22 @@ export async function fetchUserById(id: number): Promise<User> {
   return data.data;
 }
 
+/** Tạo người dùng mới (Nurse/Admin) */
+export async function createUser(payload: {
+  email: string;
+  password: string;
+  phone: string;
+  fullName: string;
+  gender: 'MALE' | 'FEMALE' | 'OTHER';
+  dob?: string;
+  address?: string;
+  roleId: number;
+}): Promise<string> {
+  const { data } = await api.post('/users', payload);
+
+  return data.message;
+}
+
 /** Cập nhật thông tin user */
 export async function updateUser(
   id: number,

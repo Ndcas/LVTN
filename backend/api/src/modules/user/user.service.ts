@@ -17,6 +17,7 @@ interface UserServiceClient {
   // CRUD Users
   getAllUsers(data: any): Observable<any>;
   getUserById(data: any): Observable<any>;
+  createUser(data: any): Observable<any>;
   updateUser(data: any): Observable<any>;
   toggleUserActive(data: any): Observable<any>;
 
@@ -90,6 +91,10 @@ export class UsersService implements OnModuleInit {
 
   updateUser(data: any) {
     return lastValueFrom(this.userService.updateUser(data));
+  }
+
+  async createUser(data: any) {
+    return await lastValueFrom(this.userService.createUser(data));
   }
 
   toggleUserActive(data: any) {

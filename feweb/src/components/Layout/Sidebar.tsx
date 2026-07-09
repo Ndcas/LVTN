@@ -9,9 +9,10 @@ import {
   ClipboardList,
   Pill,
   ShieldAlert,
-  MessageSquareText,
   Receipt,
   Heart,
+  Activity,
+  MessageSquareText
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { Role } from '../../types';
@@ -41,6 +42,7 @@ const navigation: SidebarSection[] = [
     items: [
       { label: 'Bệnh nhân', path: '/users', icon: Users, roles: [Role.Admin] },
       { label: 'Bác sĩ', path: '/doctors', icon: Stethoscope, roles: [Role.Admin] },
+      { label: 'Điều dưỡng', path: '/nurses', icon: Activity, roles: [Role.Admin] },
     ],
   },
   {

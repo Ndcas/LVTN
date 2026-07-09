@@ -11,6 +11,7 @@ import ForgotPassword from '../pages/ForgotPassword';
 import Dashboard from '../pages/Dashboard';
 import Users from '../pages/Users';
 import Doctors from '../pages/Doctors';
+import Nurses from '../pages/Nurses';
 
 /**
  * Route guard cho trang yêu cầu auth.
@@ -147,6 +148,14 @@ export default function AppRouter() {
             element={
               <ProtectedRoute roles={[Role.Admin]}>
                 <Doctors />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/nurses"
+            element={
+              <ProtectedRoute roles={[Role.Admin]}>
+                <Nurses />
               </ProtectedRoute>
             }
           />

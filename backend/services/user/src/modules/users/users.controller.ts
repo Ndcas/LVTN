@@ -308,6 +308,31 @@ export class UsersController {
   }
 
   /**
+   * Tạo user mới (Dành cho Admin) qua gRPC
+   * @param {Object} data - Dữ liệu yêu cầu
+   */
+  @GrpcMethod('UserService', 'CreateUser')
+  async createUser(data: any) {
+    try {
+      this.processLog('CreateUser', data.correlationId, 'Nhận được yêu cầu tạo user mới');
+
+      const result = await this.usersService.createUser(data);
+
+      this.processLog('CreateUser', data.correlationId, 'Kết thúc xử lý tạo user mới');
+
+      return result;
+    } catch (e) {
+      this.processLog('CreateUser', data.correlationId, `Lỗi khi xử lý tạo user mới: ${e}`, 'error');
+
+      return {
+        ok: false,
+        status: 500,
+        error: 'Lỗi hệ thống'
+      };
+    }
+  }
+
+  /**
    * Cập nhật thông tin user qua gRPC
    * @param {Object} data - Dữ liệu yêu cầu
    * @param {number} data.id - ID của user
