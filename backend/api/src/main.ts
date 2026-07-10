@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { correlationIdMiddleware } from './middlewares/correlation_id.middleware';
+import { correlationIdMiddleware } from './middlewares/correlation-id.middleware';
 import { ValidationPipe } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
 

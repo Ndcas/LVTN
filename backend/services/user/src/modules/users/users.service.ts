@@ -5,7 +5,7 @@ import { type Cache } from 'cache-manager';
 import bcrypt from 'bcrypt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Not } from 'typeorm';
-import { User } from './entities/user.entity';
+import { IsActive, User } from './entities/user.entity';
 import { ConfigService } from '@nestjs/config';
 import { MailService } from '../mail/mail.service';
 
@@ -567,7 +567,7 @@ export class UsersService {
       };
     }
 
-    user.isActive = user.isActive == '1' ? '0' : '1';
+    user.isActive = user.isActive == IsActive.ACTIVE ? IsActive.INACTIVE : IsActive.ACTIVE;
 
     await this.userRepository.save(user);
 

@@ -1,5 +1,5 @@
 import { Controller, Post, Get, Patch, Body, Req, Param, Query, Inject, HttpException, UseGuards, ParseIntPipe, Res } from '@nestjs/common';
-import { UsersService } from './user.service';
+import { UserService } from './user.service';
 import { type Response, type Request } from 'express';
 import { ClientProxy } from '@nestjs/microservices';
 import { RegisterDto } from './dto/register.dto';
@@ -17,7 +17,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 @Controller('users')
 export class UsersController {
   constructor(
-    private readonly usersService: UsersService,
+    private readonly usersService: UserService,
     @Inject('LOG_SERVICE') private logClient: ClientProxy
   ) { }
 

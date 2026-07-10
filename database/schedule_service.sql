@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 5.2.3
 -- https://www.phpmyadmin.net/
 --
--- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th6 15, 2026 lúc 10:23 AM
--- Phiên bản máy phục vụ: 10.4.32-MariaDB
--- Phiên bản PHP: 8.0.30
+-- Máy chủ: mysql
+-- Thời gian đã tạo: Th7 10, 2026 lúc 10:06 AM
+-- Phiên bản máy phục vụ: 9.7.1
+-- Phiên bản PHP: 8.3.32
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -28,12 +28,12 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `bookings` (
-  `id` int(11) NOT NULL,
-  `patient_id` int(11) NOT NULL,
-  `time_slot_id` int(11) NOT NULL,
-  `status` enum('CONFIRMED','FINISHED','CANCELED','NO_SHOW') DEFAULT 'CONFIRMED',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `id` int NOT NULL,
+  `patient_id` int NOT NULL,
+  `time_slot_id` int NOT NULL,
+  `status` enum('CONFIRMED','FINISHED','CANCELED','NO_SHOW') COLLATE utf8mb4_unicode_ci DEFAULT 'CONFIRMED',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -52,14 +52,14 @@ INSERT INTO `bookings` (`id`, `patient_id`, `time_slot_id`, `status`, `created_a
 --
 
 CREATE TABLE `doctor_leaves` (
-  `id` int(11) NOT NULL,
-  `doctor_id` int(11) NOT NULL,
+  `id` int NOT NULL,
+  `doctor_id` int NOT NULL,
   `leave_date` date NOT NULL,
-  `reason` varchar(255) NOT NULL,
-  `status` enum('PENDING','APPROVED','REJECTED') NOT NULL DEFAULT 'PENDING',
-  `rejected_reason` varchar(255) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `reason` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `status` enum('PENDING','APPROVED','REJECTED') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'PENDING',
+  `rejected_reason` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -76,13 +76,13 @@ INSERT INTO `doctor_leaves` (`id`, `doctor_id`, `leave_date`, `reason`, `status`
 --
 
 CREATE TABLE `doctor_weekly_templates` (
-  `id` int(11) NOT NULL,
-  `doctor_id` int(11) NOT NULL,
-  `day_of_week` tinyint(4) NOT NULL,
+  `id` int NOT NULL,
+  `doctor_id` int NOT NULL,
+  `day_of_week` tinyint NOT NULL,
   `start_time` time NOT NULL,
   `end_time` time NOT NULL,
-  `clinic_type` enum('ONLINE','OFFLINE') NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `clinic_type` enum('ONLINE','OFFLINE') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -102,11 +102,11 @@ INSERT INTO `doctor_weekly_templates` (`id`, `doctor_id`, `day_of_week`, `start_
 --
 
 CREATE TABLE `global_holidays` (
-  `id` int(11) NOT NULL,
+  `id` int NOT NULL,
   `holiday_date` date NOT NULL,
-  `name` varchar(150) NOT NULL,
-  `description` varchar(255) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `name` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -119,16 +119,48 @@ INSERT INTO `global_holidays` (`id`, `holiday_date`, `name`, `description`, `cre
 -- --------------------------------------------------------
 
 --
+-- Cấu trúc bảng cho bảng `opening_time`
+--
+
+CREATE TABLE `opening_time` (
+  `id` int NOT NULL,
+  `day_of_week` tinyint NOT NULL,
+  `start_time` time NOT NULL,
+  `end_time` time NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ;
+
+--
+-- Đang đổ dữ liệu cho bảng `opening_time`
+--
+
+INSERT INTO `opening_time` (`id`, `day_of_week`, `start_time`, `end_time`, `created_at`, `updated_at`) VALUES
+(1, 1, '11:00:00', '12:30:00', '2026-07-10 10:06:25', '2026-07-10 10:06:25'),
+(2, 1, '17:00:00', '19:30:00', '2026-07-10 10:06:25', '2026-07-10 10:06:25'),
+(3, 2, '11:00:00', '12:30:00', '2026-07-10 10:06:25', '2026-07-10 10:06:25'),
+(4, 2, '17:00:00', '19:30:00', '2026-07-10 10:06:25', '2026-07-10 10:06:25'),
+(5, 3, '11:00:00', '12:30:00', '2026-07-10 10:06:25', '2026-07-10 10:06:25'),
+(6, 3, '17:00:00', '19:30:00', '2026-07-10 10:06:25', '2026-07-10 10:06:25'),
+(7, 4, '11:00:00', '12:30:00', '2026-07-10 10:06:25', '2026-07-10 10:06:25'),
+(8, 4, '17:00:00', '19:30:00', '2026-07-10 10:06:25', '2026-07-10 10:06:25'),
+(9, 5, '11:00:00', '12:30:00', '2026-07-10 10:06:25', '2026-07-10 10:06:25'),
+(10, 5, '17:00:00', '19:30:00', '2026-07-10 10:06:25', '2026-07-10 10:06:25'),
+(11, 6, '08:00:00', '12:00:00', '2026-07-10 10:06:25', '2026-07-10 10:06:25');
+
+-- --------------------------------------------------------
+
+--
 -- Cấu trúc bảng cho bảng `schedule_change_requests`
 --
 
 CREATE TABLE `schedule_change_requests` (
-  `id` int(11) NOT NULL,
-  `doctor_id` int(11) NOT NULL,
-  `status` enum('PENDING','APPROVED','REJECTED') NOT NULL DEFAULT 'PENDING',
-  `rejected_reason` varchar(255) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `id` int NOT NULL,
+  `doctor_id` int NOT NULL,
+  `status` enum('PENDING','APPROVED','REJECTED') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'PENDING',
+  `rejected_reason` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -138,13 +170,13 @@ CREATE TABLE `schedule_change_requests` (
 --
 
 CREATE TABLE `schedule_change_request_details` (
-  `id` int(11) NOT NULL,
-  `request_id` int(11) NOT NULL,
-  `day_of_week` tinyint(4) NOT NULL,
+  `id` int NOT NULL,
+  `request_id` int NOT NULL,
+  `day_of_week` tinyint NOT NULL,
   `start_time` time NOT NULL,
   `end_time` time NOT NULL,
-  `clinic_type` enum('ONLINE','OFFLINE') NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `clinic_type` enum('ONLINE','OFFLINE') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -154,15 +186,15 @@ CREATE TABLE `schedule_change_request_details` (
 --
 
 CREATE TABLE `time_slots` (
-  `id` int(11) NOT NULL,
-  `doctor_id` int(11) NOT NULL,
+  `id` int NOT NULL,
+  `doctor_id` int NOT NULL,
   `clinic_date` date NOT NULL,
   `start_time` time NOT NULL,
   `end_time` time NOT NULL,
-  `clinic_type` enum('ONLINE','OFFLINE') NOT NULL,
-  `status` enum('AVAILABLE','BOOKED') DEFAULT 'AVAILABLE',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `clinic_type` enum('ONLINE','OFFLINE') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `status` enum('AVAILABLE','BOOKED') COLLATE utf8mb4_unicode_ci DEFAULT 'AVAILABLE',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -212,6 +244,12 @@ ALTER TABLE `global_holidays`
   ADD KEY `idx_holiday_date` (`holiday_date`);
 
 --
+-- Chỉ mục cho bảng `opening_time`
+--
+ALTER TABLE `opening_time`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Chỉ mục cho bảng `schedule_change_requests`
 --
 ALTER TABLE `schedule_change_requests`
@@ -241,56 +279,62 @@ ALTER TABLE `time_slots`
 -- AUTO_INCREMENT cho bảng `bookings`
 --
 ALTER TABLE `bookings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT cho bảng `doctor_leaves`
 --
 ALTER TABLE `doctor_leaves`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT cho bảng `doctor_weekly_templates`
 --
 ALTER TABLE `doctor_weekly_templates`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT cho bảng `global_holidays`
 --
 ALTER TABLE `global_holidays`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT cho bảng `opening_time`
+--
+ALTER TABLE `opening_time`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT cho bảng `schedule_change_requests`
 --
 ALTER TABLE `schedule_change_requests`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT cho bảng `schedule_change_request_details`
 --
 ALTER TABLE `schedule_change_request_details`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT cho bảng `time_slots`
 --
 ALTER TABLE `time_slots`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
--- Các ràng buộc cho các bảng đã đổ
+-- Ràng buộc đối với các bảng kết xuất
 --
 
 --
--- Các ràng buộc cho bảng `bookings`
+-- Ràng buộc cho bảng `bookings`
 --
 ALTER TABLE `bookings`
   ADD CONSTRAINT `bookings_ibfk_1` FOREIGN KEY (`time_slot_id`) REFERENCES `time_slots` (`id`);
 
 --
--- Các ràng buộc cho bảng `schedule_change_request_details`
+-- Ràng buộc cho bảng `schedule_change_request_details`
 --
 ALTER TABLE `schedule_change_request_details`
   ADD CONSTRAINT `schedule_change_request_details_ibfk_1` FOREIGN KEY (`request_id`) REFERENCES `schedule_change_requests` (`id`) ON DELETE CASCADE;

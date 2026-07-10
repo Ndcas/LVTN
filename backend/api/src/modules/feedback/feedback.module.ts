@@ -15,17 +15,15 @@ import { FeedbackService } from './feedback.service';
         url: process.env.FEEDBACK_SERVICE_URL!,
       },
     }]),
-    ClientsModule.register([
-      {
-        name: 'LOG_SERVICE',
-        transport: Transport.RMQ,
-        options: {
-          urls: [process.env.RMQ_URL!],
-          queue: 'log',
-          queueOptions: { durable: true }
-        }
+    ClientsModule.register([{
+      name: 'LOG_SERVICE',
+      transport: Transport.RMQ,
+      options: {
+        urls: [process.env.RMQ_URL!],
+        queue: 'log',
+        queueOptions: { durable: true }
       }
-    ])
+    }])
   ],
   controllers: [FeedbackController],
   providers: [FeedbackService]

@@ -2,6 +2,17 @@ import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateCol
 import { Role } from '../../catalogs/entities/role.entity';
 import { DoctorMetadata } from '../../doctors/entities/doctor-metadata.entity';
 
+export enum Gender {
+  MALE = 'MALE',
+  FEMALE = 'FEMALE',
+  OTHER = 'OTHER'
+}
+
+export enum IsActive {
+  ACTIVE = '1',
+  INACTIVE = '0'
+}
+
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn()
@@ -40,10 +51,10 @@ export class User {
   @Column({
     name: 'is_active',
     type: 'enum',
-    enum: ['0', '1'],
-    default: '1'
+    enum: IsActive,
+    default: IsActive.ACTIVE
   })
-  isActive: string;
+  isActive: IsActive;
 
   @Column({
     name: 'full_name',
@@ -54,9 +65,9 @@ export class User {
 
   @Column({
     type: 'enum',
-    enum: ['MALE', 'FEMALE', 'OTHER']
+    enum: Gender
   })
-  gender: string;
+  gender: Gender;
 
   @Column({
     type: 'date',

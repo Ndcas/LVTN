@@ -12,6 +12,7 @@ import Dashboard from '../pages/Dashboard';
 import Users from '../pages/Users';
 import Doctors from '../pages/Doctors';
 import Nurses from '../pages/Nurses';
+import Logout from '../pages/Logout';
 
 /**
  * Route guard cho trang yêu cầu auth.
@@ -119,6 +120,14 @@ export default function AppRouter() {
         />
 
         {/* ── Protected Routes (Dashboard Layout) ── */}
+        <Route
+          path="/logout"
+          element={
+            <ProtectedRoute>
+              <Logout />
+            </ProtectedRoute>
+          }
+        />
         <Route
           element={
             <ProtectedRoute>

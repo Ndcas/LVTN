@@ -9,21 +9,18 @@ import { MailModule } from '../mail/mail.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
-    ClientsModule.register([
-      {
-        name: 'LOG_SERVICE',
-        transport: Transport.RMQ,
-        options: {
-          urls: [process.env.RMQ_URL!],
-          queue: 'log',
-          queueOptions: { durable: true }
-        }
+    ClientsModule.register([{
+      name: 'LOG_SERVICE',
+      transport: Transport.RMQ,
+      options: {
+        urls: [process.env.RMQ_URL!],
+        queue: 'log',
+        queueOptions: { durable: true }
       }
-    ]),
+    }]),
     MailModule
   ],
   providers: [UsersService],
-  controllers: [UsersController],
-  exports: [UsersService]
+  controllers: [UsersController]
 })
 export class UsersModule { }

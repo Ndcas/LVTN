@@ -9,20 +9,17 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 @Module({
   imports: [
     TypeOrmModule.forFeature([DoctorMetadata, User]),
-    ClientsModule.register([
-      {
-        name: 'LOG_SERVICE',
-        transport: Transport.RMQ,
-        options: {
-          urls: [process.env.RMQ_URL!],
-          queue: 'log',
-          queueOptions: { durable: true }
-        }
+    ClientsModule.register([{
+      name: 'LOG_SERVICE',
+      transport: Transport.RMQ,
+      options: {
+        urls: [process.env.RMQ_URL!],
+        queue: 'log',
+        queueOptions: { durable: true }
       }
-    ])
+    }])
   ],
   providers: [DoctorsService],
-  controllers: [DoctorsController],
-  exports: [DoctorsService]
+  controllers: [DoctorsController]
 })
 export class DoctorsModule { }

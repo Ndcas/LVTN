@@ -1,5 +1,5 @@
 import { Controller, Post, Get, Patch, Body, Req, Param, Query, Inject, HttpException, UseGuards, ParseIntPipe } from '@nestjs/common';
-import { UsersService } from './user.service';
+import { UserService } from './user.service';
 import { type Request } from 'express';
 import { ClientProxy } from '@nestjs/microservices';
 import { AccessGuard } from 'src/guards/access.guard';
@@ -10,7 +10,7 @@ import { UpdateDoctorDto } from './dto/update-doctor.dto';
 @Controller('doctors')
 export class DoctorsController {
   constructor(
-    private readonly usersService: UsersService,
+    private readonly usersService: UserService,
     @Inject('LOG_SERVICE') private logClient: ClientProxy
   ) { }
 

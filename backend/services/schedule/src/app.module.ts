@@ -1,10 +1,21 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { ConfigModule } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { OpeningTimeModule } from './modules/opening-time/opening-time.module';
 
 @Module({
-  imports: [],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    TypeOrmModule.forRoot({
+      type: 'mysql',
+      host: process.env.DATABASE_HOST,
+      username: process.env.DATABASE_USERNAME,
+      password: process.env.DATABASE_PASSWORD,
+      port: parseInt(process.env.DATABASE_PORT!),
+      database: process.env.DATABASE_NAME,
+      autoLoadEntities: true
+    }),
+    OpeningTimeModule
+  ]
 })
-export class AppModule {}
+export class AppModule { }

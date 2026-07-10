@@ -1,7 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { FeedbacksModule } from './modules/feedbacks/feedbacks.module';
+import { UserFeedback } from './entities/user-feedback.entity';
+import { ClientsModule, Transport } from '@nestjs/microservices';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 
 @Module({
   imports: [
@@ -15,7 +18,18 @@ import { FeedbacksModule } from './modules/feedbacks/feedbacks.module';
       database: process.env.DATABASE_NAME,
       autoLoadEntities: true
     }),
-    FeedbacksModule,
-  ]
+    TypeOrmModule.forFeature([UserFeedback]),
+    ClientsModule.register([{
+      name: 'LOG_SERVICE',
+      transport: Transport.RMQ,
+      options: {
+        urls: [process.env.RMQ_URL!],
+        queue: 'log',
+        queueOptions: { durable: true }
+      }
+    }])
+  ],
+  controllers: [AppController],
+  providers: [AppService]
 })
 export class AppModule { }

@@ -12,7 +12,8 @@ import {
   Receipt,
   Heart,
   Activity,
-  MessageSquareText
+  MessageSquareText,
+  LogOut
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { Role } from '../../types';
@@ -48,6 +49,7 @@ const navigation: SidebarSection[] = [
   {
     title: 'Lịch khám',
     items: [
+      { label: 'Giờ làm việc', path: '/schedule/opening-time', icon: CalendarClock, roles: [Role.Admin] },
       { label: 'Ngày lễ', path: '/schedule/holidays', icon: CalendarOff, roles: [Role.Admin] },
       { label: 'Đơn nghỉ phép', path: '/schedule/leaves', icon: CalendarClock, roles: [Role.Admin] },
       { label: 'Yêu cầu đổi lịch', path: '/schedule/change-requests', icon: CalendarCheck, roles: [Role.Admin] },
@@ -136,6 +138,13 @@ export default function Sidebar() {
               {userRole === Role.Admin ? 'Quản trị viên' : 'Điều dưỡng'}
             </div>
           </div>
+          <NavLink
+            to="/logout"
+            style={{ marginLeft: 'auto', color: 'var(--neutral-500)' }}
+            title="Đăng xuất"
+          >
+            <LogOut size={20} />
+          </NavLink>
         </div>
       </div>
     </aside>

@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { UsersController } from './users.controller';
 import { DoctorsController } from './doctors.controller';
 import { CatalogsController } from './catalogs.controller';
-import { UsersService } from './user.service';
+import { UserService } from './user.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { join } from 'path';
 
@@ -17,19 +17,17 @@ import { join } from 'path';
         url: process.env.USER_SERVICE_URL!,
       },
     }]),
-    ClientsModule.register([
-      {
-        name: 'LOG_SERVICE',
-        transport: Transport.RMQ,
-        options: {
-          urls: [process.env.RMQ_URL!],
-          queue: 'log',
-          queueOptions: { durable: true }
-        }
+    ClientsModule.register([{
+      name: 'LOG_SERVICE',
+      transport: Transport.RMQ,
+      options: {
+        urls: [process.env.RMQ_URL!],
+        queue: 'log',
+        queueOptions: { durable: true }
       }
-    ])
+    }])
   ],
   controllers: [UsersController, DoctorsController, CatalogsController],
-  providers: [UsersService]
+  providers: [UserService]
 })
 export class UserModule { }

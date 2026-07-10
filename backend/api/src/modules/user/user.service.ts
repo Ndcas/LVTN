@@ -38,7 +38,7 @@ interface UserServiceClient {
 }
 
 @Injectable()
-export class UsersService implements OnModuleInit {
+export class UserService implements OnModuleInit {
   private userService: UserServiceClient;
 
   constructor(@Inject('USER_PACKAGE') private client: ClientGrpc) { }
