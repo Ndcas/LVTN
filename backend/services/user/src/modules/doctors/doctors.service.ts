@@ -18,7 +18,7 @@ export class DoctorsService {
     @InjectRepository(User) private readonly userRepository: Repository<User>
   ) { }
 
-  async getAll(data: any): Promise<any> {
+  async getAll(data: any) {
     const { page = 1, limit = 10, search, specialtyId, isActive } = data;
     const skip = (page - 1) * limit;
 
@@ -75,7 +75,7 @@ export class DoctorsService {
     };
   }
 
-  async getById(data: any): Promise<any> {
+  async getById(data: any) {
     const dm = await this.metadataRepository.findOne({
       where: { userId: data.id },
       relations: {
@@ -117,7 +117,7 @@ export class DoctorsService {
     };
   }
 
-  async create(data: any): Promise<any> {
+  async create(data: any) {
     const emailExists = await this.userRepository.exists({
       where: { email: data.email }
     });
@@ -189,7 +189,7 @@ export class DoctorsService {
     };
   }
 
-  async update(data: any): Promise<any> {
+  async update(data: any) {
     const user = await this.userRepository.findOne({
       where: {
         id: data.id,

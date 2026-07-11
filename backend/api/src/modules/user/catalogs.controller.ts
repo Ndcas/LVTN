@@ -4,10 +4,10 @@ import { type Request } from 'express';
 import { ClientProxy } from '@nestjs/microservices';
 import { AccessGuard } from 'src/guards/access.guard';
 import { Roles } from 'src/decorators/roles.decorator';
-import { CreateSpecialtyDto } from './dto/create-specialty.dto';
-import { UpdateSpecialtyDto } from './dto/update-specialty.dto';
-import { CreateDegreeDto } from './dto/create-degree.dto';
-import { UpdateDegreeDto } from './dto/update-degree.dto';
+import { CreateSpecialtyDto } from './dtos/create-specialty.dto';
+import { UpdateSpecialtyDto } from './dtos/update-specialty.dto';
+import { CreateDegreeDto } from './dtos/create-degree.dto';
+import { UpdateDegreeDto } from './dtos/update-degree.dto';
 
 @Controller('catalogs')
 export class CatalogsController {

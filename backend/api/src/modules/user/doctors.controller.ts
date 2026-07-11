@@ -4,8 +4,8 @@ import { type Request } from 'express';
 import { ClientProxy } from '@nestjs/microservices';
 import { AccessGuard } from 'src/guards/access.guard';
 import { Roles } from 'src/decorators/roles.decorator';
-import { CreateDoctorDto } from './dto/create-doctor.dto';
-import { UpdateDoctorDto } from './dto/update-doctor.dto';
+import { CreateDoctorDto } from './dtos/create-doctor.dto';
+import { UpdateDoctorDto } from './dtos/update-doctor.dto';
 
 @Controller('doctors')
 export class DoctorsController {

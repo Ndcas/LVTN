@@ -2,17 +2,17 @@ import { Controller, Post, Get, Patch, Body, Req, Param, Query, Inject, HttpExce
 import { UserService } from './user.service';
 import { type Response, type Request } from 'express';
 import { ClientProxy } from '@nestjs/microservices';
-import { RegisterDto } from './dto/register.dto';
-import { LoginDto } from './dto/login.dto';
-import { RefreshDto } from './dto/refresh.dto';
+import { RegisterDto } from './dtos/register.dto';
+import { LoginDto } from './dtos/login.dto';
+import { RefreshDto } from './dtos/refresh.dto';
 import { RefreshGuard } from 'src/guards/refresh.guard';
 import { AccessGuard } from 'src/guards/access.guard';
 import { Roles } from 'src/decorators/roles.decorator';
-import { GetOtpDto } from './dto/getotp.dto';
-import { ForgotPasswordDto } from './dto/forgotpassword.dto';
-import { UpdateFcmTokenDto } from './dto/update-fcm.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { CreateUserDto } from './dto/create-user.dto';
+import { GetOtpDto } from './dtos/getotp.dto';
+import { ForgotPasswordDto } from './dtos/forgotpassword.dto';
+import { UpdateFcmTokenDto } from './dtos/update-fcm.dto';
+import { UpdateUserDto } from './dtos/update-user.dto';
+import { CreateUserDto } from './dtos/create-user.dto';
 
 @Controller('users')
 export class UsersController {
@@ -288,6 +288,7 @@ export class UsersController {
    * @param {Request} req - Request object để lấy headers
    */
   @Post('update-fcm-token')
+  @UseGuards(AccessGuard)
   async updateFcmToken(@Body() body: UpdateFcmTokenDto, @Req() req: any) {
     const correlationId = req.headers['correlation-id'] as string;
     const userId = req.user.userId;

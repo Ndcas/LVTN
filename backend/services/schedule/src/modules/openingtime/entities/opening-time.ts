@@ -5,14 +5,23 @@ export class OpeningTime {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ type: 'int' })
-    day_of_week: number;
+    @Column({
+        type: 'int',
+        name: 'day_of_week'
+    })
+    dayOfWeek: number;
 
-    @Column({ type: 'time' })
-    start_time: string;
+    @Column({
+        type: 'time',
+        name: 'start_time'
+    })
+    startTime: string;
 
-    @Column({ type: 'time' })
-    end_time: string;
+    @Column({
+        type: 'time',
+        name: 'end_time'
+    })
+    endTime: string;
 
     @CreateDateColumn({ name: 'created_at' })
     createdAt: Date;

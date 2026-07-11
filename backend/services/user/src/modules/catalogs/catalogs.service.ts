@@ -16,7 +16,7 @@ export class CatalogsService {
     @Inject(CACHE_MANAGER) private readonly cache: Cache
   ) { }
 
-  async getAllRoles(): Promise<any> {
+  async getAllRoles() {
     const cachedRoles = await this.cache.get('roles');
 
     if (cachedRoles) {
@@ -46,7 +46,7 @@ export class CatalogsService {
     };
   }
 
-  async getAllSpecialties(): Promise<any> {
+  async getAllSpecialties() {
     const cachedSpecialties = await this.cache.get('specialties');
 
     if (cachedSpecialties) {
@@ -79,7 +79,7 @@ export class CatalogsService {
     };
   }
 
-  async createSpecialty(data: any): Promise<any> {
+  async createSpecialty(data: any) {
     const exists = await this.specialtyRepository.findOne({
       where: [{ name: data.name }, { code: data.code }],
     });
@@ -110,7 +110,7 @@ export class CatalogsService {
     };
   }
 
-  async updateSpecialty(data: any): Promise<any> {
+  async updateSpecialty(data: any) {
     const specialty = await this.specialtyRepository.findOne({
       where: { id: data.id }
     });
@@ -150,7 +150,7 @@ export class CatalogsService {
     };
   }
 
-  async getAllDegrees(): Promise<any> {
+  async getAllDegrees() {
     const cachedDegrees = await this.cache.get('degrees');
 
     if (cachedDegrees) {
@@ -181,7 +181,7 @@ export class CatalogsService {
     };
   }
 
-  async createDegree(data: any): Promise<any> {
+  async createDegree(data: any) {
     const exists = await this.degreeRepository.findOne({
       where: { name: data.name }
     });
@@ -210,7 +210,7 @@ export class CatalogsService {
     };
   }
 
-  async updateDegree(data: any): Promise<any> {
+  async updateDegree(data: any) {
     const degree = await this.degreeRepository.findOne({
       where: { id: data.id }
     });

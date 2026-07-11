@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { OpeningTimeModule } from './modules/opening-time/opening-time.module';
+import { OpeningTimeModule } from './modules/openingtime/opening-time.module';
 
 @Module({
   imports: [

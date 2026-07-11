@@ -3,4 +3,42 @@ syntax = "proto3";
 package schedule;
 
 service ScheduleService {
+    
+    // === OpeningTime ===
+    rpc GetAll(GetAllRequest) returns (GetAllResponse) {}
+    rpc UpdateBulk(UpdateBulkRequest) returns (BaseResponse) {}
+}
+
+message EmptyRequest {
+    string correlationId = 1;
+}
+
+message BaseResponse {
+    bool ok = 1;
+    int32 status = 2;
+    string error = 3;
+    string message = 4;
+}
+
+message GetAllRequest {
+    string correlationId = 1;
+}
+
+message OpeningTimeItem {
+    string dayOfWeek = 1;
+    string startTime = 2;
+    string endTime = 3;
+}
+
+message GetAllResponse {
+    bool ok = 1;
+    int32 status = 2;
+    string error = 3;
+    string message = 4;
+    repeated OpeningTimeItem data = 5;
+}
+
+message UpdateBulkRequest {
+    repeated OpeningTimeItem openingTimes = 1;
+    string correlationId = 2;
 }

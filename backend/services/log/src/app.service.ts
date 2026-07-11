@@ -4,7 +4,7 @@ import logger from './logger';
 @Injectable()
 export class AppService {
 
-  handleSystemLog(data: any): void {
+  handleSystemLog(data: any) {
     const { level = 'info', message, service, timestamp, ...meta } = data;
 
     logger.log({

@@ -19,7 +19,7 @@ export class UsersService {
     private readonly mailService: MailService
   ) { }
 
-  async getRegisterOtp(data: any): Promise<any> {
+  async getRegisterOtp(data: any) {
     const email = data.email;
 
     const existingUser = await this.userRepository.exists({
@@ -62,7 +62,7 @@ export class UsersService {
     };
   }
 
-  async register(data: any): Promise<any> {
+  async register(data: any) {
     const otp = await this.cacheManager.get(`OTP_R_${data.email}`);
 
     if (!otp || otp != data.otp) {
@@ -109,7 +109,7 @@ export class UsersService {
     };
   }
 
-  async login(data: any): Promise<any> {
+  async login(data: any) {
     const user = await this.userRepository.findOne({
       where: { email: data.email }
     });
@@ -169,7 +169,7 @@ export class UsersService {
     };
   }
 
-  async refresh(data: any): Promise<any> {
+  async refresh(data: any) {
     let payload: any = {};
 
     try {
@@ -228,7 +228,7 @@ export class UsersService {
     };
   }
 
-  async logout(data: any): Promise<any> {
+  async logout(data: any) {
     try {
       const payload = await this.jwtService.verifyAsync(data.refreshToken, {
         secret: this.configService.get<string>('JWT_REFRESH_SECRET')
@@ -249,7 +249,7 @@ export class UsersService {
     };
   }
 
-  async getForgotPasswordOtp(data: any): Promise<any> {
+  async getForgotPasswordOtp(data: any) {
     const email = data.email;
 
     let existingUser = await this.userRepository.exists({
@@ -292,7 +292,7 @@ export class UsersService {
     };
   }
 
-  async forgotPassword(data: any): Promise<any> {
+  async forgotPassword(data: any) {
     const otp = await this.cacheManager.get(`OTP_FP_${data.email}`);
 
     if (!otp || otp != data.otp) {
@@ -329,7 +329,7 @@ export class UsersService {
     };
   }
 
-  async updateFcmToken(data: any): Promise<any> {
+  async updateFcmToken(data: any) {
     const { userId, deviceId, fcmToken, deviceName } = data;
 
     await this.userRepository.update(userId, {
@@ -345,7 +345,7 @@ export class UsersService {
     };
   }
 
-  async getAll(data: any): Promise<any> {
+  async getAll(data: any) {
     const { page = 1, limit = 10, search, roleId, isActive } = data;
     const skip = (page - 1) * limit;
 
@@ -407,7 +407,7 @@ export class UsersService {
     };
   }
 
-  async getById(data: any): Promise<any> {
+  async getById(data: any) {
     const user = await this.userRepository.findOne({
       where: { id: data.id },
       relations: { role: true }
@@ -440,7 +440,7 @@ export class UsersService {
     };
   }
 
-  async createUser(data: any): Promise<any> {
+  async createUser(data: any) {
     const existingUser = await this.userRepository.findOne({
       where: [{ email: data.email }, { phone: data.phone }]
     });
@@ -476,7 +476,7 @@ export class UsersService {
     };
   }
 
-  async updateUser(data: any): Promise<any> {
+  async updateUser(data: any) {
     const user = await this.userRepository.findOne({
       where: { id: data.id }
     });
@@ -554,7 +554,7 @@ export class UsersService {
     };
   }
 
-  async toggleActive(data: any): Promise<any> {
+  async toggleActive(data: any) {
     const user = await this.userRepository.findOne({
       where: { id: data.id }
     });
