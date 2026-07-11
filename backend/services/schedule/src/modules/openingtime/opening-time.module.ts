@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { OpeningTime } from './entities/opening-time';
+import { OpeningTime } from './entities/opening-time.entity';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { OpeningTimeController } from './opening-time.controller';
 import { OpeningTimeService } from './opening-time.service';

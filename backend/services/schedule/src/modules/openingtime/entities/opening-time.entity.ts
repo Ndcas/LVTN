@@ -1,12 +1,12 @@
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
-@Entity()
+@Entity('opening_time')
 export class OpeningTime {
     @PrimaryGeneratedColumn()
     id: number;
 
     @Column({
-        type: 'int',
+        type: 'tinyint',
         name: 'day_of_week'
     })
     dayOfWeek: number;

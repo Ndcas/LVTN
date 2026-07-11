@@ -26,5 +26,5 @@ export class GlobalHoliday {
     description: string;
 
     @CreateDateColumn({ name: 'created_at' })
-    createAt: Date;
+    createdAt: Date;
 }
