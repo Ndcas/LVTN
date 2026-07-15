@@ -2,7 +2,7 @@ import { Injectable, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Not, DataSource } from 'typeorm';
 import { DoctorMetadata } from './entities/doctor-metadata.entity';
-import { User } from '../users/entities/user.entity';
+import { IsActive, User } from '../users/entities/user.entity';
 import bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
@@ -317,6 +317,34 @@ export class DoctorsService {
       ok: true,
       status: 200,
       message: 'Cập nhật bác sĩ thành công'
+    };
+  }
+
+  async getAllBySpecialtyId(data: any) {
+    const doctors = await this.userRepository.find({
+      select: {
+        id: true,
+        fullName: true
+      },
+      where: {
+        roleId: 2,
+        isActive: IsActive.ACTIVE,
+        doctorMetadata: {
+          specialtyId: data.id
+        }
+      },
+      relations: {
+        doctorMetadata: true
+      }
+    });
+
+    return {
+      ok: true,
+      status: 200,
+      data: doctors.map(d => ({
+        id: d.id,
+        fullName: d.fullName
+      }))
     };
   }
 }

@@ -1,11 +1,11 @@
 import { Controller, Inject } from '@nestjs/common';
-import { OpeningTimeService } from './opening-time.service';
+import { TemplatesService } from './templates.service';
 import { ClientProxy, GrpcMethod } from '@nestjs/microservices';
 
 @Controller()
-export class OpeningTimeController {
+export class TemplatesController {
     constructor(
-        private readonly openingTimeService: OpeningTimeService,
+        private readonly holidayService: TemplatesService,
         @Inject('LOG_SERVICE') private logClient: ClientProxy
     ) { }
 
@@ -20,22 +20,23 @@ export class OpeningTimeController {
     }
 
     /**
-     * Lấy danh sách giờ mở cửa qua gRPC
+     * Lấy lịch làm việc mẫu của bác sĩ qua gRPC
      * @param {Object} data - Dữ liệu yêu cầu
+     * @param {number} data.id - ID của bác sĩ
      * @param {string} data.correlationId - ID theo dõi request
      */
-    @GrpcMethod('ScheduleService', 'GetOpeningTime')
-    async getOpeningTime(data: any) {
+    @GrpcMethod('ScheduleService', 'GetWeeklyTemplateByDoctor')
+    async getWeeklyTemplateByDoctor(data: any) {
         try {
-            this.processLog('GetOpeningTime', data.correlationId, 'Nhận được yêu cầu lấy danh sách thời gian mở cửa');
+            this.processLog('GetWeeklyTemplateByDoctor', data.correlationId, 'Nhận được yêu cầu lấy lịch làm việc của bác sĩ');
 
-            const result = await this.openingTimeService.getOpeningTime(data);
+            const result = await this.holidayService.getById(data);
 
-            this.processLog('GetOpeningTime', data.correlationId, 'Kết thúc xử lý lấy danh sách thời gian mở cửa');
+            this.processLog('GetWeeklyTemplateByDoctor', data.correlationId, 'Kết thúc xử lý lấy lịch làm việc của bác sĩ');
 
             return result;
-        } catch (e) {
-            this.processLog('GetOpeningTime', data.correlationId, `Lỗi khi xử lý lấy danh sách thời gian mở cửa: ${e}`, 'error');
+        } catch (error) {
+            this.processLog('GetWeeklyTemplateByDoctor', data.correlationId, `Lỗi khi xử lý lấy lịch làm việc của bác sĩ: ${error}`, 'error');
 
             return {
                 ok: false,

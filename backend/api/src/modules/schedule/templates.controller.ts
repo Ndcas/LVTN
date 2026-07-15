@@ -1,11 +1,11 @@
-import { Controller, Get, HttpException, Inject, Req, UseGuards } from "@nestjs/common";
+import { Controller, Get, HttpException, Inject, Param, ParseIntPipe, Req, UseGuards } from "@nestjs/common";
 import { ScheduleService } from "./schedule.service";
 import { ClientProxy } from "@nestjs/microservices";
 import { AccessGuard } from "src/guards/access.guard";
 import { type Request } from "express";
 
-@Controller('opening-time')
-export class OpeningTimeController {
+@Controller('templates')
+export class TemplatesController {
     constructor(
         private readonly scheduleService: ScheduleService,
         @Inject('LOG_SERVICE') private logClient: ClientProxy
@@ -22,25 +22,26 @@ export class OpeningTimeController {
     }
 
     /**
-     * Lấy danh sách giờ mở cửa
+     * Lấy lịch làm việc mẫu của bác sĩ
+     * @param {number} id - ID của bác sĩ
      * @param {Request} req - Request object để lấy headers
      */
-    @Get()
+    @Get(':id')
     @UseGuards(AccessGuard)
-    async getOpeningTime(@Req() req: Request) {
+    async getWeeklyTemplateByDoctor(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
         const correlationId = req.headers['correlation-id'] as string;
 
-        this.processLog('GetOpeningTime', correlationId, 'Nhận được yêu cầu lấy danh sách giờ mở cửa');
+        this.processLog('GetWeeklyTemplateByDoctor', correlationId, 'Nhận được yêu cầu lấy lịch làm việc mẫu của bác sĩ');
 
-        const result = await this.scheduleService.getOpeningTime({ correlationId });
+        const result = await this.scheduleService.getWeeklyTemplateByDoctor({ id, correlationId });
 
         if (!result.ok) {
-            this.processLog('GetOpeningTime', correlationId, `Không thành công ${result.error}`, 'warn');
+            this.processLog('GetWeeklyTemplateByDoctor', correlationId, `Không thành công ${result.error}`, 'warn');
 
             throw new HttpException(result.error, result.status);
         }
 
-        this.processLog('GetOpeningTime', correlationId, 'Thành công');
+        this.processLog('GetWeeklyTemplateByDoctor', correlationId, 'Thành công');
 
         const { ok, status, error, ...data } = result;
 

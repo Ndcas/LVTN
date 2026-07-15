@@ -574,7 +574,7 @@ export class UsersService {
     await this.cacheManager.del(`RT_${user.id}`);
 
     if (user.isActive == '0') {
-      await this.cacheManager.set(`BL_${user.id}`, '1');
+      await this.cacheManager.set(`BL_${user.id}`, '1', 600000);
     } else {
       await this.cacheManager.del(`BL_${user.id}`);
     }

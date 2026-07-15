@@ -4,14 +4,19 @@ package feedback;
 
 service FeedbackService {
     rpc GetAllFeedbacks(GetAllFeedbacksRequest) returns (GetAllFeedbacksResponse) {}
-    rpc GetFeedbackById(GetFeedbackByIdRequest) returns (FeedbackDetailResponse) {}
+    rpc GetFeedbackById(IdRequest) returns (FeedbackDetailResponse) {}
     rpc CreateFeedback(CreateFeedbackRequest) returns (BaseResponse) {}
-    rpc MarkAsRead(MarkAsReadRequest) returns (BaseResponse) {}
+    rpc MarkAsRead(IdRequest) returns (BaseResponse) {}
     rpc GetUnreadCount(EmptyRequest) returns (UnreadCountResponse) {}
 }
 
 message EmptyRequest {
     string correlationId = 1;
+}
+
+message IdRequest {
+    int32 id = 1;
+    string correlationId = 2;
 }
 
 message BaseResponse {
@@ -56,21 +61,11 @@ message FeedbackDetailResponse {
     FeedbackItem data = 5;
 }
 
-message GetFeedbackByIdRequest {
-    int32 id = 1;
-    string correlationId = 2;
-}
-
 message CreateFeedbackRequest {
     int32 userId = 1;
     string title = 2;
     string content = 3;
     string correlationId = 4;
-}
-
-message MarkAsReadRequest {
-    int32 id = 1;
-    string correlationId = 2;
 }
 
 message UnreadCountResponse {

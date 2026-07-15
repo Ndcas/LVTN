@@ -5,27 +5,28 @@ package user;
 service UserService {
 
   // === Auth ===
-  rpc GetRegisterOtp(GetRegisterOtpRequest) returns (BaseResponse) {}
+  rpc GetRegisterOtp(EmailRequest) returns (BaseResponse) {}
   rpc Register(RegisterRequest) returns (BaseResponse) {}
   rpc Login(LoginRequest) returns (AuthResponse) {}
-  rpc Refresh(RefreshRequest) returns (AuthResponse) {}
-  rpc Logout(LogoutRequest) returns (BaseResponse) {}
-  rpc GetForgotPasswordOtp(GetForgotPasswordOtpRequest) returns (BaseResponse) {}
+  rpc Refresh(RefreshTokenRequest) returns (AuthResponse) {}
+  rpc Logout(RefreshTokenRequest) returns (BaseResponse) {}
+  rpc GetForgotPasswordOtp(EmailRequest) returns (BaseResponse) {}
   rpc ForgotPassword(ForgotPasswordRequest) returns (BaseResponse) {}
   rpc UpdateFcmToken(UpdateFcmTokenRequest) returns (BaseResponse) {}
 
   // === CRUD Users ===
   rpc GetAllUsers(GetAllUsersRequest) returns (UserListResponse) {}
-  rpc GetUserById(GetByIdRequest) returns (UserDetailResponse) {}
+  rpc GetUserById(IdRequest) returns (UserDetailResponse) {}
   rpc CreateUser(CreateUserRequest) returns (BaseResponse) {}
   rpc UpdateUser(UpdateUserRequest) returns (BaseResponse) {}
-  rpc ToggleUserActive(GetByIdRequest) returns (BaseResponse) {}
+  rpc ToggleUserActive(IdRequest) returns (BaseResponse) {}
 
   // === CRUD Doctors ===
   rpc GetAllDoctors(GetAllDoctorsRequest) returns (DoctorListResponse) {}
-  rpc GetDoctorById(GetByIdRequest) returns (DoctorDetailResponse) {}
+  rpc GetDoctorById(IdRequest) returns (DoctorDetailResponse) {}
   rpc CreateDoctor(CreateDoctorRequest) returns (BaseResponse) {}
   rpc UpdateDoctor(UpdateDoctorRequest) returns (BaseResponse) {}
+  rpc GetAllDoctorsBySpecialtyId(IdRequest) returns (GetAllDoctorsBySpecialtyIdResponse) {}
 
   // === Catalogs ===
   rpc GetAllSpecialties(EmptyRequest) returns (SpecialtyListResponse) {}
@@ -43,6 +44,11 @@ message EmptyRequest {
   string correlationId = 1;
 }
 
+message IdRequest {
+  int32 id = 1;
+  string correlationId = 2;
+}
+
 message BaseResponse {
   bool ok = 1;
   int32 status = 2;
@@ -50,14 +56,9 @@ message BaseResponse {
   string message = 4;
 }
 
-message GetByIdRequest {
-  int32 id = 1;
-  string correlationId = 2;
-}
-
 // === Auth Messages ===
 
-message GetRegisterOtpRequest {
+message EmailRequest {
   string email = 1;
   string correlationId = 2;
 }
@@ -83,18 +84,8 @@ message LoginRequest {
   optional string deviceName = 6;
 }
 
-message RefreshRequest {
+message RefreshTokenRequest {
   string refreshToken = 1;
-  string correlationId = 2;
-}
-
-message LogoutRequest {
-  string refreshToken = 1;
-  string correlationId = 2;
-}
-
-message GetForgotPasswordOtpRequest {
-  string email = 1;
   string correlationId = 2;
 }
 
@@ -264,6 +255,18 @@ message UpdateDoctorRequest {
   optional string biography = 11;
   optional string workType = 12;
   string correlationId = 13;
+}
+
+message SimpleDoctorItem {
+  int32 id = 1;
+  string fullName = 2;
+}
+
+message GetAllDoctorsBySpecialtyIdResponse {
+  bool ok = 1;
+  int32 status = 2;
+  string error = 3;
+  repeated SimpleDoctorItem data = 4;
 }
 
 // === Catalog Messages ===

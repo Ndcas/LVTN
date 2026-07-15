@@ -153,4 +153,31 @@ export class DoctorsController {
       };
     }
   }
+
+  /**
+   * Lấy danh sách bác sĩ (id và fullName) theo chuyên khoa qua gRPC
+   * @param {Object} data - Dữ liệu yêu cầu
+   * @param {number} data.id - ID chuyên khoa
+   * @param {string} data.correlationId - ID theo dõi request
+   */
+  @GrpcMethod('UserService', 'GetAllDoctorsBySpecialtyId')
+  async getAllDoctorsBySpecialtyId(data: any) {
+    try {
+      this.processLog('GetAllDoctorsBySpecialtyId', data.correlationId, 'Nhận được yêu cầu lấy danh sách bác sĩ theo chuyên khoa');
+
+      const result = await this.doctorsService.getAllBySpecialtyId(data);
+
+      this.processLog('GetAllDoctorsBySpecialtyId', data.correlationId, 'Kết thúc xử lý lấy danh sách bác sĩ theo chuyên khoa');
+
+      return result;
+    } catch (e) {
+      this.processLog('GetAllDoctorsBySpecialtyId', data.correlationId, `Lỗi khi xử lý lấy danh sách bác sĩ theo chuyên khoa: ${e}`, 'error');
+
+      return {
+        ok: false,
+        status: 500,
+        error: 'Lỗi hệ thống'
+      };
+    }
+  }
 }

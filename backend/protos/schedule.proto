@@ -5,12 +5,29 @@ package schedule;
 service ScheduleService {
     
     // === OpeningTime ===
-    rpc GetAll(GetAllRequest) returns (GetAllResponse) {}
-    rpc UpdateBulk(UpdateBulkRequest) returns (BaseResponse) {}
+    rpc GetOpeningTime(EmptyRequest) returns (GetOpeningTimeResponse) {}
+
+    // === GlobalHoliday ===
+    rpc GetAllHolidays(EmptyRequest) returns (GetAllHolidaysResponse) {}
+    rpc CreateHoliday(CreateHolidayRequest) returns (BaseResponse) {}
+    rpc UpdateHoliday(UpdateHolidayRequest) returns (BaseResponse) {}
+    rpc DeleteHoliday(IdRequest) returns (BaseResponse) {}
+
+    // === DoctorWeeklyTemplate ===
+    rpc GetWeeklyTemplateByDoctor(IdRequest) returns (GetWeeklyTemplateByDoctorResponse) {}
+
+    // === Timeslot ===
+    rpc GetAvailableTimeSlots(GetAvailableTimeSlotsRequest) returns (GetAvailableTimeSlotsResponse)
 }
 
+// === Common Message ===
 message EmptyRequest {
     string correlationId = 1;
+}
+
+message IdRequest {
+    int32 id = 1;
+    string correlationId = 2;
 }
 
 message BaseResponse {
@@ -20,17 +37,14 @@ message BaseResponse {
     string message = 4;
 }
 
-message GetAllRequest {
-    string correlationId = 1;
-}
-
+// === OpeningTime ===
 message OpeningTimeItem {
     string dayOfWeek = 1;
     string startTime = 2;
     string endTime = 3;
 }
 
-message GetAllResponse {
+message GetOpeningTimeResponse {
     bool ok = 1;
     int32 status = 2;
     string error = 3;
@@ -38,7 +52,73 @@ message GetAllResponse {
     repeated OpeningTimeItem data = 5;
 }
 
-message UpdateBulkRequest {
-    repeated OpeningTimeItem openingTimes = 1;
-    string correlationId = 2;
+// === GlobalHoliday ===
+message HolidayItem {
+    string id = 1;
+    string holidayDate = 2;
+    string name = 3;
+    string description = 4;
+}
+
+message GetAllHolidaysResponse {
+    bool ok = 1;
+    int32 status = 2;
+    string error = 3;
+    string message = 4;
+    repeated HolidayItem data = 5;
+}
+
+message CreateHolidayRequest {
+    string correlationId = 1;
+    string holidayDate = 2;
+    string name = 3;
+    string description = 4;
+}
+
+message UpdateHolidayRequest {
+    string correlationId = 1;
+    int32 id = 2;
+    optional string name = 3;
+    optional string description = 4;
+}
+
+// === DoctorWeeklyTemplate ===
+message WeeklyTemplateItem {
+    string dayOfWeek = 1;
+    string startTime = 2;
+    string endTime = 3;
+    string clinicType = 4;
+}
+
+message GetWeeklyTemplateByDoctorResponse {
+    bool ok = 1;
+    int32 status = 2;
+    string error = 3;
+    string message = 4;
+    repeated WeeklyTemplateItem data = 5;
+}
+
+// === Timeslot ===
+message GetAvailableTimeSlotsRequest {
+    repeated int32 doctorIds = 1;
+    string date = 2;
+    string startTime = 3;
+    string endTime = 4;
+    string clinicType = 5;
+    string correlationId = 6;
+}
+
+message TimeslotItem {
+    int32 id = 1;
+    int32 doctorId = 2;
+    string startTime = 3;
+    string endTime = 4;
+}
+
+message GetAvailableTimeSlotsResponse {
+    bool ok = 1;
+    int32 status = 2;
+    string error = 3;
+    string message = 4;
+    repeated TimeslotItem data = 5;
 }

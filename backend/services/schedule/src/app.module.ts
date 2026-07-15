@@ -5,9 +5,13 @@ import { OpeningTimeModule } from './modules/openingtime/opening-time.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import KeyvRedis from '@keyv/redis';
 import { HolidaysModule } from './modules/holidays/holidays.module';
+import { TemplatesModule } from './modules/templates/templates.module';
+import { TimeSlotsModule } from './modules/timeslots/time-slots.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({ isGlobal: true }),
     CacheModule.register({
       isGlobal: true,
@@ -23,7 +27,9 @@ import { HolidaysModule } from './modules/holidays/holidays.module';
       autoLoadEntities: true
     }),
     OpeningTimeModule,
-    HolidaysModule
+    HolidaysModule,
+    TemplatesModule,
+    TimeSlotsModule
   ]
 })
 export class AppModule { }

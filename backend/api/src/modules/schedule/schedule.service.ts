@@ -5,26 +5,110 @@ import { lastValueFrom, Observable } from "rxjs";
 interface ScheduleServiceClient {
 
     // === OpeningTime ===
-    getAll(data: any): Observable<any>;
-    updateBulk(data: any): Observable<any>;
+    getOpeningTime(data: any): Observable<any>;
+
+    // === GlobalHoliday
+    getAllHolidays(data: any): Observable<any>;
+    createHoliday(data: any): Observable<any>;
+    updateHoliday(data: any): Observable<any>;
+    deleteHoliday(data: any): Observable<any>;
+
+    // === DoctorWeeklyTemplate
+    getWeeklyTemplateByDoctor(data: any): Observable<any>;
+
+    // === TimeSlot ===
+    getAvailableTimeSlots(data: any): Observable<any>;
+}
+
+interface UserServiceClient {
+    getAllDoctorsBySpecialtyId(data: any): Observable<any>;
 }
 
 @Injectable()
 export class ScheduleService implements OnModuleInit {
     private scheduleService: ScheduleServiceClient
+    private userService: UserServiceClient
 
-    constructor(@Inject('SCHEDULE_PACKAGE') private client: ClientGrpc) { }
+    constructor(
+        @Inject('SCHEDULE_PACKAGE') private scheduleClient: ClientGrpc,
+        @Inject('USER_PACKAGE') private userClient: ClientGrpc,
+    ) { }
 
     onModuleInit() {
-        this.scheduleService = this.client.getService<ScheduleServiceClient>('ScheduleService');
+        this.scheduleService = this.scheduleClient.getService<ScheduleServiceClient>('ScheduleService');
+        this.userService = this.userClient.getService<UserServiceClient>('UserService');
     }
 
     // === OpeningTime ===
-    getAll(data: any) {
-        return lastValueFrom(this.scheduleService.getAll(data));
+    getOpeningTime(data: any) {
+        return lastValueFrom(this.scheduleService.getOpeningTime(data));
     }
 
-    updateBulk(data: any) {
-        return lastValueFrom(this.scheduleService.updateBulk(data));
+    // === GlobalHoliday ===
+    getAllHolidays(data: any) {
+        return lastValueFrom(this.scheduleService.getAllHolidays(data));
+    }
+
+    createHoliday(data: any) {
+        return lastValueFrom(this.scheduleService.createHoliday(data));
+    }
+
+    updateHoliday(data: any) {
+        return lastValueFrom(this.scheduleService.updateHoliday(data));
+    }
+
+    deleteHoliday(data: any) {
+        return lastValueFrom(this.scheduleService.deleteHoliday(data));
+    }
+
+    // === DoctorWeeklyTemplate ===
+    getWeeklyTemplateByDoctor(data: any) {
+        return lastValueFrom(this.scheduleService.getWeeklyTemplateByDoctor(data));
+    }
+
+    // === TimeSlot ===
+    async getAvailableTimeSlots(data: any) {
+        const { specialtyId, date, startTime, endTime, clinicType, correlationId } = data;
+
+        const doctorsIdsResponse = await lastValueFrom(this.userService.getAllDoctorsBySpecialtyId({
+            id: specialtyId,
+            correlationId
+        }));
+
+        if (!doctorsIdsResponse.ok) {
+            return doctorsIdsResponse;
+        }
+
+        const doctorIds = doctorsIdsResponse.data.map(doctor => doctor.id);
+
+        const availableTimeSlotsResponse = await lastValueFrom(this.scheduleService.getAvailableTimeSlots({
+            date,
+            startTime,
+            endTime,
+            doctorIds,
+            clinicType,
+            correlationId
+        }));
+
+        if (!availableTimeSlotsResponse.ok) {
+            return availableTimeSlotsResponse;
+        }
+
+        const doctorNameMap = new Map();
+
+        doctorsIdsResponse.data.forEach(doctor => {
+            doctorNameMap.set(doctor.id, doctor.fullName);
+        });
+
+        const availableTimeSlots = availableTimeSlotsResponse.data.map(timeSlot => ({
+            ...timeSlot,
+            doctorName: doctorNameMap.get(timeSlot.doctorId)
+        }));
+
+        return {
+            ok: true,
+            status: 200,
+            data: availableTimeSlots
+        };
     }
 }
