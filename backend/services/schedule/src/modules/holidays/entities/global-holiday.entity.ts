@@ -10,7 +10,7 @@ export class GlobalHoliday {
         name: 'holiday_date',
         unique: true
     })
-    holidayDate: Date;
+    holidayDate: string;
 
     @Column({
         type: 'varchar',

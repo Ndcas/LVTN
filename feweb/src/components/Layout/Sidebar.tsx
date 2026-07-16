@@ -1,20 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import {
-  LayoutDashboard,
-  Users,
-  Stethoscope,
-  CalendarOff,
-  CalendarClock,
-  CalendarCheck,
-  ClipboardList,
-  Pill,
-  ShieldAlert,
-  Receipt,
-  Heart,
-  Activity,
-  MessageSquareText,
-  LogOut
-} from 'lucide-react';
+import { LayoutDashboard, Users, Stethoscope, CalendarOff, CalendarClock, CalendarCheck, ClipboardList, Pill, ShieldAlert, Receipt, Heart, Activity, MessageSquareText, LogOut } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { Role } from '../../types';
 import type { ComponentType } from 'react';

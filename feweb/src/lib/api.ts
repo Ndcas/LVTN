@@ -1,14 +1,5 @@
 import api from '../lib/axios';
-import type {
-  User,
-  Doctor,
-  Specialty,
-  Degree,
-  RoleItem,
-  PaginatedResponse,
-  GetUsersParams,
-  GetDoctorsParams,
-} from '../types';
+import type { User, Doctor, Specialty, Degree, RoleItem, PaginatedResponse, GetUsersParams, GetDoctorsParams } from '../types';
 
 // ─────────────────────────────────────────────
 // Users API

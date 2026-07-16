@@ -158,7 +158,7 @@ export class DoctorsService {
         email: data.email,
         fullName: data.fullName,
         gender: data.gender,
-        dob: data.dob ? new Date(data.dob) : null,
+        dob: data.dob || null,
         address: data.address || null
       });
       const savedUser = await queryRunner.manager.save(newUser);
@@ -263,11 +263,11 @@ export class DoctorsService {
       user.gender = data.gender;
     }
 
-    if (data.dob !== undefined) {
-      user.dob = data.dob ? new Date(data.dob) : null;
+    if (data.dob != undefined) {
+      user.dob = data.dob || null;
     }
 
-    if (data.address !== undefined) {
+    if (data.address != undefined) {
       user.address = data.address || null;
     }
 
@@ -279,11 +279,11 @@ export class DoctorsService {
       metadata.degreeId = data.degreeId;
     }
 
-    if (data.experienceYears !== undefined) {
+    if (data.experienceYears != undefined) {
       metadata.experienceYears = data.experienceYears;
     }
 
-    if (data.biography !== undefined) {
+    if (data.biography != undefined) {
       metadata.biography = data.biography || null;
     }
 

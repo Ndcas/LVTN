@@ -1,8 +1,9 @@
-import { BadRequestException, Controller, Get, HttpException, Inject, ParseIntPipe, Query, Req, UseGuards } from "@nestjs/common";
+import { BadRequestException, Controller, Delete, Get, HttpException, Inject, ParseIntPipe, Post, Query, Req, UseGuards } from "@nestjs/common";
 import { ScheduleService } from "./schedule.service";
 import { ClientProxy } from "@nestjs/microservices";
 import { type Request } from "express";
 import { AccessGuard } from "src/guards/access.guard";
+import { Roles } from "src/decorators/roles.decorator";
 
 @Controller('time-slots')
 export class TimeSlotsController {
@@ -85,6 +86,60 @@ export class TimeSlotsController {
         }
 
         this.processLog('GetAvailableTimeSlots', correlationId, 'Thành công');
+
+        const { ok, status, error, ...data } = result;
+
+        return data;
+    }
+
+    /**
+     * Lên lịch khám đến chủ nhật tiếp theo
+     * @param {Request} req - Request object để lấy headers
+     */
+    @Post('schedule-time-slots')
+    @UseGuards(AccessGuard)
+    @Roles(['Admin'])
+    async scheduleTimeSlots(@Req() req: Request) {
+        const correlationId = req.headers['correlation-id'] as string;
+
+        this.processLog('ScheduleTimeSlots', correlationId, 'Nhận được yêu cầu lên lịch khám');
+
+        const result = await this.scheduleService.scheduleTimeSlots({ correlationId });
+
+        if (!result.ok) {
+            this.processLog('ScheduleTimeSlots', correlationId, 'Thất bại', 'warn');
+
+            throw new HttpException(result.error, result.status);
+        }
+
+        this.processLog('ScheduleTimeSlots', correlationId, 'Thành công');
+
+        const { ok, status, error, ...data } = result;
+
+        return data;
+    }
+
+    /**
+     * Xóa time slot cũ
+     * @param {Request} req - Request object để lấy headers
+     */
+    @Delete('delete-old-time-slots')
+    @UseGuards(AccessGuard)
+    @Roles(['Admin'])
+    async deleteOldTimeSlots(@Req() req: Request) {
+        const correlationId = req.headers['correlation-id'] as string;
+
+        this.processLog('DeleteOldTimeSlots', correlationId, 'Nhận được yêu cầu xóa time slot cũ');
+
+        const result = await this.scheduleService.deleteOldTimeSlots({ correlationId });
+
+        if (!result.ok) {
+            this.processLog('DeleteOldTimeSlots', correlationId, 'Thất bại', 'warn');
+
+            throw new HttpException(result.error, result.status);
+        }
+
+        this.processLog('DeleteOldTimeSlots', correlationId, 'Thành công');
 
         const { ok, status, error, ...data } = result;
 

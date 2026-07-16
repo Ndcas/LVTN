@@ -27,7 +27,7 @@ export class HolidaysService {
 
         const dataResponse = holidays.map(holiday => ({
             id: holiday.id,
-            holidayDate: holiday.holidayDate.toISOString(),
+            holidayDate: holiday.holidayDate,
             name: holiday.name,
             description: holiday.description,
             createdAt: holiday.createdAt.toISOString()
@@ -44,7 +44,7 @@ export class HolidaysService {
 
     async create(data: any) {
         const newHoliday = this.globalHolidayRepository.create({
-            holidayDate: new Date(data.holidayDate),
+            holidayDate: data.holidayDate,
             name: data.name,
             description: data.description
         });

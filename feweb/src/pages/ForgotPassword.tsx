@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useState, type SubmitEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Heart, Eye, EyeOff, ArrowLeft, CheckCircle } from 'lucide-react';
 import api from '../lib/axios';
@@ -21,7 +21,7 @@ export default function ForgotPassword() {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   /** Bước 1: Gửi OTP về email */
-  const handleRequestOtp = async (e: FormEvent) => {
+  const handleRequestOtp = async (e: SubmitEvent) => {
     e.preventDefault();
     const newErrors: Record<string, string> = {};
 
@@ -53,7 +53,7 @@ export default function ForgotPassword() {
   };
 
   /** Bước 2: Xác nhận OTP + Đặt mật khẩu mới */
-  const handleResetPassword = async (e: FormEvent) => {
+  const handleResetPassword = async (e: SubmitEvent) => {
     e.preventDefault();
     const newErrors: Record<string, string> = {};
 

@@ -8,6 +8,9 @@ import { HolidaysModule } from './modules/holidays/holidays.module';
 import { TemplatesModule } from './modules/templates/templates.module';
 import { TimeSlotsModule } from './modules/timeslots/time-slots.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { BookingsModule } from './modules/bookings/bookings.module';
+import { LeavesModule } from './modules/leaves/leaves.module';
+import { ChangeRequestsModule } from './modules/changerequests/change-requests.module';
 
 @Module({
   imports: [
@@ -29,7 +32,10 @@ import { ScheduleModule } from '@nestjs/schedule';
     OpeningTimeModule,
     HolidaysModule,
     TemplatesModule,
-    TimeSlotsModule
+    TimeSlotsModule,
+    BookingsModule,
+    LeavesModule,
+    ChangeRequestsModule
   ]
 })
 export class AppModule { }

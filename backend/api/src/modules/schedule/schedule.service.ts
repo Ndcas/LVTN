@@ -18,6 +18,8 @@ interface ScheduleServiceClient {
 
     // === TimeSlot ===
     getAvailableTimeSlots(data: any): Observable<any>;
+    scheduleTimeSlots(data: any): Observable<any>;
+    deleteOldTimeSlots(data: any): Observable<any>;
 }
 
 interface UserServiceClient {
@@ -110,5 +112,13 @@ export class ScheduleService implements OnModuleInit {
             status: 200,
             data: availableTimeSlots
         };
+    }
+
+    scheduleTimeSlots(data: any) {
+        return lastValueFrom(this.scheduleService.scheduleTimeSlots(data));
+    }
+
+    deleteOldTimeSlots(data: any) {
+        return lastValueFrom(this.scheduleService.deleteOldTimeSlots(data))
     }
 }

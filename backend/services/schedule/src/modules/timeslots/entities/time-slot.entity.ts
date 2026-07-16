@@ -1,4 +1,5 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Booking } from "src/modules/bookings/entities/booking.entity";
+import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 export enum ClinicType {
     ONLINE = 'ONLINE',
@@ -25,7 +26,7 @@ export class TimeSlot {
         type: 'date',
         name: 'clinic_date'
     })
-    clinicDate: Date;
+    clinicDate: string;
 
     @Column({
         type: 'time',
@@ -59,4 +60,7 @@ export class TimeSlot {
 
     @UpdateDateColumn({ name: 'updated_at' })
     updatedAt: Date;
+
+    @OneToMany(() => Booking, (booking) => booking.timeSlot)
+    bookings: Booking[];
 }

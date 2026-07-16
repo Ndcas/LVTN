@@ -5,6 +5,7 @@ import KeyvRedis from '@keyv/redis';
 import { JwtModule } from '@nestjs/jwt';
 import { FeedbackModule } from './modules/feedback/feedback.module';
 import { UserModule } from './modules/user/user.module';
+import { ScheduleModule } from './modules/schedule/schedule.module';
 
 @Module({
   imports: [
@@ -19,7 +20,8 @@ import { UserModule } from './modules/user/user.module';
       signOptions: { expiresIn: '10m' },
     }),
     UserModule,
-    FeedbackModule
+    FeedbackModule,
+    ScheduleModule
   ]
 })
 export class AppModule { }

@@ -96,7 +96,7 @@ export class UsersService {
       email: data.email,
       fullName: data.fullName,
       gender: data.gender,
-      dob: data.dob ? new Date(data.dob) : null,
+      dob: data.dob || null,
       address: data.address || null
     });
 
@@ -185,16 +185,6 @@ export class UsersService {
     const cachedToken = await this.cacheManager.get(`RT_${payload.userId}`);
 
     if (!cachedToken || cachedToken != data.refreshToken) {
-      return {
-        ok: false,
-        status: 401,
-        error: 'Refresh token không hợp lệ'
-      };
-    }
-
-    const isBlacklisted = await this.cacheManager.get(`BL_${payload.userId}`);
-
-    if (isBlacklisted) {
       return {
         ok: false,
         status: 401,
@@ -462,7 +452,7 @@ export class UsersService {
       phone: data.phone,
       fullName: data.fullName,
       gender: data.gender,
-      dob: data.dob ? new Date(data.dob) : null,
+      dob: data.dob || null,
       address: data.address || null,
       roleId: data.roleId
     });
@@ -536,7 +526,7 @@ export class UsersService {
     }
 
     if (data.dob != undefined) {
-      user.dob = data.dob ? new Date(data.dob) : null;
+      user.dob = data.dob || null;
     }
 
     if (data.address != undefined) {
@@ -573,11 +563,7 @@ export class UsersService {
 
     await this.cacheManager.del(`RT_${user.id}`);
 
-    if (user.isActive == '0') {
-      await this.cacheManager.set(`BL_${user.id}`, '1', 600000);
-    } else {
-      await this.cacheManager.del(`BL_${user.id}`);
-    }
+
 
     return {
       ok: true,

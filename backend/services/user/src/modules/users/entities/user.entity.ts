@@ -73,7 +73,7 @@ export class User {
     type: 'date',
     nullable: true
   })
-  dob: Date | null;
+  dob: string | null;
 
   @Column({
     type: 'varchar',

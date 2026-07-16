@@ -20,7 +20,8 @@ export class CreateUserDto {
   gender: string;
 
   @IsOptional()
-  @IsDateString({}, { message: 'Ngày sinh không hợp lệ' })
+  @IsDateString({ strict: true }, { message: 'Ngày sinh không hợp lệ' })
+  @Matches(/^\d{4}-\d{2}-\d{2}$/, { message: 'Định dạng ngày sinh (YYYY-MM-DD) không hợp lệ' })
   dob?: string;
 
   @IsOptional()

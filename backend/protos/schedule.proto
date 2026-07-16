@@ -17,7 +17,9 @@ service ScheduleService {
     rpc GetWeeklyTemplateByDoctor(IdRequest) returns (GetWeeklyTemplateByDoctorResponse) {}
 
     // === Timeslot ===
-    rpc GetAvailableTimeSlots(GetAvailableTimeSlotsRequest) returns (GetAvailableTimeSlotsResponse)
+    rpc GetAvailableTimeSlots(GetAvailableTimeSlotsRequest) returns (GetAvailableTimeSlotsResponse) {}
+    rpc ScheduleTimeSlots(EmptyRequest) returns (BaseResponse) {}
+    rpc DeleteOldTimeSlots(EmptyRequest) returns (BaseResponse) {}
 }
 
 // === Common Message ===

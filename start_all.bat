@@ -6,7 +6,7 @@ start "API" cmd /k "cd backend\api && npm run start:dev"
 
 :: Start Microservices
 start "User" cmd /k "cd backend\services\user && npm run start:dev"
-@REM start "Schedule" cmd /k "cd backend\services\schedule && npm run start:dev"
+start "Schedule" cmd /k "cd backend\services\schedule && npm run start:dev"
 @REM start "MedicalRecord" cmd /k "cd backend\services\medicalrecord && npm run start:dev"
 @REM start "Payment" cmd /k "cd backend\services\payment && npm run start:dev"
 start "Feedback" cmd /k "cd backend\services\feedback && npm run start:dev"

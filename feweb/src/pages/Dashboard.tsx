@@ -1,9 +1,4 @@
-import {
-  CalendarCheck,
-  Receipt,
-  MessageSquareText,
-  Users,
-} from 'lucide-react';
+import { CalendarCheck, Receipt, MessageSquareText, Users } from 'lucide-react';
 import Header from '../components/Layout/Header';
 
 interface StatCardProps {

@@ -20,7 +20,8 @@ export class CreateDoctorDto {
   gender: string;
 
   @IsOptional()
-  @IsDateString()
+  @IsDateString({ strict: true }, { message: 'Ngày sinh không hợp lệ' })
+  @Matches(/^\d{4}-\d{2}-\d{2}$/, { message: 'Định dạng ngày sinh (YYYY-MM-DD) không hợp lệ' })
   dob?: string;
 
   @IsOptional()

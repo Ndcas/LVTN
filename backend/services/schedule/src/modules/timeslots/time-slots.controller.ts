@@ -49,4 +49,48 @@ export class TimeSlotsController {
             };
         }
     }
+
+    /**
+     * Lên lịch khám
+     * @param {Object} data - Dữ liệu yêu cầu
+     * @param {string} data.correlationId - ID theo dõi request
+     */
+    @GrpcMethod('ScheduleService', 'ScheduleTimeSlots')
+    async scheduleTimeSlots(data: any) {
+        this.processLog('ScheduleTimeSlots', data.correlationId, 'Nhận được yêu cầu lên lịch khám');
+
+        this.timeSlotsService.scheduleTimeSlots().catch((error) => {
+            this.processLog('ScheduleTimeSlots', data.correlationId, `Lỗi khi xử lý lên lịch khám: ${error}`, 'error');
+        });
+
+        this.processLog('ScheduleTimeSlots', data.correlationId, 'Kết thúc xử lý lên lịch khám');
+
+        return {
+            ok: true,
+            status: 200,
+            message: 'Đã nhận được yêu cầu, hệ thống đang tiến hành lên lịch'
+        };
+    }
+
+    /**
+     * Xóa time slot cũ
+     * @param {Object} data - Dữ liệu yêu cầu
+     * @param {string} data.correlationId - ID theo dõi request
+     */
+    @GrpcMethod('ScheduleService', 'DeleteOldTimeSlots')
+    async deleteOldTimeSlots(data: any) {
+        this.processLog('DeleteOldTimeSlots', data.correlationId, 'Nhận được yêu cầu xóa time slot cũ');
+
+        this.timeSlotsService.deleteOldTimeSlots().catch((error) => {
+            this.processLog('DeleteOldTimeSlots', data.correlationId, `Lỗi khi xử lý xóa time slot cũ: ${error}`, 'error');
+        });
+
+        this.processLog('DeleteOldTimeSlots', data.correlationId, 'Kết thúc xử lý xóa time slot cũ');
+
+        return {
+            ok: true,
+            status: 200,
+            message: 'Đã nhận được yêu cầu, hệ thống đang tiến hành xóa time slot cũ'
+        };
+    }
 }
