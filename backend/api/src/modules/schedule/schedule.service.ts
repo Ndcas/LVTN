@@ -20,10 +20,18 @@ interface ScheduleServiceClient {
     getAvailableTimeSlots(data: any): Observable<any>;
     scheduleTimeSlots(data: any): Observable<any>;
     deleteOldTimeSlots(data: any): Observable<any>;
+
+    // === Booking ===
+    getAllBookings(data: any): Observable<any>;
+    getBookingById(data: any): Observable<any>;
+    createBooking(data: any): Observable<any>;
+    updateBookingStatus(data: any): Observable<any>;
 }
 
 interface UserServiceClient {
     getAllDoctorsBySpecialtyId(data: any): Observable<any>;
+    getDoctorById(data: any): Observable<any>;
+    getUserById(data: any): Observable<any>;
 }
 
 @Injectable()
@@ -120,5 +128,74 @@ export class ScheduleService implements OnModuleInit {
 
     deleteOldTimeSlots(data: any) {
         return lastValueFrom(this.scheduleService.deleteOldTimeSlots(data))
+    }
+
+    // === Booking ===
+    getAllBookings(data: any) {
+        return lastValueFrom(this.scheduleService.getAllBookings(data));
+    }
+
+    async getBookingById(data: any) {
+        const bookingResult = await lastValueFrom(this.scheduleService.getBookingById(data));
+
+        if (!bookingResult.ok) {
+            return bookingResult;
+        }
+
+        const booking = bookingResult.data;
+
+        if (data.userId != booking.patientId && data.userId != booking.doctorId) {
+            return {
+                ok: false,
+                status: 403,
+                error: 'Không có quyền xem thông tin khám bệnh này'
+            };
+        }
+
+        const doctorResult = await lastValueFrom(this.userService.getDoctorById({
+            id: booking.doctorId,
+            correlationId: data.correlationId
+        }));
+
+        if (!doctorResult.ok) {
+            return doctorResult;
+        }
+
+        const userResult = await lastValueFrom(this.userService.getUserById({
+            id: booking.userId,
+            correlationId: data.correlationId
+        }));
+
+        if (!userResult.ok) {
+            return userResult;
+        }
+
+        booking.doctorName = doctorResult.data.fullName;
+        booking.patientName = userResult.data.fullName;
+
+        return {
+            ok: true,
+            status: 200,
+            data: {
+                id: booking.id,
+                status: booking.status,
+                clinicDate: booking.clinicDate,
+                clinicType: booking.clinicType,
+                startTime: booking.startTime,
+                endTime: booking.endTime,
+                createdAt: booking.createdAt,
+                updatedAt: booking.updatedAt,
+                doctorName: booking.doctorName,
+                patientName: booking.patientName
+            }
+        };
+    }
+
+    createBooking(data: any) {
+        return lastValueFrom(this.scheduleService.createBooking(data));
+    }
+
+    updateBookingStatus(data: any) {
+        return lastValueFrom(this.scheduleService.updateBookingStatus(data));
     }
 }

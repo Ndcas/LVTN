@@ -7,7 +7,7 @@ import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 @Injectable()
 export class OpeningTimeService {
     constructor(
-        @InjectRepository(OpeningTime) private readonly openingTimeRepository: Repository<OpeningTime>,
+        @InjectRepository(OpeningTime) private openingTimeRepository: Repository<OpeningTime>,
         @Inject(CACHE_MANAGER) private cacheManager: Cache
     ) { }
 

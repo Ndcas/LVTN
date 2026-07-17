@@ -8,8 +8,8 @@ import { ScheduleChangeRequestDetail } from './entities/schedule-change-request.
 @Injectable()
 export class ChangeRequestsService {
     constructor(
-        @InjectRepository(ScheduleChangeRequest) private readonly scheduleChangeRequestRepository: Repository<ScheduleChangeRequest>,
-        @InjectRepository(ScheduleChangeRequestDetail) private readonly scheduleChangeRequestDetailRepository: Repository<ScheduleChangeRequestDetail>,
+        @InjectRepository(ScheduleChangeRequest) private scheduleChangeRequestRepository: Repository<ScheduleChangeRequest>,
+        @InjectRepository(ScheduleChangeRequestDetail) private scheduleChangeRequestDetailRepository: Repository<ScheduleChangeRequestDetail>,
         @Inject(CACHE_MANAGER) private cacheManager: Cache
     ) { }
 }

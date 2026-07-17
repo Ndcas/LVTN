@@ -7,7 +7,7 @@ import { DoctorWeeklyTemplate } from './entities/doctor-weekly-template.entity';
 @Injectable()
 export class TemplatesService {
     constructor(
-        @InjectRepository(DoctorWeeklyTemplate) private readonly doctorWeeklyTemplateRepository: Repository<DoctorWeeklyTemplate>,
+        @InjectRepository(DoctorWeeklyTemplate) private doctorWeeklyTemplateRepository: Repository<DoctorWeeklyTemplate>,
         @Inject(CACHE_MANAGER) private cacheManager: Cache
     ) { }
 

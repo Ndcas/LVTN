@@ -257,7 +257,7 @@ message UpdateDoctorRequest {
   string correlationId = 13;
 }
 
-message SimpleDoctorItem {
+message SimpleUserItem {
   int32 id = 1;
   string fullName = 2;
 }
@@ -266,7 +266,7 @@ message GetAllDoctorsBySpecialtyIdResponse {
   bool ok = 1;
   int32 status = 2;
   string error = 3;
-  repeated SimpleDoctorItem data = 4;
+  repeated SimpleUserItem data = 4;
 }
 
 // === Catalog Messages ===

@@ -16,6 +16,15 @@ import { Booking } from './entities/booking.entity';
                 queue: 'log',
                 queueOptions: { durable: true }
             }
+        }]),
+        ClientsModule.register([{
+            name: 'NOTIFICATION_SERVICE',
+            transport: Transport.RMQ,
+            options: {
+                urls: [process.env.RMQ_URL!],
+                queue: 'notification',
+                queueOptions: { durable: true }
+            }
         }])
     ],
     controllers: [BookingsController],

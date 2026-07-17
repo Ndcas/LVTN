@@ -20,6 +20,12 @@ service ScheduleService {
     rpc GetAvailableTimeSlots(GetAvailableTimeSlotsRequest) returns (GetAvailableTimeSlotsResponse) {}
     rpc ScheduleTimeSlots(EmptyRequest) returns (BaseResponse) {}
     rpc DeleteOldTimeSlots(EmptyRequest) returns (BaseResponse) {}
+
+    // === Booking ===
+    rpc GetAllBookings(GetAllBookingsRequest) returns (GetAllBookingsResponse) {}
+    rpc GetBookingById(IdRequest) returns (GetBookingByIdResponse) {}
+    rpc CreateBooking(CreateBookingRequest) returns (BaseResponse) {}
+    rpc UpdateBookingStatus(UpdateBookingStatusRequest) returns (BaseResponse) {}
 }
 
 // === Common Message ===
@@ -123,4 +129,46 @@ message GetAvailableTimeSlotsResponse {
     string error = 3;
     string message = 4;
     repeated TimeslotItem data = 5;
+}
+
+// === Booking ===
+message GetAllBookingsRequest {
+    int32 page = 1;
+    int32 limit = 2;
+    int32 patientId = 3;
+    string status = 4;
+    string correlationId = 5;
+}
+
+message BookingItem {
+    int32 id = 1;
+    string status = 2;
+    string clinicDate = 3;
+    string clinicType = 4;
+    string startTime = 5;
+    string endTime = 6;
+    string createdAt = 7;
+    string updatedAt = 8;
+    int32 patientId = 9;
+    int32 doctorId = 10;
+    int32 timeSlotId = 11;
+}
+
+message GetAllBookingsResponse {
+    bool ok = 1;
+    int32 status = 2;
+    string error = 3;
+    string message = 4;
+    repeated BookingItem data = 5;
+    int32 total = 6;
+    int32 page = 7;
+    int32 limit = 8;
+}
+
+message GetBookingByIdResponse {
+    bool ok = 1;
+    int32 status = 2;
+    string error = 3;
+    string message = 4;
+    BookingItem data = 5;
 }

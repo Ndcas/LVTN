@@ -7,7 +7,7 @@ import { DoctorLeave } from './entities/doctor-leave.entity';
 @Injectable()
 export class LeavesService {
     constructor(
-        @InjectRepository(DoctorLeave) private readonly doctorLeaveRepository: Repository<DoctorLeave>,
+        @InjectRepository(DoctorLeave) private doctorLeaveRepository: Repository<DoctorLeave>,
         @Inject(CACHE_MANAGER) private cacheManager: Cache
     ) { }
 }

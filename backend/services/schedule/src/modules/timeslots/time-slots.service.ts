@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Between, DataSource, In, IsNull, LessThan, Repository } from 'typeorm';
+import { Between, DataSource, In, Repository } from 'typeorm';
 import { TimeSlot, Status as TimeSlotStatus } from './entities/time-slot.entity';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { ClientProxy } from '@nestjs/microservices';
@@ -14,7 +14,7 @@ import { DoctorWeeklyTemplate } from '../templates/entities/doctor-weekly-templa
 @Injectable()
 export class TimeSlotsService {
     constructor(
-        @InjectRepository(TimeSlot) private readonly timeSlotRepository: Repository<TimeSlot>,
+        @InjectRepository(TimeSlot) private timeSlotRepository: Repository<TimeSlot>,
         private dataSource: DataSource,
         @Inject('LOG_SERVICE') private logClient: ClientProxy,
         @Inject(CACHE_MANAGER) private cacheManager: Cache,
@@ -62,11 +62,7 @@ export class TimeSlotsService {
     @Cron(CronExpression.EVERY_WEEK)
     async scheduleTimeSlots() {
         if (await this.cacheManager.get('Lock:Scheduling')) {
-            this.processLog('ScheduleTimeSlots', 'system', `Đã có tiến trình đang chạy, tự động thử lại sau 10'`, 'warn');
-
-            setTimeout(() => {
-                this.scheduleTimeSlots().catch((error) => { });
-            }, 600000);
+            this.processLog('ScheduleTimeSlots', 'system', `Đã có tiến trình đang chạy`, 'warn');
 
             return;
         }
@@ -90,6 +86,7 @@ export class TimeSlotsService {
                 .getRepository(TimeSlot)
                 .createQueryBuilder('time_slot')
                 .select('MAX(time_slot.clinic_date)', 'maxDate')
+                .setLock('pessimistic_read')
                 .getRawOne())?.maxDate;
             let maxDate: Date;
 
@@ -120,7 +117,8 @@ export class TimeSlotsService {
             const startDate = this.dateToYYYYMMDD(new Date(maxDate.getTime() + 86400000));
             const endDate = this.dateToYYYYMMDD(nextSunday);
             const holidays = await queryRunner.manager.getRepository(GlobalHoliday).find({
-                where: { holidayDate: Between(startDate, endDate) }
+                where: { holidayDate: Between(startDate, endDate) },
+                lock: { mode: 'pessimistic_read' }
             });
 
             for (const holiday of holidays) {
@@ -129,7 +127,9 @@ export class TimeSlotsService {
                 }
             }
 
-            const doctorWeeklyTemplates = await queryRunner.manager.getRepository(DoctorWeeklyTemplate).find();
+            const doctorWeeklyTemplates = await queryRunner.manager.getRepository(DoctorWeeklyTemplate).find({
+                lock: { mode: 'pessimistic_read' }
+            });
             const doctorWeeklyTemplateMap = new Map();
 
             for (const doctorWeeklyTemplate of doctorWeeklyTemplates) {
@@ -154,7 +154,8 @@ export class TimeSlotsService {
                 where: {
                     leaveDate: Between(startDate, endDate),
                     status: DoctorLeaveStatus.APPROVED
-                }
+                },
+                lock: { mode: 'pessimistic_read' }
             });
             const doctorLeaveMap = new Map();
 

@@ -7,7 +7,7 @@ import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 @Injectable()
 export class HolidaysService {
     constructor(
-        @InjectRepository(GlobalHoliday) private readonly globalHolidayRepository: Repository<GlobalHoliday>,
+        @InjectRepository(GlobalHoliday) private globalHolidayRepository: Repository<GlobalHoliday>,
         @Inject(CACHE_MANAGER) private cacheManager: Cache
     ) { }
 
