@@ -26,7 +26,8 @@ service UserService {
   rpc GetDoctorById(IdRequest) returns (DoctorDetailResponse) {}
   rpc CreateDoctor(CreateDoctorRequest) returns (BaseResponse) {}
   rpc UpdateDoctor(UpdateDoctorRequest) returns (BaseResponse) {}
-  rpc GetAllDoctorsBySpecialtyId(IdRequest) returns (GetAllDoctorsBySpecialtyIdResponse) {}
+  rpc GetAllDoctorNamesBySpecialtyId(IdRequest) returns (DoctorNameListResponse) {}
+  rpc GetAllDoctorNamesByIds(IdsRequest) returns (DoctorNameListResponse)
 
   // === Catalogs ===
   rpc GetAllSpecialties(EmptyRequest) returns (SpecialtyListResponse) {}
@@ -46,6 +47,11 @@ message EmptyRequest {
 
 message IdRequest {
   int32 id = 1;
+  string correlationId = 2;
+}
+
+message IdsRequest {
+  repeated int32 ids = 1;
   string correlationId = 2;
 }
 
@@ -257,16 +263,16 @@ message UpdateDoctorRequest {
   string correlationId = 13;
 }
 
-message SimpleUserItem {
+message SimpleDoctorItem {
   int32 id = 1;
   string fullName = 2;
 }
 
-message GetAllDoctorsBySpecialtyIdResponse {
+message DoctorNameListResponse {
   bool ok = 1;
   int32 status = 2;
   string error = 3;
-  repeated SimpleUserItem data = 4;
+  repeated SimpleDoctorItem data = 4;
 }
 
 // === Catalog Messages ===

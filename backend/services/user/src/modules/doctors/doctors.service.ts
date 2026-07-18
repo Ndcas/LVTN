@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Not, DataSource } from 'typeorm';
+import { Repository, Not, DataSource, In } from 'typeorm';
 import { DoctorMetadata } from './entities/doctor-metadata.entity';
 import { IsActive, User } from '../users/entities/user.entity';
 import bcrypt from 'bcrypt';
@@ -320,12 +320,8 @@ export class DoctorsService {
     };
   }
 
-  async getAllBySpecialtyId(data: any) {
+  async getAllNamesBySpecialtyId(data: any) {
     const doctors = await this.userRepository.find({
-      select: {
-        id: true,
-        fullName: true
-      },
       where: {
         roleId: 2,
         isActive: IsActive.ACTIVE,
@@ -333,9 +329,27 @@ export class DoctorsService {
           specialtyId: data.id
         }
       },
-      relations: {
-        doctorMetadata: true
-      }
+      relations: { doctorMetadata: true }
+    });
+
+    return {
+      ok: true,
+      status: 200,
+      data: doctors.map(d => ({
+        id: d.id,
+        fullName: d.fullName
+      }))
+    };
+  }
+
+  async getAllNamesByIds(data: any) {
+    const doctors = await this.userRepository.find({
+      where: {
+        roleId: 2,
+        isActive: IsActive.ACTIVE,
+        id: In(data.ids)
+      },
+      relations: { doctorMetadata: true }
     });
 
     return {

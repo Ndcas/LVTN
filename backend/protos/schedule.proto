@@ -26,6 +26,11 @@ service ScheduleService {
     rpc GetBookingById(IdRequest) returns (GetBookingByIdResponse) {}
     rpc CreateBooking(CreateBookingRequest) returns (BaseResponse) {}
     rpc UpdateBookingStatus(UpdateBookingStatusRequest) returns (BaseResponse) {}
+
+    // === DoctorLeave ===
+    rpc GetAllDoctorLeaves(GetAllDoctorLeavesRequest) returns (GetAllDoctorLeavesResponse) {}
+    rpc CreateDoctorLeave(CreateDoctorLeaveRequest) returns (BaseResponse) {}
+    rpc UpdateDoctorLeave(UpdateDoctorLeaveRequest) returns (BaseResponse) {}
 }
 
 // === Common Message ===
@@ -136,7 +141,7 @@ message GetAllBookingsRequest {
     int32 page = 1;
     int32 limit = 2;
     int32 patientId = 3;
-    string status = 4;
+    optional string status = 4;
     string correlationId = 5;
 }
 
@@ -171,4 +176,62 @@ message GetBookingByIdResponse {
     string error = 3;
     string message = 4;
     BookingItem data = 5;
+}
+
+message CreateBookingRequest {
+    int32 timeSlotId = 1;
+    int32 patientId = 2;
+    string correlationId = 3;
+}
+
+message UpdateBookingStatusRequest {
+    int32 bookingId = 1;
+    int32 userId = 2;
+    string status = 3;
+    string correlationId = 4;
+}
+
+// === DoctorLeave ===
+message DoctorLeaveItem {
+    int32 id = 1;
+    int32 doctorId = 2;
+    string leaveDate = 3;
+    string reason = 4;
+    string status = 5;
+    string rejectedReason = 6;
+    string createdAt = 7;
+    string updatedAt = 8;
+}
+
+message GetAllDoctorLeavesRequest {
+    int32 page = 1;
+    int32 limit = 2;
+    optional int32 doctorId = 3;
+    optional string status = 4;
+    string correlationId = 5;
+}
+
+message GetAllDoctorLeavesResponse {
+    bool ok = 1;
+    int32 status = 2;
+    string error = 3;
+    string message = 4;
+    repeated DoctorLeaveItem data = 5;
+    int32 total = 6;
+    int32 page = 7;
+    int32 limit = 8;
+}
+
+message CreateDoctorLeaveRequest {
+    int32 doctorId = 1;
+    string leaveDate = 2;
+    string reason = 3;
+    string correlationId = 4;
+}
+
+message UpdateDoctorLeaveRequest {
+    int32 id = 1;
+    string status = 2;
+    optional string rejectedReason = 3;
+    string correlationId = 4;
 }

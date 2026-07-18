@@ -27,9 +27,7 @@ export class OpeningTimeService {
         const responseData = openingTimes.map(ot => ({
             dayOfWeek: ot.dayOfWeek,
             startTime: ot.startTime,
-            endTime: ot.endTime,
-            createdAt: ot.createdAt.toISOString(),
-            updatedAt: ot.updatedAt.toISOString()
+            endTime: ot.endTime
         }));
 
         await this.cacheManager.set('openingTime', responseData, 1800000);

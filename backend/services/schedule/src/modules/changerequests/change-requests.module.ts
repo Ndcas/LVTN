@@ -2,8 +2,8 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ChangeRequestsService } from './change-requests.service';
-import { ScheduleChangeRequest } from './entities/schedule-change-request-detail.entity';
-import { ScheduleChangeRequestDetail } from './entities/schedule-change-request.entity';
+import { ScheduleChangeRequest } from './entities/schedule-change-request.entity';
+import { ScheduleChangeRequestDetail } from './entities/schedule-change-request-detail.entity';
 import { ChangeRequestsController } from './change-requests.controller';
 
 @Module({

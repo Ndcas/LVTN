@@ -26,10 +26,16 @@ interface ScheduleServiceClient {
     getBookingById(data: any): Observable<any>;
     createBooking(data: any): Observable<any>;
     updateBookingStatus(data: any): Observable<any>;
+
+    // === DoctorLeave ===
+    getAllDoctorLeaves(data: any): Observable<any>;
+    createDoctorLeave(data: any): Observable<any>;
+    updateDoctorLeave(data: any): Observable<any>;
 }
 
 interface UserServiceClient {
-    getAllDoctorsBySpecialtyId(data: any): Observable<any>;
+    getAllDoctorNamesBySpecialtyId(data: any): Observable<any>;
+    getAllDoctorNamesByIds(data: any): Observable<any>;
     getDoctorById(data: any): Observable<any>;
     getUserById(data: any): Observable<any>;
 }
@@ -80,16 +86,16 @@ export class ScheduleService implements OnModuleInit {
     async getAvailableTimeSlots(data: any) {
         const { specialtyId, date, startTime, endTime, clinicType, correlationId } = data;
 
-        const doctorsIdsResponse = await lastValueFrom(this.userService.getAllDoctorsBySpecialtyId({
+        const doctorsNamesResponse = await lastValueFrom(this.userService.getAllDoctorNamesBySpecialtyId({
             id: specialtyId,
             correlationId
         }));
 
-        if (!doctorsIdsResponse.ok) {
-            return doctorsIdsResponse;
+        if (!doctorsNamesResponse.ok) {
+            return doctorsNamesResponse;
         }
 
-        const doctorIds = doctorsIdsResponse.data.map(doctor => doctor.id);
+        const doctorIds = doctorsNamesResponse.data.map(doctor => doctor.id);
 
         const availableTimeSlotsResponse = await lastValueFrom(this.scheduleService.getAvailableTimeSlots({
             date,
@@ -106,7 +112,7 @@ export class ScheduleService implements OnModuleInit {
 
         const doctorNameMap = new Map();
 
-        doctorsIdsResponse.data.forEach(doctor => {
+        doctorsNamesResponse.data.forEach(doctor => {
             doctorNameMap.set(doctor.id, doctor.fullName);
         });
 
@@ -170,9 +176,6 @@ export class ScheduleService implements OnModuleInit {
             return userResult;
         }
 
-        booking.doctorName = doctorResult.data.fullName;
-        booking.patientName = userResult.data.fullName;
-
         return {
             ok: true,
             status: 200,
@@ -185,8 +188,20 @@ export class ScheduleService implements OnModuleInit {
                 endTime: booking.endTime,
                 createdAt: booking.createdAt,
                 updatedAt: booking.updatedAt,
-                doctorName: booking.doctorName,
-                patientName: booking.patientName
+                doctor: {
+                    fullName: doctorResult.data.fullName,
+                    gender: doctorResult.data.gender,
+                    dob: doctorResult.data.dob,
+                    specialtyName: doctorResult.data.specialtyName,
+                    degreeName: doctorResult.data.degreeName,
+                    experienceYears: doctorResult.data.experienceYears,
+                    biography: doctorResult.data.biography
+                },
+                patient: {
+                    fullName: userResult.data.fullName,
+                    gender: userResult.data.gender,
+                    dob: userResult.data.dob
+                }
             }
         };
     }
@@ -197,5 +212,62 @@ export class ScheduleService implements OnModuleInit {
 
     updateBookingStatus(data: any) {
         return lastValueFrom(this.scheduleService.updateBookingStatus(data));
+    }
+
+    // === DoctorLeave ===
+    async getAllDoctorLeave(data: any) {
+        const leavesResponse = await lastValueFrom(this.scheduleService.getAllDoctorLeaves(data));
+
+        if (!leavesResponse.ok) {
+            return leavesResponse;
+        }
+
+        if (leavesResponse.data.length == 0) {
+            return {
+                ok: true,
+                status: 200,
+                data: [],
+                total: data.total,
+                page: data.page,
+                limit: data.limit
+            };
+        }
+
+        const doctorIds = Array.from(new Set(leavesResponse.data.map(doctor => doctor.doctorId)));
+
+        const doctorsResponse = await lastValueFrom(this.userService.getAllDoctorNamesByIds({
+            ids: doctorIds,
+            correlationId: data.correlationId
+        }));
+
+        if (!doctorsResponse.ok) {
+            return doctorsResponse;
+        }
+
+        const doctorNameMap = new Map();
+
+        doctorsResponse.data.forEach(doctor => {
+            doctorNameMap.set(doctor.id, doctor.fullName);
+        });
+
+        return {
+            ok: true,
+            status: 200,
+            data: leavesResponse.data.map(leave => ({
+                ...leave,
+                doctorName: doctorNameMap.get(leave.doctorId)
+            })),
+            total: leavesResponse.total,
+            page: leavesResponse.page,
+            limit: leavesResponse.limit
+        };
+    }
+
+    createDoctorLeave(data: any) {
+        return lastValueFrom(this.scheduleService.createDoctorLeave(data));
+    }
+
+    updateDoctorLeave(data: any) {
+        return lastValueFrom(this.scheduleService.updateDoctorLeave(data));
     }
 }

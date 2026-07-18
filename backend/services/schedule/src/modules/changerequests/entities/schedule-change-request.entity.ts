@@ -1,51 +1,45 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { ScheduleChangeRequest } from "./schedule-change-request-detail.entity";
+import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { ScheduleChangeRequestDetail } from "./schedule-change-request-detail.entity";
 
-export enum ClinicType {
-    ONLINE = 'ONLINE',
-    OFFLINE = 'OFFLINe'
+export enum Status {
+    PENDING = 'PENDING',
+    APPROVED = 'APPROVED',
+    REJECTED = 'REJECTED'
 }
 
-@Entity('schedule_change_request_details')
-export class ScheduleChangeRequestDetail {
+@Entity('schedule_change_requests')
+export class ScheduleChangeRequest {
     @PrimaryGeneratedColumn()
     id: number;
 
     @Column({
-        name: 'request_id',
+        name: 'doctor_id',
         type: 'int'
     })
-    requestId: number;
-
-    @ManyToOne(() => ScheduleChangeRequest, (scheduleChangeRequest) => scheduleChangeRequest.scheduleChangeRequestDetails)
-    @JoinColumn({ name: 'request_id' })
-    scheduleChangeRequest: ScheduleChangeRequest;
+    doctorId: number;
 
     @Column({
-        name: 'day_of_week',
-        type: 'tinyint'
-    })
-    dayOfWeek: number;
-
-    @Column({
-        name: 'start_time',
-        type: 'time'
-    })
-    startTime: string;
-
-    @Column({
-        name: 'end_time',
-        type: 'time'
-    })
-    endTime: string;
-
-    @Column({
-        name: 'clinic_type',
+        name: 'status',
         type: 'enum',
-        enum: ClinicType
+        enum: Status,
+        default: Status.PENDING
     })
-    clinicType: ClinicType;
+    status: Status;
+
+    @Column({
+        name: 'rejected_reason',
+        type: 'varchar',
+        length: 255,
+        nullable: true
+    })
+    rejectedReason: string | null;
 
     @CreateDateColumn({ name: 'created_at' })
     createdAt: Date;
+
+    @UpdateDateColumn({ name: 'updated_at' })
+    updatedAt: Date;
+
+    @OneToMany(() => ScheduleChangeRequestDetail, (scheduleChangeRequestDetail) => scheduleChangeRequestDetail.scheduleChangeRequest)
+    scheduleChangeRequestDetails: ScheduleChangeRequestDetail[];
 }

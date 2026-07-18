@@ -110,7 +110,7 @@ export class BookingsService {
             };
         }
 
-        const { timeSlotId, patientId } = data;
+        const { timeSlotId, patientId, correlationId } = data;
         const queryRunner = this.dataSource.createQueryRunner();
 
         await queryRunner.connect();
@@ -151,7 +151,7 @@ export class BookingsService {
             await queryRunner.commitTransaction();
 
             this.notificationClient.emit('booking_created', {
-                correlationId: data.correlationId,
+                correlationId,
                 doctorId: timeSlot.doctorId
             });
 

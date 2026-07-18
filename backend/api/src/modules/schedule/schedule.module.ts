@@ -5,6 +5,8 @@ import { OpeningTimeController } from './opening-time.controller';
 import { HolidaysController } from './holidays.controller';
 import { ScheduleService } from './schedule.service';
 import { TimeSlotsController } from './time-slots.controller';
+import { BookingsController } from './bookings.controller';
+import { LeavesController } from './leaves.controller';
 
 @Module({
     imports: [
@@ -36,7 +38,7 @@ import { TimeSlotsController } from './time-slots.controller';
             }
         }])
     ],
-    controllers: [OpeningTimeController, HolidaysController, TimeSlotsController],
+    controllers: [OpeningTimeController, HolidaysController, TimeSlotsController, BookingsController, LeavesController],
     providers: [ScheduleService]
 })
 export class ScheduleModule { }

@@ -88,13 +88,17 @@ export class TimeSlotsService {
                 .select('MAX(time_slot.clinic_date)', 'maxDate')
                 .setLock('pessimistic_read')
                 .getRawOne())?.maxDate;
+            const yesterdayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
             let maxDate: Date;
 
             if (maxExistedDate) {
-                const [year, month, day] = maxExistedDate.split('-');
-                maxDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+                maxDate = new Date(maxExistedDate.getFullYear(), maxExistedDate.getMonth(), maxExistedDate.getDate());
             } else {
-                maxDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                maxDate = yesterdayDate;
+            }
+
+            if (maxDate < yesterdayDate) {
+                maxDate = yesterdayDate;
             }
 
             const nextSunday = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 7 - today.getDay());
@@ -106,15 +110,14 @@ export class TimeSlotsService {
             }
 
             const dates = new Set<string>();
-            const numOfDays = Math.round((nextSunday.getTime() - maxDate.getTime()) / 86400000);
+            const currentDate = new Date(maxDate.getFullYear(), maxDate.getMonth(), maxDate.getDate() + 1);
 
-            for (let i = 1; i <= numOfDays; i++) {
-                const date = new Date(maxDate.getTime() + i * 86400000);
-
-                dates.add(this.dateToYYYYMMDD(date));
+            while (currentDate <= nextSunday) {
+                dates.add(this.dateToYYYYMMDD(currentDate));
+                currentDate.setDate(currentDate.getDate() + 1);
             }
 
-            const startDate = this.dateToYYYYMMDD(new Date(maxDate.getTime() + 86400000));
+            const startDate = this.dateToYYYYMMDD(new Date(maxDate.getFullYear(), maxDate.getMonth(), maxDate.getDate() + 1));
             const endDate = this.dateToYYYYMMDD(nextSunday);
             const holidays = await queryRunner.manager.getRepository(GlobalHoliday).find({
                 where: { holidayDate: Between(startDate, endDate) },
@@ -186,7 +189,7 @@ export class TimeSlotsService {
 
                     for (const template of templates) {
                         for (let i = template.startTime; i + timePerSlot <= template.endTime; i += timePerSlot) {
-                            timeSlots.push(queryRunner.manager.getRepository(TimeSlot).create({
+                            timeSlots.push(queryRunner.manager.create(TimeSlot, {
                                 doctorId,
                                 clinicDate: date,
                                 startTime: this.secondsToTime(i),

@@ -160,18 +160,45 @@ export class DoctorsController {
    * @param {number} data.id - ID chuyên khoa
    * @param {string} data.correlationId - ID theo dõi request
    */
-  @GrpcMethod('UserService', 'GetAllDoctorsBySpecialtyId')
-  async getAllDoctorsBySpecialtyId(data: any) {
+  @GrpcMethod('UserService', 'GetAllDoctorNamesBySpecialtyId')
+  async getAllDoctorNamesBySpecialtyId(data: any) {
     try {
-      this.processLog('GetAllDoctorsBySpecialtyId', data.correlationId, 'Nhận được yêu cầu lấy danh sách bác sĩ theo chuyên khoa');
+      this.processLog('GetAllDoctorNamesBySpecialtyId', data.correlationId, 'Nhận được yêu cầu lấy danh sách tên bác sĩ theo chuyên khoa');
 
-      const result = await this.doctorsService.getAllBySpecialtyId(data);
+      const result = await this.doctorsService.getAllNamesBySpecialtyId(data);
 
-      this.processLog('GetAllDoctorsBySpecialtyId', data.correlationId, 'Kết thúc xử lý lấy danh sách bác sĩ theo chuyên khoa');
+      this.processLog('GetAllDoctorNamesBySpecialtyId', data.correlationId, 'Kết thúc xử lý lấy danh sách tên bác sĩ theo chuyên khoa');
 
       return result;
     } catch (e) {
-      this.processLog('GetAllDoctorsBySpecialtyId', data.correlationId, `Lỗi khi xử lý lấy danh sách bác sĩ theo chuyên khoa: ${e}`, 'error');
+      this.processLog('GetAllDoctorNamesBySpecialtyId', data.correlationId, `Lỗi khi xử lý lấy danh sách tên bác sĩ theo chuyên khoa: ${e}`, 'error');
+
+      return {
+        ok: false,
+        status: 500,
+        error: 'Lỗi hệ thống'
+      };
+    }
+  }
+
+  /**
+   * Lấy danh sách bác sĩ (id và fullName) theo ID qua gRPC
+   * @param {Object} data - Dữ liệu yêu cầu
+   * @param {number[]} data.ids - Mảng ID bác sĩ
+   * @param {string} data.correlationId - ID theo dõi request
+   */
+  @GrpcMethod('UserService', 'GetAllDoctorNamesByIds')
+  async getAllDoctorNamesByIds(data: any) {
+    try {
+      this.processLog('GetAllDoctorNamesByIds', data.correlationId, 'Nhận được yêu cầu lấy danh sách tên bác sĩ theo ID');
+
+      const result = await this.doctorsService.getAllNamesByIds(data);
+
+      this.processLog('GetAllDoctorNamesByIds', data.correlationId, 'Kết thúc xử lý lấy danh sách tên bác sĩ theo ID');
+
+      return result;
+    } catch (e) {
+      this.processLog('GetAllDoctorNamesByIds', data.correlationId, `Lỗi khi xử lý lấy danh sách tên bác sĩ theo ID: ${e}`, 'error');
 
       return {
         ok: false,

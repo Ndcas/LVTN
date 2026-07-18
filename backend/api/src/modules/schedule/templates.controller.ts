@@ -3,6 +3,7 @@ import { ScheduleService } from "./schedule.service";
 import { ClientProxy } from "@nestjs/microservices";
 import { AccessGuard } from "src/guards/access.guard";
 import { type Request } from "express";
+import { Roles } from "src/decorators/roles.decorator";
 
 @Controller('templates')
 export class TemplatesController {
@@ -28,6 +29,7 @@ export class TemplatesController {
      */
     @Get(':id')
     @UseGuards(AccessGuard)
+    @Roles(['Admin'])
     async getWeeklyTemplateByDoctor(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
         const correlationId = req.headers['correlation-id'] as string;
 
@@ -42,6 +44,36 @@ export class TemplatesController {
         }
 
         this.processLog('GetWeeklyTemplateByDoctor', correlationId, 'Thành công');
+
+        const { ok, status, error, ...data } = result;
+
+        return data;
+    }
+
+    /**
+     * Lấy lịch làm việc mẫu của tôi
+     * @param {Request} req - Request object để lấy headers
+     */
+    @Get()
+    @UseGuards(AccessGuard)
+    @Roles(['Doctor'])
+    async getWeeklyTemplate(@Req() req: Request) {
+        const correlationId = req.headers['correlation-id'] as string;
+
+        this.processLog('GetWeeklyTemplate', correlationId, 'Nhận được yêu cầu lấy lịch làm việc mẫu của tôi');
+
+        const result = await this.scheduleService.getWeeklyTemplateByDoctor({
+            id: (req as any).user.userId,
+            correlationId
+        });
+
+        if (!result.ok) {
+            this.processLog('GetWeeklyTemplate', correlationId, `Không thành công ${result.error}`, 'warn');
+
+            throw new HttpException(result.error, result.status);
+        }
+
+        this.processLog('GetWeeklyTemplate', correlationId, 'Thành công');
 
         const { ok, status, error, ...data } = result;
 
