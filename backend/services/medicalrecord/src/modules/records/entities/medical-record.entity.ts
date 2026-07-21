@@ -1,6 +1,6 @@
 import { Disease } from "src/modules/diseases/entities/disease.entity";
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Prescription } from "./prescription.entity";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { PrescriptionDetail } from "./prescription-detail.entity";
 
 @Entity('medical_records')
 export class MedicalRecord {
@@ -58,6 +58,6 @@ export class MedicalRecord {
     @CreateDateColumn({ name: 'created_at' })
     createdAt: Date;
 
-    @OneToOne(() => Prescription, (prescription) => prescription.record)
-    prescription: Prescription;
+    @OneToMany(() => PrescriptionDetail, (detail) => detail.record)
+    prescriptionDetails: PrescriptionDetail[];
 }

@@ -1,25 +1,22 @@
-import { Controller, Post, Get, Patch, Body, Req, Param, Query, Inject, HttpException, UseGuards, ParseIntPipe, Res } from '@nestjs/common';
-import { UserService } from './user.service';
+import { Controller, Post, Get, Patch, Body, Req, Param, Query, Inject, HttpException, UseGuards, ParseIntPipe, Res, BadRequestException } from '@nestjs/common';
+import { UserService } from '../user.service';
 import { type Response, type Request } from 'express';
 import { ClientProxy } from '@nestjs/microservices';
-import { RegisterDto } from './dtos/register.dto';
-import { LoginDto } from './dtos/login.dto';
-import { RefreshDto } from './dtos/refresh.dto';
+import { RegisterDto } from '../dtos/register.dto';
+import { LoginDto } from '../dtos/login.dto';
+import { RefreshDto } from '../dtos/refresh.dto';
 import { RefreshGuard } from 'src/guards/refresh.guard';
 import { AccessGuard } from 'src/guards/access.guard';
 import { Roles } from 'src/decorators/roles.decorator';
-import { GetOtpDto } from './dtos/getotp.dto';
-import { ForgotPasswordDto } from './dtos/forgotpassword.dto';
-import { UpdateFcmTokenDto } from './dtos/update-fcm.dto';
-import { UpdateUserDto } from './dtos/update-user.dto';
-import { CreateUserDto } from './dtos/create-user.dto';
+import { GetOtpDto } from '../dtos/getotp.dto';
+import { ForgotPasswordDto } from '../dtos/forgotpassword.dto';
+import { UpdateFcmTokenDto } from '../dtos/update-fcm.dto';
+import { UpdateUserDto } from '../dtos/update-user.dto';
+import { CreateUserDto } from '../dtos/create-user.dto';
 
 @Controller('users')
 export class UsersController {
-  constructor(
-    private readonly usersService: UserService,
-    @Inject('LOG_SERVICE') private logClient: ClientProxy
-  ) { }
+  constructor(private usersService: UserService, @Inject('LOG_SERVICE') private logClient: ClientProxy) { }
 
   private processLog(action: string, correlationId: string, info: string, level: string = 'info') {
     this.logClient.emit('system_log', {
@@ -149,7 +146,7 @@ export class UsersController {
   @UseGuards(RefreshGuard)
   async refresh(@Body() body: RefreshDto, @Req() req: Request, @Res({ passthrough: true }) res: Response) {
     if (req.headers['client-type'] != 'web' && req.headers['client-type'] != 'mobile') {
-      throw new HttpException('Client type không hợp lệ', 400);
+      throw new BadRequestException('Client type không hợp lệ');
     }
 
     const correlationId = req.headers['correlation-id'] as string;

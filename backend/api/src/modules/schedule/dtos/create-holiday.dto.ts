@@ -1,4 +1,4 @@
-import { IsDateString, IsNotEmpty, IsOptional, IsString, Matches } from "class-validator";
+import { IsDateString, IsNotEmpty, IsOptional, IsString, Matches, MaxLength } from "class-validator";
 
 export class CreateHolidayDto {
     @IsDateString({ strict: true }, { message: 'Ngày nghỉ lễ không hợp lệ' })
@@ -6,10 +6,12 @@ export class CreateHolidayDto {
     holidayDate: string;
 
     @IsString()
-    @IsNotEmpty()
+    @IsNotEmpty({ message: 'Tên ngày nghỉ lễ không được để trống' })
+    @MaxLength(150, { message: 'Tên ngày nghỉ lễ tối đa 150 ký tự' })
     name: string;
 
     @IsString()
     @IsOptional()
+    @MaxLength(255, { message: 'Mô tả tối đa 255 ký tự' })
     description?: string;
 }

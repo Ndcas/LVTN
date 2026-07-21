@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
-import { UsersController } from './users.controller';
-import { DoctorsController } from './doctors.controller';
-import { CatalogsController } from './catalogs.controller';
+import { UsersController } from './controllers/users.controller';
+import { DoctorsController } from './controllers/doctors.controller';
+import { CatalogsController } from './controllers/catalogs.controller';
 import { UserService } from './user.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { join } from 'path';
+import { join } from 'node:path';
 
 @Module({
   imports: [

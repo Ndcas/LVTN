@@ -1,4 +1,4 @@
-import { IsIn, IsOptional, IsString } from "class-validator";
+import { IsIn, IsOptional, IsString, MaxLength } from "class-validator";
 
 export class UpdateDoctorLeaveDto {
     @IsIn(['APPROVED', 'REJECTED'])
@@ -6,5 +6,6 @@ export class UpdateDoctorLeaveDto {
 
     @IsString()
     @IsOptional()
+    @MaxLength(255, { message: 'Lý do từ chối tối đa 255 ký tự' })
     rejectedReason?: string;
 }

@@ -1,0 +1,131 @@
+syntax = "proto3";
+
+package payment;
+
+service PaymentService {
+    // === Invoices ===
+    rpc GetAllInvoices(GetAllInvoicesRequest) returns (GetAllInvoicesResponse) {}
+    rpc GetInvoiceById(IdRequest) returns (GetInvoiceByIdResponse) {}
+    rpc CreateInvoice(CreateInvoiceRequest) returns (CreateInvoiceResponse) {}
+    rpc MarkCashPaid(MarkCashPaidRequest) returns (BaseResponse) {}
+
+    // === PaymentTransaction ===
+    rpc CreatePaymentUrl(CreatePaymentUrlRequest) returns (CreatePaymentUrlResponse) {}
+    rpc ValidateReturnUrl(ValidateReturnUrlRequest) returns (BaseResponse) {}
+    rpc ValidateIpnUrl(ValidateIpnUrlRequest) returns (ValidateIpnUrlResponse) {}
+}
+
+// === Common Message ===
+message BaseResponse {
+    bool ok = 1;
+    int32 status = 2;
+    string message = 3;
+    string error = 4;
+}
+
+message IdRequest {
+    int32 id = 1;
+    string correlationId = 2;
+}
+
+// === Invoices ===
+message InvoiceItem {
+    int32 id = 1;
+    int32 bookingId = 2;
+    int32 patientId = 3;
+    double examinationFee = 4;
+    double medicineFee = 5;
+    double totalAmount = 6;
+    optional string paymentMethod = 7;
+    string status = 8;
+    optional int32 cashierId = 9;
+    optional string paidAt = 10;
+    string createdAt = 11;
+    string updatedAt = 12;
+}
+
+message GetAllInvoicesRequest {
+    int32 page = 1;
+    int32 limit = 2;
+    optional string status = 3;
+    optional int32 patientId = 4;
+    string correlationId = 5;
+}
+
+message GetAllInvoicesResponse {
+    bool ok = 1;
+    int32 status = 2;
+    string error = 3;
+    repeated InvoiceItem data = 4;
+    int32 total = 5;
+    int32 page = 6;
+    int32 limit = 7;
+   
+}
+
+message GetInvoiceByIdResponse {
+    bool ok = 1;
+    int32 status = 2;
+    string error = 3;
+    InvoiceItem data = 4;
+   
+}
+
+message CreateInvoiceRequest {
+    int32 bookingId = 1;
+    int32 patientId = 2;
+    double examinationFee = 3;
+    double medicineFee = 4;
+    double totalAmount = 5;
+    string correlationId = 6;
+}
+
+message CreateInvoiceResponse {
+    bool ok = 1;
+    int32 status = 2;
+    string message = 3;
+    string error = 4;
+    int32 id = 5;
+}
+
+message MarkCashPaidRequest {
+    int32 id = 1;
+    int32 cashierId = 2;
+    string correlationId = 3;
+}
+
+// === PaymentTransaction ===
+message CreatePaymentUrlRequest {
+    int32 id = 1;
+    string ip = 2;
+    string correlationId = 3;
+}
+
+message CreatePaymentUrlResponse {
+    bool ok = 1;
+    int32 status = 2;
+    string message = 3;
+    string error = 4;
+    string url = 5;
+}
+
+message ValidateReturnUrlRequest {
+    string query = 1;
+    string correlationId = 2;
+}
+
+message ValidateIpnUrlRequest {
+    string query = 1;
+    string correlationId = 2;
+}
+
+message VnpayResponseItem {
+    string RspCode = 1;
+    string Message = 2;
+}
+
+message ValidateIpnUrlResponse {
+    bool ok = 1;
+    int32 status = 2;
+    VnpayResponseItem data = 3;
+}

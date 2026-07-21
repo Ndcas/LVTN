@@ -1,7 +1,8 @@
-import { IsEmail, IsNotEmpty, IsString, MinLength, Matches, IsIn, IsOptional, IsDateString, IsInt } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, MinLength, Matches, IsIn, IsOptional, IsDateString, IsInt, MaxLength } from 'class-validator';
 
 export class CreateUserDto {
   @IsEmail({}, { message: 'Email không hợp lệ' })
+  @MaxLength(100, { message: 'Email tối đa 100 ký tự' })
   email: string;
 
   @IsString()
@@ -14,6 +15,7 @@ export class CreateUserDto {
 
   @IsString()
   @IsNotEmpty({ message: 'Họ tên không được để trống' })
+  @MaxLength(100, { message: 'Họ tên tối đa 100 ký tự' })
   fullName: string;
 
   @IsIn(['MALE', 'FEMALE', 'OTHER'], { message: 'Giới tính không hợp lệ' })
@@ -26,6 +28,7 @@ export class CreateUserDto {
 
   @IsOptional()
   @IsString({ message: 'Địa chỉ không hợp lệ' })
+  @MaxLength(255, { message: 'Địa chỉ tối đa 255 ký tự' })
   address?: string;
 
   @IsInt({ message: 'Role ID không hợp lệ' })

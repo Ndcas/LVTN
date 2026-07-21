@@ -1,12 +1,14 @@
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { join } from 'path';
-import { OpeningTimeController } from './opening-time.controller';
-import { HolidaysController } from './holidays.controller';
+import { join } from 'node:path';
+import { OpeningTimeController } from './controllers/opening-time.controller';
+import { HolidaysController } from './controllers/holidays.controller';
 import { ScheduleService } from './schedule.service';
-import { TimeSlotsController } from './time-slots.controller';
-import { BookingsController } from './bookings.controller';
-import { LeavesController } from './leaves.controller';
+import { TimeSlotsController } from './controllers/time-slots.controller';
+import { BookingsController } from './controllers/bookings.controller';
+import { LeavesController } from './controllers/leaves.controller';
+import { ChangeRequestsController } from './controllers/change-requests.controller';
+import { TemplatesController } from './controllers/templates.controller';
 
 @Module({
     imports: [
@@ -38,7 +40,15 @@ import { LeavesController } from './leaves.controller';
             }
         }])
     ],
-    controllers: [OpeningTimeController, HolidaysController, TimeSlotsController, BookingsController, LeavesController],
+    controllers: [
+        OpeningTimeController,
+        HolidaysController,
+        TimeSlotsController,
+        BookingsController,
+        LeavesController,
+        TemplatesController,
+        ChangeRequestsController
+    ],
     providers: [ScheduleService]
 })
 export class ScheduleModule { }

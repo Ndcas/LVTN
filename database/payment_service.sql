@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 5.2.3
 -- https://www.phpmyadmin.net/
 --
--- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th6 15, 2026 lúc 10:23 AM
--- Phiên bản máy phục vụ: 10.4.32-MariaDB
--- Phiên bản PHP: 8.0.30
+-- Máy chủ: mysql
+-- Thời gian đã tạo: Th7 20, 2026 lúc 10:14 AM
+-- Phiên bản máy phục vụ: 9.7.1
+-- Phiên bản PHP: 8.3.32
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -28,18 +28,18 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `invoices` (
-  `id` int(11) NOT NULL,
-  `booking_id` int(11) NOT NULL,
-  `patient_id` int(11) NOT NULL,
+  `id` int NOT NULL,
+  `booking_id` int NOT NULL,
+  `patient_id` int NOT NULL,
   `examination_fee` decimal(10,2) NOT NULL,
-  `medicine_fee` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `medicine_fee` decimal(10,2) NOT NULL DEFAULT '0.00',
   `total_amount` decimal(10,2) NOT NULL,
-  `payment_method` enum('CASH','VNPAY') DEFAULT NULL,
-  `status` enum('0','1','2') DEFAULT '0',
-  `cashier_id` int(11) DEFAULT NULL,
+  `payment_method` enum('CASH','VNPAY') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `status` enum('UNPAID','PAID','CANCELED') COLLATE utf8mb4_unicode_ci DEFAULT 'UNPAID',
+  `cashier_id` int DEFAULT NULL,
   `paid_at` timestamp NULL DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -47,8 +47,8 @@ CREATE TABLE `invoices` (
 --
 
 INSERT INTO `invoices` (`id`, `booking_id`, `patient_id`, `examination_fee`, `medicine_fee`, `total_amount`, `payment_method`, `status`, `cashier_id`, `paid_at`, `created_at`, `updated_at`) VALUES
-(1, 2, 2, 150000.00, 89000.00, 239000.00, 'VNPAY', '1', NULL, '2026-06-14 02:15:00', '2026-06-15 08:14:18', '2026-06-15 08:14:18'),
-(2, 3, 3, 120000.00, 55000.00, 175000.00, NULL, '0', NULL, NULL, '2026-06-15 08:14:18', '2026-06-15 08:14:18');
+(1, 2, 2, 150000.00, 89000.00, 239000.00, 'VNPAY', 'UNPAID', NULL, '2026-06-14 02:15:00', '2026-06-15 08:14:18', '2026-06-15 08:14:18'),
+(2, 3, 3, 120000.00, 55000.00, 175000.00, NULL, '', NULL, NULL, '2026-06-15 08:14:18', '2026-06-15 08:14:18');
 
 -- --------------------------------------------------------
 
@@ -57,15 +57,15 @@ INSERT INTO `invoices` (`id`, `booking_id`, `patient_id`, `examination_fee`, `me
 --
 
 CREATE TABLE `payment_transactions` (
-  `id` int(11) NOT NULL,
-  `invoice_id` int(11) NOT NULL,
-  `txn_ref` varchar(100) NOT NULL,
-  `transaction_no` varchar(100) DEFAULT NULL,
+  `id` int NOT NULL,
+  `invoice_id` int NOT NULL,
+  `txn_ref` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `transaction_no` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `amount` decimal(10,2) NOT NULL,
-  `status` enum('0','1','2') DEFAULT '0',
-  `payment_raw_log` text DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `status` enum('PENDING','SUCCESS','FAILED') COLLATE utf8mb4_unicode_ci DEFAULT 'PENDING',
+  `payment_raw_log` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -73,7 +73,7 @@ CREATE TABLE `payment_transactions` (
 --
 
 INSERT INTO `payment_transactions` (`id`, `invoice_id`, `txn_ref`, `transaction_no`, `amount`, `status`, `payment_raw_log`, `created_at`, `updated_at`) VALUES
-(1, 1, 'INV_1_20260614091000', '1406202612345678', 239000.00, '1', '{\"vnp_Amount\":\"23900000\",\"vnp_BankCode\":\"NCB\",\"vnp_CardType\":\"ATM\",\"vnp_OrderInfo\":\"Thanh toan vien phi\",\"vnp_PayDate\":\"20260614091500\",\"vnp_ResponseCode\":\"00\",\"vnp_TransactionNo\":\"1406202612345678\"}', '2026-06-14 02:10:00', '2026-06-15 08:14:18');
+(1, 1, 'INV_1_20260614091000', '1406202612345678', 239000.00, 'PENDING', '{\"vnp_Amount\":\"23900000\",\"vnp_BankCode\":\"NCB\",\"vnp_CardType\":\"ATM\",\"vnp_OrderInfo\":\"Thanh toan vien phi\",\"vnp_PayDate\":\"20260614091500\",\"vnp_ResponseCode\":\"00\",\"vnp_TransactionNo\":\"1406202612345678\"}', '2026-06-14 02:10:00', '2026-06-15 08:14:18');
 
 --
 -- Chỉ mục cho các bảng đã đổ
@@ -105,20 +105,20 @@ ALTER TABLE `payment_transactions`
 -- AUTO_INCREMENT cho bảng `invoices`
 --
 ALTER TABLE `invoices`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT cho bảng `payment_transactions`
 --
 ALTER TABLE `payment_transactions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
--- Các ràng buộc cho các bảng đã đổ
+-- Ràng buộc đối với các bảng kết xuất
 --
 
 --
--- Các ràng buộc cho bảng `payment_transactions`
+-- Ràng buộc cho bảng `payment_transactions`
 --
 ALTER TABLE `payment_transactions`
   ADD CONSTRAINT `payment_transactions_ibfk_1` FOREIGN KEY (`invoice_id`) REFERENCES `invoices` (`id`) ON DELETE CASCADE;

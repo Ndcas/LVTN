@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { join } from 'path';
-import { FeedbackController } from './feedback.controller';
+import { join } from 'node:path';
+import { FeedbackController } from './controllers/feedback.controller';
 import { FeedbackService } from './feedback.service';
 
 @Module({

@@ -1,5 +1,5 @@
 import { BadRequestException, Controller, Delete, Get, HttpException, Inject, ParseIntPipe, Post, Query, Req, UseGuards } from "@nestjs/common";
-import { ScheduleService } from "./schedule.service";
+import { ScheduleService } from "../schedule.service";
 import { ClientProxy } from "@nestjs/microservices";
 import { type Request } from "express";
 import { AccessGuard } from "src/guards/access.guard";
@@ -7,10 +7,7 @@ import { Roles } from "src/decorators/roles.decorator";
 
 @Controller('time-slots')
 export class TimeSlotsController {
-    constructor(
-        private readonly scheduleService: ScheduleService,
-        @Inject('LOG_SERVICE') private logClient: ClientProxy
-    ) { }
+    constructor(private scheduleService: ScheduleService, @Inject('LOG_SERVICE') private logClient: ClientProxy) { }
 
     private processLog(action: string, correlationId: string, info: string, level: string = 'info') {
         this.logClient.emit('system_log', {

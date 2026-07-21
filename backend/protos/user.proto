@@ -27,7 +27,7 @@ service UserService {
   rpc CreateDoctor(CreateDoctorRequest) returns (BaseResponse) {}
   rpc UpdateDoctor(UpdateDoctorRequest) returns (BaseResponse) {}
   rpc GetAllDoctorNamesBySpecialtyId(IdRequest) returns (DoctorNameListResponse) {}
-  rpc GetAllDoctorNamesByIds(IdsRequest) returns (DoctorNameListResponse)
+  rpc GetAllDoctorNamesByIds(IdsRequest) returns (DoctorNameListResponse) {}
 
   // === Catalogs ===
   rpc GetAllSpecialties(EmptyRequest) returns (SpecialtyListResponse) {}

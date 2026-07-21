@@ -6,6 +6,8 @@ import { JwtModule } from '@nestjs/jwt';
 import { FeedbackModule } from './modules/feedback/feedback.module';
 import { UserModule } from './modules/user/user.module';
 import { ScheduleModule } from './modules/schedule/schedule.module';
+import { MedicalRecordModule } from './modules/medicalrecord/medical-record.module';
+import { PaymentModule } from './modules/payment/payment.module';
 
 @Module({
   imports: [
@@ -21,7 +23,9 @@ import { ScheduleModule } from './modules/schedule/schedule.module';
     }),
     UserModule,
     FeedbackModule,
-    ScheduleModule
+    ScheduleModule,
+    MedicalRecordModule,
+    PaymentModule
   ]
 })
 export class AppModule { }

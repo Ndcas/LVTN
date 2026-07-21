@@ -1,0 +1,214 @@
+syntax = "proto3";
+
+package medicalrecord;
+
+service MedicalRecordService {
+    // === Diseases ===
+    rpc GetAllDiseases(GetAllDiseasesRequest) returns (GetAllDiseasesResponse) {}
+    rpc GetDiseaseById(IdRequest) returns (GetDiseaseByIdResponse) {}
+    rpc CreateDisease(CreateDiseaseRequest) returns (BaseResponse) {}
+    rpc UpdateDisease(UpdateDiseaseRequest) returns (BaseResponse) {}
+
+    // === Medicines ===
+    rpc GetAllMedicines(GetAllMedicinesRequest) returns (GetAllMedicinesResponse) {}
+    rpc GetMedicineById(IdRequest) returns (GetMedicineByIdResponse) {}
+    rpc CreateMedicine(CreateMedicineRequest) returns (BaseResponse) {}
+    rpc UpdateMedicine(UpdateMedicineRequest) returns (BaseResponse) {}
+    rpc ToggleMedicineActive(IdRequest) returns (BaseResponse) {}
+
+    // === MedicalRecord ===
+    rpc GetRecordByBooking(IdRequest) returns (GetRecordByBookingResponse) {}
+    rpc GetRecordsByPatient(GetRecordsByPatientRequest) returns (GetRecordsByPatientResponse) {}
+    rpc CreateRecord(CreateRecordRequest) returns (CreateRecordResponse) {}
+    rpc DeleteRecord(IdRequest) returns (BaseResponse) {}
+}
+
+// === Common Message ===
+message IdRequest {
+    int32 id = 1;
+    string correlationId = 2;
+}
+
+message BaseResponse {
+    bool ok = 1;
+    int32 status = 2;
+    string error = 3;
+    string message = 4;
+}
+
+// === Disease Messages ===
+message DiseaseItem {
+    int32 id = 1;
+    string name = 2;
+    string diseaseCode = 3;
+    string description = 4;
+    string createdAt = 5;
+}
+
+message GetAllDiseasesRequest {
+    string correlationId = 1;
+    optional string keyword = 2;
+}
+
+message GetAllDiseasesResponse {
+    bool ok = 1;
+    int32 status = 2;
+    string error = 3;
+    string message = 4;
+    repeated DiseaseItem data = 5;
+}
+
+message GetDiseaseByIdResponse {
+    bool ok = 1;
+    int32 status = 2;
+    string error = 3;
+    string message = 4;
+    DiseaseItem data = 5;
+}
+
+message CreateDiseaseRequest {
+    string name = 1;
+    string diseaseCode = 2;
+    optional string description = 3;
+    string correlationId = 4;
+}
+
+message UpdateDiseaseRequest {
+    int32 id = 1;
+    optional string name = 2;
+    optional string diseaseCode = 3;
+    optional string description = 4;
+    string correlationId = 5;
+}
+
+// === Medicine Messages ===
+message MedicineItem {
+    int32 id = 1;
+    string name = 2;
+    string unit = 3;
+    double pricePerUnit = 4;
+    string isActive = 5;
+    string createdAt = 6;
+    string updatedAt = 7;
+}
+
+message GetAllMedicinesRequest {
+    string correlationId = 1;
+    optional string keyword = 2;
+    optional string isActive = 3;
+}
+
+message GetAllMedicinesResponse {
+    bool ok = 1;
+    int32 status = 2;
+    string error = 3;
+    string message = 4;
+    repeated MedicineItem data = 5;
+}
+
+message GetMedicineByIdResponse {
+    bool ok = 1;
+    int32 status = 2;
+    string error = 3;
+    string message = 4;
+    MedicineItem data = 5;
+}
+
+message CreateMedicineRequest {
+    string name = 1;
+    string unit = 2;
+    double pricePerUnit = 3;
+    string correlationId = 4;
+}
+
+message UpdateMedicineRequest {
+    int32 id = 1;
+    optional string name = 2;
+    optional string unit = 3;
+    optional double pricePerUnit = 4;
+    string correlationId = 5;
+}
+
+message ToggleMedicineActiveRequest {
+    int32 id = 1;
+    string isActive = 2;
+    string correlationId = 3;
+}
+
+// === MedicalRecord ===
+message PrescriptionDetailItem {
+    int32 id = 1;
+    int32 recordId = 2;
+    int32 medicineId = 3;
+    int32 quantity = 4;
+    string dosage = 5;
+    double priceAtBooking = 6;
+    MedicineItem medicine = 7;
+}
+
+message MedicalRecordItem {
+    int32 id = 1;
+    int32 bookingId = 2;
+    int32 patientId = 3;
+    int32 doctorId = 4;
+    string visitDate = 5;
+    string clinicalIndicators = 6;
+    int32 diseaseId = 7;
+    string diagnoseDetail = 8;
+    string createdAt = 9;
+    DiseaseItem disease = 10;
+    string diseaseName = 11;
+    repeated PrescriptionDetailItem prescriptionDetails = 12;
+}
+
+message GetRecordByBookingResponse {
+    bool ok = 1;
+    int32 status = 2;
+    string error = 3;
+    string message = 4;
+    MedicalRecordItem data = 5;
+}
+
+message GetRecordsByPatientRequest {
+    int32 id = 1;
+    int32 page = 2;
+    int32 limit = 3;
+    string correlationId = 4;
+}
+
+message GetRecordsByPatientResponse {
+    bool ok = 1;
+    int32 status = 2;
+    string error = 3;
+    string message = 4;
+    repeated MedicalRecordItem data = 5;
+    int32 total = 6;
+    int32 page = 7;
+    int32 limit = 8;
+}
+
+message PrescriptionDetailItem {
+    int32 medicineId = 1;
+    int32 quantity = 2;
+    string dosage = 3;
+}
+
+message CreateRecordRequest {
+    int32 bookingId = 1;
+    int32 patientId = 2;
+    int32 doctorId = 3;
+    string visitDate = 4;
+    string clinicalIndicators = 5;
+    optional int32 diseaseId = 6;
+    string diagnoseDetail = 7;
+    repeated PrescriptionDetailInput prescriptionDetails = 8;
+    string correlationId = 9;
+}
+
+message CreateRecordResponse {
+    bool ok = 1;
+    int32 status = 2;
+    string error = 3;
+    string message = 4;
+    int32 id = 5;
+}

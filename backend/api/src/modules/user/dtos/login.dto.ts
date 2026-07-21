@@ -1,7 +1,8 @@
-import { IsEmail, IsNotEmpty, IsString, MinLength, IsOptional } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, MinLength, IsOptional, MaxLength } from 'class-validator';
 
 export class LoginDto {
   @IsEmail({}, { message: 'Email không hợp lệ' })
+  @MaxLength(100, { message: 'Email tối đa 100 ký tự' })
   email: string;
 
   @IsString()

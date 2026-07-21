@@ -1,6 +1,6 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Prescription } from "./prescription.entity";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Medicine } from "src/modules/medicines/entities/medicine.entity";
+import { MedicalRecord } from "./medical-record.entity";
 
 @Entity('prescription_details')
 export class PrescriptionDetail {
@@ -8,14 +8,14 @@ export class PrescriptionDetail {
     id: number;
 
     @Column({
-        name: 'prescription_id',
+        name: 'record_id',
         type: 'int'
     })
-    prescriptionId: number;
+    recordId: number;
 
-    @ManyToOne(() => Prescription, (prescription) => prescription.prescriptionDetails)
-    @JoinColumn({ name: 'prescription_id' })
-    prescription: Prescription;
+    @ManyToOne(() => MedicalRecord, (record) => record.prescriptionDetails)
+    @JoinColumn({ name: 'record_id' })
+    record: MedicalRecord;
 
     @Column({
         name: 'medicine_id',

@@ -5,17 +5,16 @@ import { DoctorMetadata } from './entities/doctor-metadata.entity';
 import { IsActive, User } from '../users/entities/user.entity';
 import bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { type Cache } from 'cache-manager';
+import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 
 @Injectable()
 export class DoctorsService {
   constructor(
-    private readonly configService: ConfigService,
+    private configService: ConfigService,
     private dataSource: DataSource,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
-    @InjectRepository(DoctorMetadata) private readonly metadataRepository: Repository<DoctorMetadata>,
-    @InjectRepository(User) private readonly userRepository: Repository<User>
+    @InjectRepository(DoctorMetadata) private metadataRepository: Repository<DoctorMetadata>,
+    @InjectRepository(User) private userRepository: Repository<User>
   ) { }
 
   async getAll(data: any) {

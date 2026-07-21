@@ -1,7 +1,8 @@
-import { IsEmail, IsNotEmpty, IsString, MinLength, IsOptional, IsIn, IsInt, Min, Matches, IsDateString } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, MinLength, IsOptional, IsIn, IsInt, Min, Matches, IsDateString, MaxLength } from 'class-validator';
 
 export class CreateDoctorDto {
   @IsEmail({}, { message: 'Email không hợp lệ' })
+  @MaxLength(100, { message: 'Email tối đa 100 ký tự' })
   email: string;
 
   @IsString()
@@ -14,6 +15,7 @@ export class CreateDoctorDto {
 
   @IsString()
   @IsNotEmpty({ message: 'Họ tên không được để trống' })
+  @MaxLength(100, { message: 'Họ tên tối đa 100 ký tự' })
   fullName: string;
 
   @IsIn(['MALE', 'FEMALE', 'OTHER'], { message: 'Giới tính không hợp lệ' })
@@ -26,6 +28,7 @@ export class CreateDoctorDto {
 
   @IsOptional()
   @IsString()
+  @MaxLength(255, { message: 'Địa chỉ tối đa 255 ký tự' })
   address?: string;
 
   @IsNotEmpty({ message: 'Chuyên khoa không được để trống' })

@@ -4,7 +4,7 @@ import { Between, DataSource, In, Repository } from 'typeorm';
 import { TimeSlot, Status as TimeSlotStatus } from './entities/time-slot.entity';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { ClientProxy } from '@nestjs/microservices';
-import { randomUUID } from 'crypto';
+import { randomUUID } from 'node:crypto';
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import { ConfigService } from '@nestjs/config';
 import { GlobalHoliday } from '../holidays/entities/global-holiday.entity';

@@ -1,18 +1,15 @@
 import { Body, Controller, Delete, Get, HttpException, Inject, Param, ParseIntPipe, Patch, Post, Req, UseGuards } from "@nestjs/common";
-import { ScheduleService } from "./schedule.service";
+import { ScheduleService } from "../schedule.service";
 import { ClientProxy } from "@nestjs/microservices";
 import { AccessGuard } from "src/guards/access.guard";
 import { type Request } from "express";
-import { CreateHolidayDto } from "./dtos/create-holiday.dto";
+import { CreateHolidayDto } from "../dtos/create-holiday.dto";
 import { Roles } from "src/decorators/roles.decorator";
-import { UpdateHolidayDto } from "./dtos/update-holiday.dto";
+import { UpdateHolidayDto } from "../dtos/update-holiday.dto";
 
 @Controller('holidays')
 export class HolidaysController {
-    constructor(
-        private readonly scheduleService: ScheduleService,
-        @Inject('LOG_SERVICE') private logClient: ClientProxy
-    ) { }
+    constructor(private scheduleService: ScheduleService, @Inject('LOG_SERVICE') private logClient: ClientProxy) { }
 
     private processLog(action: string, correlationId: string, info: string, level: string = 'info') {
         this.logClient.emit('system_log', {

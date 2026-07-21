@@ -1,18 +1,15 @@
 import { Body, Controller, Get, HttpException, Inject, Param, ParseIntPipe, Patch, Post, Query, Req, UseGuards } from "@nestjs/common";
-import { ScheduleService } from "./schedule.service";
+import { ScheduleService } from "../schedule.service";
 import { ClientProxy } from "@nestjs/microservices";
 import { AccessGuard } from "src/guards/access.guard";
 import { Roles } from "src/decorators/roles.decorator";
 import { type Request } from "express";
-import { UpdateDoctorLeaveDto } from "./dtos/update-doctor-leave.dto";
-import { CreateDoctorLeaveDto } from "./dtos/create-doctor-leave.dto";
+import { UpdateDoctorLeaveDto } from "../dtos/update-doctor-leave.dto";
+import { CreateDoctorLeaveDto } from "../dtos/create-doctor-leave.dto";
 
 @Controller('leaves')
 export class LeavesController {
-    constructor(
-        private readonly scheduleService: ScheduleService,
-        @Inject('LOG_SERVICE') private logClient: ClientProxy
-    ) { }
+    constructor(private scheduleService: ScheduleService, @Inject('LOG_SERVICE') private logClient: ClientProxy) { }
 
     private processLog(action: string, correlationId: string, info: string, level: string = 'info') {
         this.logClient.emit('system_log', {

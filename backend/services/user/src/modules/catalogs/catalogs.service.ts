@@ -4,16 +4,15 @@ import { Repository } from 'typeorm';
 import { Role } from './entities/role.entity';
 import { Degree } from './entities/degree.entity';
 import { Specialty } from './entities/specialty.entity';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { type Cache } from 'cache-manager';
+import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 
 @Injectable()
 export class CatalogsService {
   constructor(
-    @InjectRepository(Role) private readonly roleRepository: Repository<Role>,
-    @InjectRepository(Degree) private readonly degreeRepository: Repository<Degree>,
-    @InjectRepository(Specialty) private readonly specialtyRepository: Repository<Specialty>,
-    @Inject(CACHE_MANAGER) private readonly cache: Cache
+    @InjectRepository(Role) private roleRepository: Repository<Role>,
+    @InjectRepository(Degree) private degreeRepository: Repository<Degree>,
+    @InjectRepository(Specialty) private specialtyRepository: Repository<Specialty>,
+    @Inject(CACHE_MANAGER) private cache: Cache
   ) { }
 
   async getAllRoles() {

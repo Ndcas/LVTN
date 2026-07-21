@@ -1,15 +1,12 @@
 import { Controller, Get, HttpException, Inject, Req, UseGuards } from "@nestjs/common";
-import { ScheduleService } from "./schedule.service";
+import { ScheduleService } from "../schedule.service";
 import { ClientProxy } from "@nestjs/microservices";
 import { AccessGuard } from "src/guards/access.guard";
 import { type Request } from "express";
 
 @Controller('opening-time')
 export class OpeningTimeController {
-    constructor(
-        private readonly scheduleService: ScheduleService,
-        @Inject('LOG_SERVICE') private logClient: ClientProxy
-    ) { }
+    constructor(private scheduleService: ScheduleService, @Inject('LOG_SERVICE') private logClient: ClientProxy) { }
 
     private processLog(action: string, correlationId: string, info: string, level: string = 'info') {
         this.logClient.emit('system_log', {

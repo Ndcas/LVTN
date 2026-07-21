@@ -1,5 +1,5 @@
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { Invoice } from "../../invoices/entities/invoice.entity";
+import { Invoice } from "./invoice.entity";
 
 export enum Status {
     PENDING = 'PENDING',

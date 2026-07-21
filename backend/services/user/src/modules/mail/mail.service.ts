@@ -4,7 +4,7 @@ import { createTransport, Transporter } from "nodemailer";
 
 @Injectable()
 export class MailService {
-    private readonly transporter: Transporter;
+    private transporter: Transporter;
 
     constructor(private configService: ConfigService) {
         this.transporter = createTransport({

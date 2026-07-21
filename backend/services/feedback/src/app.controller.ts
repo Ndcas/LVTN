@@ -4,10 +4,7 @@ import { AppService } from './app.service';
 
 @Controller()
 export class AppController {
-    constructor(
-        private readonly feedbacksService: AppService,
-        @Inject('LOG_SERVICE') private logClient: ClientProxy
-    ) { }
+    constructor(private feedbacksService: AppService, @Inject('LOG_SERVICE') private logClient: ClientProxy) { }
 
     private processLog(action: string, correlationId: string, info: string, level: string = 'info') {
         this.logClient.emit('system_log', {

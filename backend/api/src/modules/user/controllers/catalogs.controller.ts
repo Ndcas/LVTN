@@ -1,20 +1,17 @@
 import { Controller, Post, Get, Patch, Body, Req, Param, Inject, HttpException, UseGuards, ParseIntPipe } from '@nestjs/common';
-import { UserService } from './user.service';
+import { UserService } from '../user.service';
 import { type Request } from 'express';
 import { ClientProxy } from '@nestjs/microservices';
 import { AccessGuard } from 'src/guards/access.guard';
 import { Roles } from 'src/decorators/roles.decorator';
-import { CreateSpecialtyDto } from './dtos/create-specialty.dto';
-import { UpdateSpecialtyDto } from './dtos/update-specialty.dto';
-import { CreateDegreeDto } from './dtos/create-degree.dto';
-import { UpdateDegreeDto } from './dtos/update-degree.dto';
+import { CreateSpecialtyDto } from '../dtos/create-specialty.dto';
+import { UpdateSpecialtyDto } from '../dtos/update-specialty.dto';
+import { CreateDegreeDto } from '../dtos/create-degree.dto';
+import { UpdateDegreeDto } from '../dtos/update-degree.dto';
 
 @Controller('catalogs')
 export class CatalogsController {
-  constructor(
-    private readonly usersService: UserService,
-    @Inject('LOG_SERVICE') private logClient: ClientProxy
-  ) { }
+  constructor(private usersService: UserService, @Inject('LOG_SERVICE') private logClient: ClientProxy) { }
 
   private processLog(action: string, correlationId: string, info: string, level: string = 'info') {
     this.logClient.emit('system_log', {

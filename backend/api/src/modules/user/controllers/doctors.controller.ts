@@ -1,18 +1,15 @@
 import { Controller, Post, Get, Patch, Body, Req, Param, Query, Inject, HttpException, UseGuards, ParseIntPipe } from '@nestjs/common';
-import { UserService } from './user.service';
+import { UserService } from '../user.service';
 import { type Request } from 'express';
 import { ClientProxy } from '@nestjs/microservices';
 import { AccessGuard } from 'src/guards/access.guard';
 import { Roles } from 'src/decorators/roles.decorator';
-import { CreateDoctorDto } from './dtos/create-doctor.dto';
-import { UpdateDoctorDto } from './dtos/update-doctor.dto';
+import { CreateDoctorDto } from '../dtos/create-doctor.dto';
+import { UpdateDoctorDto } from '../dtos/update-doctor.dto';
 
 @Controller('doctors')
 export class DoctorsController {
-  constructor(
-    private readonly usersService: UserService,
-    @Inject('LOG_SERVICE') private logClient: ClientProxy
-  ) { }
+  constructor(private usersService: UserService, @Inject('LOG_SERVICE') private logClient: ClientProxy) { }
 
   private processLog(action: string, correlationId: string, info: string, level: string = 'info') {
     this.logClient.emit('system_log', {

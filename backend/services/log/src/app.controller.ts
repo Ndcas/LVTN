@@ -4,7 +4,7 @@ import { AppService } from './app.service';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) { }
+  constructor(private appService: AppService) { }
 
   @EventPattern('system_log')
   handleSystemLog(@Payload() data: any) {

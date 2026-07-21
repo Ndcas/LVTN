@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
-import { ScheduleChangeRequest } from './entities/schedule-change-request.entity';
+import { ScheduleChangeRequest, Status } from './entities/schedule-change-request.entity';
 import { ClinicType, ScheduleChangeRequestDetail } from './entities/schedule-change-request-detail.entity';
 import { OpeningTime } from '../openingtime/entities/opening-time.entity';
+import { DoctorWeeklyTemplate } from '../templates/entities/doctor-weekly-template.entity';
 
 @Injectable()
 export class ChangeRequestsService {
@@ -78,38 +79,10 @@ export class ChangeRequestsService {
 
     async create(data: any) {
         const { doctorId, details } = data;
-        const detailMap = new Map();
 
         for (const detail of details) {
             detail.startTimeSeconds = this.timeToSeconds(detail.startTime);
             detail.endTimeSeconds = this.timeToSeconds(detail.endTime);
-
-            if (detail.startTimeSeconds >= detail.endTimeSeconds) {
-                return {
-                    ok: false,
-                    status: 400,
-                    error: 'Thời gian bắt đầu phải nhỏ hơn thời gian kết thúc'
-                };
-            }
-
-            if (!detailMap.has(detail.dayOfWeek)) {
-                detailMap.set(detail.dayOfWeek, []);
-            }
-
-            if (detailMap
-                .get(detail.dayOfWeek)
-                .some(d => detail.startTimeSeconds < d.endTimeSeconds && detail.endTimeSeconds > d.startTimeSeconds)) {
-                return {
-                    ok: false,
-                    status: 400,
-                    error: 'Thời gian làm việc không được trùng lặp nhau trong cùng một ngày'
-                };
-            }
-
-            detailMap.get(detail.dayOfWeek).push({
-                startTime: detail.startTimeSeconds,
-                endTime: detail.endTimeSeconds
-            });
         }
 
         const queryRunner = this.dataSource.createQueryRunner();
@@ -189,7 +162,81 @@ export class ChangeRequestsService {
         }
     }
 
-    async update(data: any) { }
+    async update(data: any) {
+        const { id, status, rejectedReason } = data;
+        const queryRunner = this.dataSource.createQueryRunner();
+
+        await queryRunner.connect();
+
+        await queryRunner.startTransaction();
+
+        try {
+            const request = await queryRunner.manager.findOne(ScheduleChangeRequest, {
+                where: {
+                    id: id,
+                    status: Status.PENDING
+                },
+                relations: { scheduleChangeRequestDetails: true },
+                lock: { mode: 'pessimistic_write' }
+            });
+
+            if (!request) {
+                await queryRunner.rollbackTransaction();
+
+                return {
+                    ok: false,
+                    status: 404,
+                    error: 'Không tìm thấy yêu cầu hoặc yêu cầu đã được xử lý'
+                };
+            }
+
+            request.status = status;
+
+            if (status == Status.REJECTED && rejectedReason) {
+                request.rejectedReason = rejectedReason;
+            }
+
+            await queryRunner.manager.save(ScheduleChangeRequest, request);
+
+            if (status == Status.REJECTED) {
+                await queryRunner.commitTransaction();
+
+                return {
+                    ok: true,
+                    status: 200,
+                    message: 'Cập nhật yêu cầu thay đổi lịch làm việc thành công'
+                };
+            }
+
+            await queryRunner.manager.delete(DoctorWeeklyTemplate, { doctorId: request.doctorId });
+
+            const newTemplates = queryRunner.manager.create(DoctorWeeklyTemplate, request.scheduleChangeRequestDetails.map(d => ({
+                doctorId: request.doctorId,
+                dayOfWeek: d.dayOfWeek,
+                startTime: d.startTime,
+                endTime: d.endTime,
+                clinicType: d.clinicType
+            })));
+
+            if (newTemplates.length > 0) {
+                await queryRunner.manager.save(DoctorWeeklyTemplate, newTemplates);
+            }
+
+            await queryRunner.commitTransaction();
+
+            return {
+                ok: true,
+                status: 200,
+                message: 'Cập nhật yêu cầu thay đổi lịch làm việc thành công'
+            };
+        } catch (error) {
+            await queryRunner.rollbackTransaction();
+
+            throw error;
+        } finally {
+            await queryRunner.release();
+        }
+    }
 
     private timeToSeconds(time: string) {
         const [hours, minutes, seconds] = time.split(':').map(Number);

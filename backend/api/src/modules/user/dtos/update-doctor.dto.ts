@@ -1,4 +1,4 @@
-import { IsEmail, IsOptional, IsString, IsInt, Matches, IsIn, IsDateString, Min } from 'class-validator';
+import { IsEmail, IsOptional, IsString, IsInt, Matches, IsIn, IsDateString, Min, MaxLength } from 'class-validator';
 
 export class UpdateDoctorDto {
   @IsOptional()
@@ -8,10 +8,12 @@ export class UpdateDoctorDto {
 
   @IsOptional()
   @IsEmail({}, { message: 'Email không hợp lệ' })
+  @MaxLength(100, { message: 'Email tối đa 100 ký tự' })
   email?: string;
 
   @IsOptional()
   @IsString()
+  @MaxLength(100, { message: 'Họ tên tối đa 100 ký tự' })
   fullName?: string;
 
   @IsOptional()
@@ -25,6 +27,7 @@ export class UpdateDoctorDto {
 
   @IsOptional()
   @IsString()
+  @MaxLength(255, { message: 'Địa chỉ tối đa 255 ký tự' })
   address?: string;
 
   @IsOptional()

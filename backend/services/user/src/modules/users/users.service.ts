@@ -1,7 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { type Cache } from 'cache-manager';
+import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 import bcrypt from 'bcrypt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Not } from 'typeorm';
@@ -12,11 +11,11 @@ import { MailService } from '../mail/mail.service';
 @Injectable()
 export class UsersService {
   constructor(
-    private readonly configService: ConfigService,
-    @InjectRepository(User) private readonly userRepository: Repository<User>,
-    private readonly jwtService: JwtService,
+    private configService: ConfigService,
+    @InjectRepository(User) private userRepository: Repository<User>,
+    private jwtService: JwtService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
-    private readonly mailService: MailService
+    private mailService: MailService
   ) { }
 
   async getRegisterOtp(data: any) {

@@ -1,5 +1,5 @@
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { PaymentTransaction } from "../../vnpay/entities/payment-transaction.entity";
+import { PaymentTransaction } from "./payment-transaction.entity";
 
 export enum PaymentMethod {
     CASH = 'CASH',

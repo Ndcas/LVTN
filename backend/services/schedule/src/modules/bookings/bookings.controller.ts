@@ -4,10 +4,7 @@ import { ClientProxy, GrpcMethod } from '@nestjs/microservices';
 
 @Controller()
 export class BookingsController {
-    constructor(
-        private readonly bookingsService: BookingsService,
-        @Inject('LOG_SERVICE') private logClient: ClientProxy
-    ) { }
+    constructor(private bookingsService: BookingsService, @Inject('LOG_SERVICE') private logClient: ClientProxy) { }
 
     private processLog(action: string, correlationId: string, info: string, level: string = 'info') {
         this.logClient.emit('system_log', {

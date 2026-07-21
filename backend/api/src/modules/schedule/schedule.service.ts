@@ -31,6 +31,12 @@ interface ScheduleServiceClient {
     getAllDoctorLeaves(data: any): Observable<any>;
     createDoctorLeave(data: any): Observable<any>;
     updateDoctorLeave(data: any): Observable<any>;
+
+    // === ScheduleChangeRequest
+    createScheduleChangeRequest(data: any): Observable<any>;
+    updateScheduleChangeRequest(data: any): Observable<any>;
+    getAllScheduleChangeRequests(data: any): Observable<any>;
+    getScheduleChangeRequestById(data: any): Observable<any>;
 }
 
 interface UserServiceClient {
@@ -269,5 +275,77 @@ export class ScheduleService implements OnModuleInit {
 
     updateDoctorLeave(data: any) {
         return lastValueFrom(this.scheduleService.updateDoctorLeave(data));
+    }
+
+    // === ScheduleChangeRequest ===
+    createScheduleChangeRequest(data: any) {
+        return lastValueFrom(this.scheduleService.createScheduleChangeRequest(data));
+    }
+
+    updateScheduleChangeRequest(data: any) {
+        return lastValueFrom(this.scheduleService.updateScheduleChangeRequest(data));
+    }
+
+    async getAllScheduleChangeRequests(data: any) {
+        const requestsResponse = await lastValueFrom(this.scheduleService.getAllScheduleChangeRequests(data));
+
+        if (!requestsResponse.ok || requestsResponse.data.length == 0) {
+            return requestsResponse;
+        }
+
+        const doctorIds = Array.from(new Set(requestsResponse.data.map(request => request.doctorId)));
+
+        const doctorsResponse = await lastValueFrom(this.userService.getAllDoctorNamesByIds({
+            ids: doctorIds,
+            correlationId: data.correlationId
+        }));
+
+        if (!doctorsResponse.ok) {
+            return doctorsResponse;
+        }
+
+        const doctorNameMap = new Map();
+
+        doctorsResponse.data.forEach(doctor => {
+            doctorNameMap.set(doctor.id, doctor.fullName);
+        });
+
+        return {
+            ok: true,
+            status: 200,
+            data: requestsResponse.data.map(request => ({
+                ...request,
+                doctorName: doctorNameMap.get(request.doctorId)
+            })),
+            total: requestsResponse.total,
+            page: requestsResponse.page,
+            limit: requestsResponse.limit
+        };
+    }
+
+    async getScheduleChangeRequestById(data: any) {
+        const requestResponse = await lastValueFrom(this.scheduleService.getScheduleChangeRequestById(data));
+
+        if (!requestResponse.ok) {
+            return requestResponse;
+        }
+
+        const doctorResponse = await lastValueFrom(this.userService.getDoctorById({
+            id: requestResponse.data.doctorId,
+            correlationId: data.correlationId
+        }));
+
+        if (!doctorResponse.ok) {
+            return doctorResponse;
+        }
+
+        return {
+            ok: true,
+            status: 200,
+            data: {
+                ...requestResponse.data,
+                doctorName: doctorResponse.data.fullName
+            }
+        };
     }
 }

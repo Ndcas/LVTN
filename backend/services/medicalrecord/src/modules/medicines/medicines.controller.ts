@@ -5,10 +5,7 @@ import { ClientProxy } from '@nestjs/microservices';
 
 @Controller()
 export class MedicinesController {
-  constructor(
-    private readonly medicinesService: MedicinesService,
-    @Inject('LOG_SERVICE') private logClient: ClientProxy
-  ) { }
+  constructor(private medicinesService: MedicinesService, @Inject('LOG_SERVICE') private logClient: ClientProxy) { }
 
   private processLog(action: string, correlationId: string, info: string, level: string = 'info') {
     this.logClient.emit('system_log', {
