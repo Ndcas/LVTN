@@ -153,4 +153,32 @@ export class BookingsController {
             };
         }
     }
+
+    /**
+     * Lấy mã token video call
+     * @param {Object} data - Dữ liệu yêu cầu
+     * @param {string} data.correlationId - ID theo dõi request
+     * @param {number} data.bookingId - ID lịch hẹn
+     * @param {number} data.userId - ID người dùng
+     */
+    @GrpcMethod('ScheduleService', 'GetVideoCallToken')
+    async getVideoCallToken(data: any) {
+        try {
+            this.processLog('GetVideoCallToken', data.correlationId, 'Nhận được yêu cầu lấy mã token video call');
+
+            const result = await this.bookingsService.generateVideoCallToken(data);
+
+            this.processLog('GetVideoCallToken', data.correlationId, 'Kết thúc xử lý lấy mã token video call');
+
+            return result;
+        } catch (e) {
+            this.processLog('GetVideoCallToken', data.correlationId, `Lỗi khi xử lý lấy mã token video call: ${e}`, 'error');
+
+            return {
+                ok: false,
+                status: 500,
+                error: 'Lỗi hệ thống'
+            };
+        }
+    }
 }

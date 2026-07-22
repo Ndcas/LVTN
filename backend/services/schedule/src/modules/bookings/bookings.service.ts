@@ -6,6 +6,8 @@ import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Status as TimeSlotStatus, TimeSlot } from '../timeslots/entities/time-slot.entity';
 import { type ClientGrpc, ClientProxy } from '@nestjs/microservices';
 import { lastValueFrom, Observable } from 'rxjs';
+import { RtcRole, RtcTokenBuilder } from 'agora-token';
+import { ConfigService } from '@nestjs/config';
 
 interface UserServiceClient {
     GetDoctorExaminationFee(data: any): Observable<any>;
@@ -34,7 +36,8 @@ export class BookingsService implements OnModuleInit {
         @Inject('USER_PACKAGE') private userClient: ClientGrpc,
         @Inject('MEDICAL_RECORD_PACKAGE') private medicalRecordClient: ClientGrpc,
         @Inject('PAYMENT_PACKAGE') private paymentClient: ClientGrpc,
-        private dataSource: DataSource
+        private dataSource: DataSource,
+        private configService: ConfigService
     ) { }
 
     onModuleInit() {
@@ -391,5 +394,74 @@ export class BookingsService implements OnModuleInit {
         } finally {
             await queryRunner.release();
         }
+    }
+
+    async generateVideoCallToken(data: any) {
+        const { userId, bookingId } = data;
+        const booking = await this.bookingRepository.findOne({
+            where: [{
+                id: bookingId,
+                patientId: userId
+            }, {
+                id: bookingId,
+                timeSlot: { doctorId: userId }
+            }],
+            relations: { timeSlot: true }
+        });
+
+        if (!booking) {
+            return {
+                ok: false,
+                status: 404,
+                error: 'Không tìm thấy lịch hẹn hoặc bạn không có quyền truy cập'
+            };
+        }
+
+        const channelName = `Room_${bookingId}`;
+        const appCertificate = this.configService.get<string>('AGORA_APP_CERTIFICATE');
+        const appId = this.configService.get<string>('AGORA_APP_ID');
+        const expireTime = new Date(booking.timeSlot.clinicDate);
+        const [h, m, s] = this.getTimeComponent(booking.timeSlot.endTime);
+        const now = Date.now();
+
+        expireTime.setHours(h);
+
+        expireTime.setMinutes(m);
+
+        expireTime.setSeconds(s);
+
+        if (expireTime.getTime() < now) {
+            return {
+                ok: false,
+                status: 400,
+                error: 'Đã hết giờ khám'
+            };
+        }
+
+        const secToExpire = Math.ceil((expireTime.getTime() - now) / 1000);
+        const token = RtcTokenBuilder.buildTokenWithUid(
+            appId!,
+            appCertificate!,
+            channelName,
+            userId,
+            RtcRole.PUBLISHER,
+            secToExpire,
+            secToExpire + 300
+        );
+
+        return {
+            ok: true,
+            status: 200,
+            message: 'Lấy token thành công',
+            userId,
+            channelName,
+            token
+        };
+    }
+
+    private getTimeComponent(time: string) {
+        const [h, m, s] = time.split(':');
+
+        return [parseInt(h), parseInt(m), parseInt(s)];
     }
 }
