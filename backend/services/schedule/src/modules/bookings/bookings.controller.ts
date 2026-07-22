@@ -129,4 +129,28 @@ export class BookingsController {
             };
         }
     }
+
+    /**
+     * Orchestrator cho luồng hoàn thành ca khám (Saga Pattern)
+     */
+    @GrpcMethod('ScheduleService', 'FinishBooking')
+    async finishBooking(data: any) {
+        try {
+            this.processLog('FinishBooking', data.correlationId, 'Nhận được yêu cầu hoàn thành ca khám');
+
+            const result = await this.bookingsService.finishBooking(data);
+
+            this.processLog('FinishBooking', data.correlationId, 'Kết thúc luồng hoàn thành ca khám');
+
+            return result;
+        } catch (e) {
+            this.processLog('FinishBooking', data.correlationId, `Lỗi khi xử lý hoàn thành ca khám: ${e}`, 'error');
+
+            return {
+                ok: false,
+                status: 500,
+                error: 'Lỗi hệ thống'
+            };
+        }
+    }
 }

@@ -1,17 +1,15 @@
 import { Injectable } from "@nestjs/common";
 import { PaymentTransaction, Status as TransactionStatus } from "../invoices/entities/payment-transaction.entity";
-import { DataSource } from "typeorm/browser";
+import { DataSource } from "typeorm";
 import { ConfigService } from "@nestjs/config";
 import { Invoice, Status as InvoiceStatus, PaymentMethod } from "../invoices/entities/invoice.entity";
-import { stringify } from "node:querystring";
+import qs from 'qs';
 import { createHmac } from "node:crypto";
+import moment from "moment";
 
 @Injectable()
 export class VnpayService {
-    constructor(
-        private configService: ConfigService,
-        private dataSource: DataSource
-    ) { }
+    constructor(private configService: ConfigService, private dataSource: DataSource) { }
 
     async createTransaction(data: any) {
         const { id, ip } = data;
@@ -40,7 +38,8 @@ export class VnpayService {
                 };
             }
 
-            const createDate = this.getYYYYMMDDHHmmss();
+            const today = new Date();
+            const createDate = moment(today).format('YYYYMMDDHHmmss');
             let txnRef = `${createDate}${id}${Math.round(Math.random() * 100).toString().padStart(3, '0')}`;
 
             while (true) {
@@ -63,30 +62,27 @@ export class VnpayService {
             });
 
             paymentTransaction = await queryRunner.manager.save(PaymentTransaction, paymentTransaction);
+
             const vnpPrams = this.sortObject({
-                'vnp_Version': '2.1.0',
-                'vnp_Command': 'pay',
-                'vnp_TmnCode': this.configService.get<string>('VNP_TMNCODE'),
-                'vnp_Locale': 'vn',
-                'vnp_Currcode': 'VND',
-                'vnp_TxnRef': txnRef,
-                'vnp_OrderInfo': `Thanh toan cho hoa don ca kham ${id}`,
-                'vnp_OrderType': 'other',
-                'vnp_Amount': Math.round(invoice.totalAmount * 100),
-                'vnp_ReturnUrl': this.configService.get<string>('VNP_RETURNURL'),
-                'vnp_IpAddr': ip,
-                'vnp_CreateDate': createDate
+                vnp_Version: '2.1.0',
+                vnp_Command: 'pay',
+                vnp_TmnCode: this.configService.get<string>('VNP_TMNCODE'),
+                vnp_Locale: 'vn',
+                vnp_CurrCode: 'VND',
+                vnp_TxnRef: txnRef,
+                vnp_OrderInfo: `Thanh toan cho hoa don ca kham ${id}`,
+                vnp_OrderType: 'other',
+                vnp_Amount: Math.round(invoice.totalAmount * 100),
+                vnp_ReturnUrl: this.configService.get<string>('VNP_RETURNURL'),
+                vnp_IpAddr: ip,
+                vnp_CreateDate: createDate
             });
 
-            const signData = stringify(vnpPrams, '&', '=', {
-                encodeURIComponent: (value) => value
-            });
+            const signData = qs.stringify(vnpPrams, { encode: false });
             const hmac = createHmac('sha512', this.configService.get<string>('VNP_HASHSECRET')!);
             const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');
             vnpPrams['vnp_SecureHash'] = signed;
-            const vnpUrl = `${this.configService.get<string>('VNP_URL')}?${stringify(vnpPrams, '&', '=', {
-                encodeURIComponent: (value) => value
-            })}`;
+            const vnpUrl = `${this.configService.get<string>('VNP_URL')}?${qs.stringify(vnpPrams, { encode: false })}`;
 
             await queryRunner.commitTransaction();
 
@@ -114,9 +110,7 @@ export class VnpayService {
 
         query = this.sortObject(query);
         const secretKey = this.configService.get<string>('VNP_HASHSECRET');
-        const signData = stringify(query, '&', '=', {
-            encodeURIComponent: (value) => value
-        });
+        const signData = qs.stringify(query, { encode: false });
         const hmac = createHmac('sha512', secretKey!);
         const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');
 
@@ -145,26 +139,24 @@ export class VnpayService {
 
     async validateBackend(data: any) {
         let query = data.query;
-        const secureHash = query['vnp_SecureHash'];
-        const txnRef = query['vnp_TxnRef'];
-        const transactionNo = query['vnp_TransactionNo'];
-        const responseCode = query['vnp_ResponseCode'];
+        const secureHash = query.vnp_SecureHash;
+        const txnRef = query.vnp_TxnRef;
+        const transactionNo = query.vnp_TransactionNo;
+        const responseCode = query.vnp_ResponseCode;
 
-        delete query['vnp_SecureHash'];
+        delete query.vnp_SecureHash;
 
-        delete query['vnp_SecureHashType'];
+        delete query.vnp_SecureHashType;
 
         query = this.sortObject(query);
         const secretKey = this.configService.get<string>('VNP_HASHSECRET');
-        const signData = stringify(query, '&', '=', {
-            encodeURIComponent: (value) => value
-        });
+        const signData = qs.stringify(query, { encode: false });
         const hmac = createHmac('sha512', secretKey!);
         const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');
 
         if (secureHash != signed) {
             return {
-                ok: true,
+                ok: false,
                 status: 200,
                 data: {
                     RspCode: '97',
@@ -190,7 +182,7 @@ export class VnpayService {
                 await queryRunner.rollbackTransaction();
 
                 return {
-                    ok: true,
+                    ok: false,
                     status: 200,
                     data: {
                         RspCode: '01',
@@ -203,7 +195,7 @@ export class VnpayService {
                 await queryRunner.rollbackTransaction();
 
                 return {
-                    ok: true,
+                    ok: false,
                     status: 200,
                     data: {
                         RspCode: '04',
@@ -216,7 +208,7 @@ export class VnpayService {
                 await queryRunner.rollbackTransaction();
 
                 return {
-                    ok: true,
+                    ok: false,
                     status: 200,
                     data: {
                         RspCode: '02',
@@ -258,18 +250,6 @@ export class VnpayService {
         } finally {
             await queryRunner.release();
         }
-    }
-
-    private getYYYYMMDDHHmmss() {
-        const today = new Date();
-        const year = today.getFullYear().toString().padStart(4, '0');
-        const month = (today.getMonth() + 1).toString().padStart(2, '0');
-        const day = today.getDate().toString().padStart(2, '0');
-        const hour = today.getHours().toString().padStart(2, '0');
-        const minute = today.getMinutes().toString().padStart(2, '0');
-        const second = today.getSeconds().toString().padStart(2, '0');
-
-        return year + month + day + hour + minute + second;
     }
 
     private sortObject(obj: any) {

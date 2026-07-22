@@ -26,6 +26,7 @@ interface ScheduleServiceClient {
     getBookingById(data: any): Observable<any>;
     createBooking(data: any): Observable<any>;
     updateBookingStatus(data: any): Observable<any>;
+    finishBooking(data: any): Observable<any>;
 
     // === DoctorLeave ===
     getAllDoctorLeaves(data: any): Observable<any>;
@@ -218,6 +219,10 @@ export class ScheduleService implements OnModuleInit {
 
     updateBookingStatus(data: any) {
         return lastValueFrom(this.scheduleService.updateBookingStatus(data));
+    }
+
+    finishBooking(data: any) {
+        return lastValueFrom(this.scheduleService.finishBooking(data));
     }
 
     // === DoctorLeave ===

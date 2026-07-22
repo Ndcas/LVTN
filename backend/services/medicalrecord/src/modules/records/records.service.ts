@@ -115,6 +115,7 @@ export class RecordsService {
                 diagnoseDetail
             });
             record = await queryRunner.manager.save(MedicalRecord, record);
+            let medicineFee = 0;
 
             if (prescriptionDetails && prescriptionDetails.length > 0) {
                 const medicineIds = Array.from(new Set(prescriptionDetails.map(detail => detail.medicineId)));
@@ -137,13 +138,18 @@ export class RecordsService {
                 }
 
                 const medicineMap = new Map(medicines.map(m => [m.id, m]));
-                const detailEntities = queryRunner.manager.create(PrescriptionDetail, prescriptionDetails.map(detail => ({
-                    recordId: record.id,
-                    medicineId: detail.medicineId,
-                    quantity: detail.quantity,
-                    dosage: detail.dosage,
-                    priceAtBooking: medicineMap.get(detail.medicineId)!.pricePerUnit
-                })));
+                const detailEntities = queryRunner.manager.create(PrescriptionDetail, prescriptionDetails.map(detail => {
+                    const price = medicineMap.get(detail.medicineId)!.pricePerUnit;
+                    medicineFee += price * detail.quantity;
+
+                    return {
+                        recordId: record.id,
+                        medicineId: detail.medicineId,
+                        quantity: detail.quantity,
+                        dosage: detail.dosage,
+                        priceAtBooking: price
+                    };
+                }));
 
                 await queryRunner.manager.save(PrescriptionDetail, detailEntities);
             }
@@ -154,7 +160,8 @@ export class RecordsService {
                 ok: true,
                 status: 200,
                 message: 'Tạo bệnh án thành công',
-                id: record.id
+                id: record.id,
+                medicineFee
             };
         } catch (error) {
             await queryRunner.rollbackTransaction();

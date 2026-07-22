@@ -16,6 +16,15 @@ import { MedicalRecordService } from './medical-record.service';
         protoPath: join(process.cwd(), process.env.MEDICAL_RECORD_PROTO_PATH!),
         url: process.env.MEDICAL_RECORD_SERVICE_URL!,
       },
+    }]),
+    ClientsModule.register([{
+      name: 'LOG_SERVICE',
+      transport: Transport.RMQ,
+      options: {
+        urls: [process.env.RMQ_URL!],
+        queue: 'log',
+        queueOptions: { durable: true }
+      }
     }])
   ],
   controllers: [DiseasesController, MedicinesController, RecordsController],

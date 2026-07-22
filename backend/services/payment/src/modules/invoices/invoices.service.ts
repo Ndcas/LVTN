@@ -1,8 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Invoice, Status, PaymentMethod } from "./entities/invoice.entity";
-import { Repository } from "typeorm";
-import { DataSource } from "typeorm/browser";
+import { Repository, DataSource } from "typeorm";
 
 @Injectable()
 export class InvoicesService {
@@ -144,5 +143,29 @@ export class InvoicesService {
         } finally {
             await queryRunner.release();
         }
+    }
+
+    async deleteInvoice(data: any) {
+        const { id } = data;
+
+        const invoice = await this.invoiceRepository.findOne({
+            where: { id }
+        });
+
+        if (!invoice) {
+            return {
+                ok: false,
+                status: 404,
+                error: 'Không tìm thấy hóa đơn'
+            };
+        }
+
+        await this.invoiceRepository.remove(invoice);
+
+        return {
+            ok: true,
+            status: 200,
+            message: 'Đã xóa hóa đơn thành công'
+        };
     }
 }

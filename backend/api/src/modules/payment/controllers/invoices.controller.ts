@@ -19,6 +19,14 @@ export class InvoicesController {
     });
   }
 
+  /**
+   * Lấy danh sách hóa đơn (phân trang, filter)
+   * @param {string} page - Trang hiện tại
+   * @param {string} limit - Số bản ghi mỗi trang
+   * @param {string} status - Trạng thái hóa đơn (VD: 'PENDING', 'PAID')
+   * @param {string} patientId - Lọc theo ID bệnh nhân
+   * @param {Request} req - Request object để lấy headers
+   */
   @Get()
   @UseGuards(AccessGuard)
   @Roles(['Admin', 'Nurse'])
@@ -54,6 +62,11 @@ export class InvoicesController {
     return data;
   }
 
+  /**
+   * Lấy thông tin chi tiết hóa đơn theo ID
+   * @param {number} id - ID của hóa đơn
+   * @param {Request} req - Request object để lấy headers
+   */
   @Get(':id')
   @UseGuards(AccessGuard)
   @Roles(['Admin', 'Nurse', 'Patient'])
@@ -77,7 +90,12 @@ export class InvoicesController {
     return data;
   }
 
-  @Patch(':id/cash-paid')
+  /**
+   * Đánh dấu hóa đơn đã thanh toán tiền mặt (Dành cho Thu ngân)
+   * @param {number} id - ID của hóa đơn
+   * @param {Request} req - Request object để lấy headers và thông tin user hiện tại
+   */
+  @Patch('cash-paid/:id')
   @UseGuards(AccessGuard)
   @Roles(['Nurse'])
   async markCashPaid(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {

@@ -26,6 +26,7 @@ service ScheduleService {
     rpc GetBookingById(IdRequest) returns (GetBookingByIdResponse) {}
     rpc CreateBooking(CreateBookingRequest) returns (BaseResponse) {}
     rpc UpdateBookingStatus(UpdateBookingStatusRequest) returns (BaseResponse) {}
+    rpc FinishBooking(FinishBookingRequest) returns (BaseResponse) {}
 
     // === DoctorLeave ===
     rpc GetAllDoctorLeaves(GetAllDoctorLeavesRequest) returns (GetAllDoctorLeavesResponse) {}
@@ -195,6 +196,22 @@ message UpdateBookingStatusRequest {
     int32 userId = 2;
     string status = 3;
     string correlationId = 4;
+}
+
+message PrescriptionDetailInput {
+    int32 medicineId = 1;
+    int32 quantity = 2;
+    string dosage = 3;
+}
+
+message FinishBookingRequest {
+    int32 bookingId = 1;
+    int32 doctorId = 2;
+    string clinicalIndicators = 3;
+    optional int32 diseaseId = 4;
+    string diagnoseDetail = 5;
+    optional repeated PrescriptionDetailInput prescriptionDetails = 6;
+    string correlationId = 7;
 }
 
 // === DoctorLeave ===

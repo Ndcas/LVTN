@@ -187,12 +187,6 @@ message GetRecordsByPatientResponse {
     int32 limit = 8;
 }
 
-message PrescriptionDetailItem {
-    int32 medicineId = 1;
-    int32 quantity = 2;
-    string dosage = 3;
-}
-
 message CreateRecordRequest {
     int32 bookingId = 1;
     int32 patientId = 2;
@@ -201,7 +195,7 @@ message CreateRecordRequest {
     string clinicalIndicators = 5;
     optional int32 diseaseId = 6;
     string diagnoseDetail = 7;
-    repeated PrescriptionDetailInput prescriptionDetails = 8;
+    repeated PrescriptionDetailItem prescriptionDetails = 8;
     string correlationId = 9;
 }
 
@@ -211,4 +205,5 @@ message CreateRecordResponse {
     string error = 3;
     string message = 4;
     int32 id = 5;
+    double medicineFee = 6;
 }

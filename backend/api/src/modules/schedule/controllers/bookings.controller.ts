@@ -1,9 +1,10 @@
-import { Controller, Get, HttpException, Inject, Param, ParseIntPipe, Patch, Post, Query, Req, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, HttpException, Inject, Param, ParseIntPipe, Patch, Post, Query, Req, UseGuards } from "@nestjs/common";
 import { ScheduleService } from "../schedule.service";
 import { ClientProxy } from "@nestjs/microservices";
 import { AccessGuard } from "src/guards/access.guard";
 import { Roles } from "src/decorators/roles.decorator";
 import { type Request } from "express";
+import { FinishBookingDto } from "../dtos/finish-booking.dto";
 
 @Controller('bookings')
 export class BookingsController {
@@ -165,15 +166,15 @@ export class BookingsController {
     @Patch('finish/:id')
     @UseGuards(AccessGuard)
     @Roles(['Doctor'])
-    async finishBooking(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
+    async finishBooking(@Param('id', ParseIntPipe) id: number, @Body() body: FinishBookingDto, @Req() req: Request) {
         const correlationId = req.headers['correlation-id'] as string;
 
         this.processLog('FinishBooking', correlationId, 'Nhận được yêu cầu hoàn thành lịch hẹn');
 
-        const result = await this.scheduleService.updateBookingStatus({
+        const result = await this.scheduleService.finishBooking({
+            ...body,
             bookingId: id,
-            userId: (req as any).user.userId,
-            status: 'FINISHED',
+            doctorId: (req as any).user.userId,
             correlationId
         });
 

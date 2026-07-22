@@ -1,19 +1,47 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { Booking, Status as BookingStatus } from './entities/booking.entity';
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Status as TimeSlotStatus, TimeSlot } from '../timeslots/entities/time-slot.entity';
-import { ClientProxy } from '@nestjs/microservices';
+import { type ClientGrpc, ClientProxy } from '@nestjs/microservices';
+import { lastValueFrom, Observable } from 'rxjs';
+
+interface UserService {
+    GetDoctorExaminationFee(data: any): Observable<any>;
+}
+
+interface MedicalRecordService {
+    CreateRecord(data: any): Observable<any>;
+    DeleteRecord(data: any): Observable<any>;
+}
+
+interface PaymentService {
+    CreateInvoice(data: any): Observable<any>;
+    DeleteInvoice(data: any): Observable<any>;
+}
 
 @Injectable()
-export class BookingsService {
+export class BookingsService implements OnModuleInit {
+    private userService: UserService;
+    private medicalRecordService: MedicalRecordService;
+    private paymentService: PaymentService;
+
     constructor(
         @InjectRepository(Booking) private bookingRepository: Repository<Booking>,
         @Inject(CACHE_MANAGER) private cacheManager: Cache,
         @Inject('NOTIFICATION_SERVICE') private notificationClient: ClientProxy,
+        @Inject('USER_PACKAGE') private userClient: ClientGrpc,
+        @Inject('MEDICAL_RECORD_PACKAGE') private medicalRecordClient: ClientGrpc,
+        @Inject('PAYMENT_PACKAGE') private paymentClient: ClientGrpc,
         private dataSource: DataSource
     ) { }
+
+    onModuleInit() {
+        this.userService = this.userClient.getService<UserService>('UserService');
+        this.medicalRecordService = this.medicalRecordClient.getService<MedicalRecordService>('MedicalRecordService');
+        this.paymentService = this.paymentClient.getService<PaymentService>('PaymentService');
+    }
 
     async getAll(data: any) {
         const { page = 1, limit = 10, patientId, status } = data;
@@ -235,6 +263,117 @@ export class BookingsService {
                 ok: true,
                 status: 200,
                 message: 'Cập nhật trạng thái lịch hẹn thành công'
+            };
+        } catch (error) {
+            await queryRunner.rollbackTransaction();
+
+            throw error;
+        } finally {
+            await queryRunner.release();
+        }
+    }
+
+    async finishBooking(data: any) {
+        const { bookingId, doctorId, clinicalIndicators, diseaseId, diagnoseDetail, prescriptionDetails, correlationId } = data;
+
+        const queryRunner = this.dataSource.createQueryRunner();
+
+        await queryRunner.connect();
+
+        await queryRunner.startTransaction();
+
+        try {
+            const booking = await queryRunner.manager.findOne(Booking, {
+                where: {
+                    id: bookingId,
+                    status: BookingStatus.CONFIRMED
+                },
+                relations: { timeSlot: true },
+                lock: { mode: 'pessimistic_write' }
+            });
+
+            if (!booking) {
+                await queryRunner.rollbackTransaction();
+
+                return {
+                    ok: false,
+                    status: 404,
+                    error: 'Không tìm thấy hoặc không thể cập nhật lịch hẹn'
+                };
+            }
+
+            const feeResp: any = await lastValueFrom(this.userService.GetDoctorExaminationFee({
+                id: doctorId,
+                correlationId
+            }));
+
+            if (!feeResp.ok) {
+                throw new Error(feeResp.error);
+            };
+
+            const examinationFee = feeResp.fee;
+            let recordId = null;
+            let medicineFee = 0;
+            const recordResp: any = await lastValueFrom(this.medicalRecordService.CreateRecord({
+                bookingId,
+                patientId: booking.patientId,
+                doctorId,
+                visitDate: booking.timeSlot.clinicDate,
+                clinicalIndicators,
+                diseaseId,
+                diagnoseDetail,
+                prescriptionDetails,
+                correlationId
+            }));
+
+            if (!recordResp.ok) {
+                throw new Error(recordResp.error);
+            }
+
+            recordId = recordResp.id;
+            medicineFee = recordResp.medicineFee;
+
+            const totalAmount = examinationFee + medicineFee;
+            let invoiceId = null;
+            const invoiceResp: any = await lastValueFrom(this.paymentService.CreateInvoice({
+                bookingId,
+                patientId: booking.patientId,
+                examinationFee,
+                medicineFee,
+                totalAmount,
+                correlationId
+            }));
+
+            if (!invoiceResp.ok) {
+                lastValueFrom(this.medicalRecordService.DeleteRecord({
+                    id: recordId,
+                    correlationId
+                })).catch(() => { });
+
+                throw new Error(invoiceResp.error);
+            }
+
+            invoiceId = invoiceResp.id;
+
+            try {
+                booking.status = BookingStatus.FINISHED;
+                await queryRunner.manager.save(Booking, booking);
+                await queryRunner.commitTransaction();
+            } catch (bookingError) {
+                if (invoiceId) {
+                    lastValueFrom(this.paymentService.DeleteInvoice({ id: invoiceId, correlationId })).catch(() => { });
+                }
+                if (recordId) {
+                    lastValueFrom(this.medicalRecordService.DeleteRecord({ id: recordId, correlationId })).catch(() => { });
+                }
+
+                throw bookingError;
+            }
+
+            return {
+                ok: true,
+                status: 200,
+                message: 'Hoàn thành ca khám thành công'
             };
         } catch (error) {
             await queryRunner.rollbackTransaction();

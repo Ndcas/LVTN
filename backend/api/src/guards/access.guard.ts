@@ -5,9 +5,9 @@ import { Roles } from "src/decorators/roles.decorator";
 
 @Injectable()
 export class AccessGuard implements CanActivate {
-    private readonly roleMap: Record<string, number>;
+    private roleMap: Record<string, number>;
 
-    constructor(private reflector: Reflector, private readonly jwtService: JwtService) {
+    constructor(private reflector: Reflector, private jwtService: JwtService) {
         this.roleMap = {
             'Admin': 1,
             'Doctor': 2,

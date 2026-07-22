@@ -4,7 +4,7 @@ import { JwtService } from "@nestjs/jwt";
 
 @Injectable()
 export class RefreshGuard implements CanActivate {
-    constructor(private readonly jwtService: JwtService, private readonly configService: ConfigService) { }
+    constructor(private jwtService: JwtService, private configService: ConfigService) { }
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
         try {

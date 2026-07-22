@@ -24,6 +24,7 @@ service UserService {
   // === CRUD Doctors ===
   rpc GetAllDoctors(GetAllDoctorsRequest) returns (DoctorListResponse) {}
   rpc GetDoctorById(IdRequest) returns (DoctorDetailResponse) {}
+  rpc GetDoctorExaminationFee(IdRequest) returns (GetDoctorExaminationFeeResponse) {}
   rpc CreateDoctor(CreateDoctorRequest) returns (BaseResponse) {}
   rpc UpdateDoctor(UpdateDoctorRequest) returns (BaseResponse) {}
   rpc GetAllDoctorNamesBySpecialtyId(IdRequest) returns (DoctorNameListResponse) {}
@@ -229,6 +230,13 @@ message DoctorDetailResponse {
   int32 status = 2;
   string error = 3;
   DoctorItem data = 4;
+}
+
+message GetDoctorExaminationFeeResponse {
+  bool ok = 1;
+  int32 status = 2;
+  string error = 3;
+  double fee = 4;
 }
 
 message CreateDoctorRequest {

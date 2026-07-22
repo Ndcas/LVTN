@@ -2,13 +2,13 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { Invoice } from './entities/invoice.entity';
-import { PaymentTransaction } from '../vnpay/entities/payment-transaction.entity';
+import { PaymentTransaction } from './entities/payment-transaction.entity';
 import { InvoicesController } from './invoices.controller';
 import { InvoicesService } from './invoices.service';
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([Invoice]),
+        TypeOrmModule.forFeature([Invoice, PaymentTransaction]),
         ClientsModule.register([{
             name: 'LOG_SERVICE',
             transport: Transport.RMQ,

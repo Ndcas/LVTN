@@ -8,6 +8,7 @@ service PaymentService {
     rpc GetInvoiceById(IdRequest) returns (GetInvoiceByIdResponse) {}
     rpc CreateInvoice(CreateInvoiceRequest) returns (CreateInvoiceResponse) {}
     rpc MarkCashPaid(MarkCashPaidRequest) returns (BaseResponse) {}
+    rpc DeleteInvoice(IdRequest) returns (BaseResponse) {}
 
     // === PaymentTransaction ===
     rpc CreatePaymentUrl(CreatePaymentUrlRequest) returns (CreatePaymentUrlResponse) {}

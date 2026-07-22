@@ -76,6 +76,33 @@ export class DoctorsController {
   }
 
   /**
+   * Lấy phí khám của bác sĩ qua gRPC
+   * @param {Object} data - Dữ liệu yêu cầu
+   * @param {number} data.id - ID của bác sĩ (chính là user.id)
+   * @param {string} data.correlationId - ID theo dõi request
+   */
+  @GrpcMethod('UserService', 'GetDoctorExaminationFee')
+  async getDoctorExaminationFee(data: any) {
+    try {
+      this.processLog('GetDoctorExaminationFee', data.correlationId, 'Nhận được yêu cầu lấy phí khám của bác sĩ');
+
+      const result = await this.doctorsService.getExaminationFee(data);
+
+      this.processLog('GetDoctorExaminationFee', data.correlationId, 'Kết thúc xử lý lấy phí khám của bác sĩ');
+
+      return result;
+    } catch (e) {
+      this.processLog('GetDoctorExaminationFee', data.correlationId, `Lỗi khi xử lý lấy phí khám của bác sĩ: ${e}`, 'error');
+
+      return {
+        ok: false,
+        status: 500,
+        error: 'Lỗi hệ thống'
+      };
+    }
+  }
+
+  /**
    * Tạo bác sĩ mới qua gRPC
    * @param {Object} data - Dữ liệu yêu cầu
    * @param {string} data.email - Email

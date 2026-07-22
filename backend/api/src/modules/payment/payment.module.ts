@@ -15,6 +15,15 @@ import { PaymentService } from './payment.service';
         protoPath: join(process.cwd(), process.env.PAYMENT_PROTO_PATH!),
         url: process.env.PAYMENT_SERVICE_URL!,
       },
+    }]),
+    ClientsModule.register([{
+      name: 'LOG_SERVICE',
+      transport: Transport.RMQ,
+      options: {
+        urls: [process.env.RMQ_URL!],
+        queue: 'log',
+        queueOptions: { durable: true }
+      }
     }])
   ],
   controllers: [VnpayController, InvoicesController],

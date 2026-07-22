@@ -95,7 +95,7 @@ export class VnpayController {
             this.processLog('ValidateIpnUrl', data.correlationId, `Lỗi: ${error}`, 'error');
 
             return {
-                ok: true,
+                ok: false,
                 status: 200,
                 data: {
                     RspCode: '99',

@@ -131,4 +131,31 @@ export class InvoicesController {
             };
         }
     }
+
+    /**
+     * Xóa hóa đơn (Dùng cho Saga Rollback)
+     * @param {Object} data
+     * @param {number} data.id
+     * @param {string} data.correlationId
+     */
+    @GrpcMethod('PaymentService', 'DeleteInvoice')
+    async deleteInvoice(data: any) {
+        try {
+            this.processLog('DeleteInvoice', data.correlationId, `Nhận yêu cầu xóa hóa đơn: ${data.id}`);
+
+            const result = await this.invoicesService.deleteInvoice(data);
+
+            this.processLog('DeleteInvoice', data.correlationId, 'Hoàn thành xóa hóa đơn');
+
+            return result;
+        } catch (error) {
+            this.processLog('DeleteInvoice', data.correlationId, `Lỗi: ${error}`, 'error');
+
+            return {
+                ok: false,
+                status: 500,
+                error: 'Lỗi hệ thống'
+            };
+        }
+    }
 }

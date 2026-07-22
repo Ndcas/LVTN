@@ -1,4 +1,4 @@
-import { Controller, Get, HttpException, Inject, Param, ParseIntPipe, Post, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, HttpException, Inject, Param, ParseIntPipe, Post, Redirect, Req, UseGuards } from '@nestjs/common';
 import { PaymentService } from '../payment.service';
 import { ClientProxy } from '@nestjs/microservices';
 import { AccessGuard } from 'src/guards/access.guard';
@@ -58,6 +58,7 @@ export class VnpayController {
    * @param {Request} req - Request object chứa query params
    */
   @Get('return')
+  @Redirect()
   async validateReturnUrl(@Req() req: Request) {
     const correlationId = req.headers['correlation-id'] as string;
 
@@ -71,19 +72,19 @@ export class VnpayController {
     if (!result.ok) {
       this.processLog('ValidateReturnUrl', correlationId, `Thất bại: ${result.error}`, 'warn');
 
-      return { url: this.configService.get<string>('FRONTEND_DOMAIN') + '/payment-failed' };
+      return { url: `${this.configService.get<string>('FRONTEND_DOMAIN')}/payment-failed` };
     }
 
     this.processLog('ValidateReturnUrl', correlationId, 'Thành công');
 
-    return { url: this.configService.get<string>('FRONTEND_DOMAIN') + '/payment-success' };
+    return { url: `${this.configService.get<string>('FRONTEND_DOMAIN')}/payment-success` };
   }
 
   /**
    * Webhook IPN từ VNPay
    * @param {Request} req - Request object chứa query params
    */
-  @Get('vnpay-ipn')
+  @Get('ipn')
   async validateIpnUrl(@Req() req: Request) {
     const correlationId = req.headers['correlation-id'] as string;
 
@@ -94,7 +95,11 @@ export class VnpayController {
       correlationId
     });
 
-    this.processLog('ValidateIpnUrl', correlationId, 'Thành công');
+    if (!result.ok) {
+      this.processLog('ValidateIpnUrl', correlationId, `Thất bại: ${result.data.Message}`, 'warn');
+    } else {
+      this.processLog('ValidateIpnUrl', correlationId, 'Thành công');
+    }
 
     return result.data;
   }

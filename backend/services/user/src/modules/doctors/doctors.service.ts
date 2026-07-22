@@ -116,6 +116,27 @@ export class DoctorsService {
     };
   }
 
+  async getExaminationFee(data: any) {
+    const dm = await this.metadataRepository.findOne({
+      where: { userId: data.id },
+      relations: { specialty: true }
+    });
+
+    if (!dm) {
+      return {
+        ok: false,
+        status: 404,
+        error: 'Bác sĩ không tồn tại'
+      };
+    }
+
+    return {
+      ok: true,
+      status: 200,
+      fee: Number(dm.specialty.defaultFee)
+    };
+  }
+
   async create(data: any) {
     const emailExists = await this.userRepository.exists({
       where: { email: data.email }
