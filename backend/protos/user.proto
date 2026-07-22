@@ -20,6 +20,7 @@ service UserService {
   rpc CreateUser(CreateUserRequest) returns (BaseResponse) {}
   rpc UpdateUser(UpdateUserRequest) returns (BaseResponse) {}
   rpc ToggleUserActive(IdRequest) returns (BaseResponse) {}
+  rpc GetFcmTokenById(IdRequest) returns (GetFcmTokenByIdResponse) {}
 
   // === CRUD Doctors ===
   rpc GetAllDoctors(GetAllDoctorsRequest) returns (DoctorListResponse) {}
@@ -183,6 +184,13 @@ message UpdateUserRequest {
   optional string dob = 6;
   optional string address = 7;
   string correlationId = 8;
+}
+
+message GetFcmTokenByIdResponse {
+  bool ok = 1;
+  int32 status = 2;
+  string error = 3;
+  string fcmToken = 4;
 }
 
 // === Doctor CRUD Messages ===

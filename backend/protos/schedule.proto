@@ -210,7 +210,7 @@ message FinishBookingRequest {
     string clinicalIndicators = 3;
     optional int32 diseaseId = 4;
     string diagnoseDetail = 5;
-    optional repeated PrescriptionDetailInput prescriptionDetails = 6;
+    repeated PrescriptionDetailInput prescriptionDetails = 6;
     string correlationId = 7;
 }
 

@@ -7,25 +7,25 @@ import { Status as TimeSlotStatus, TimeSlot } from '../timeslots/entities/time-s
 import { type ClientGrpc, ClientProxy } from '@nestjs/microservices';
 import { lastValueFrom, Observable } from 'rxjs';
 
-interface UserService {
+interface UserServiceClient {
     GetDoctorExaminationFee(data: any): Observable<any>;
 }
 
-interface MedicalRecordService {
+interface MedicalRecordServiceClient {
     CreateRecord(data: any): Observable<any>;
     DeleteRecord(data: any): Observable<any>;
 }
 
-interface PaymentService {
+interface PaymentServiceClient {
     CreateInvoice(data: any): Observable<any>;
     DeleteInvoice(data: any): Observable<any>;
 }
 
 @Injectable()
 export class BookingsService implements OnModuleInit {
-    private userService: UserService;
-    private medicalRecordService: MedicalRecordService;
-    private paymentService: PaymentService;
+    private userService: UserServiceClient;
+    private medicalRecordService: MedicalRecordServiceClient;
+    private paymentService: PaymentServiceClient;
 
     constructor(
         @InjectRepository(Booking) private bookingRepository: Repository<Booking>,
@@ -38,9 +38,9 @@ export class BookingsService implements OnModuleInit {
     ) { }
 
     onModuleInit() {
-        this.userService = this.userClient.getService<UserService>('UserService');
-        this.medicalRecordService = this.medicalRecordClient.getService<MedicalRecordService>('MedicalRecordService');
-        this.paymentService = this.paymentClient.getService<PaymentService>('PaymentService');
+        this.userService = this.userClient.getService<UserServiceClient>('UserService');
+        this.medicalRecordService = this.medicalRecordClient.getService<MedicalRecordServiceClient>('MedicalRecordService');
+        this.paymentService = this.paymentClient.getService<PaymentServiceClient>('PaymentService');
     }
 
     async getAll(data: any) {
@@ -170,17 +170,20 @@ export class BookingsService implements OnModuleInit {
                 status: BookingStatus.CONFIRMED
             });
 
-            await queryRunner.manager.save(booking);
+            await queryRunner.manager.save(Booking, booking);
 
             timeSlot.status = TimeSlotStatus.BOOKED;
 
-            await queryRunner.manager.save(timeSlot);
+            await queryRunner.manager.save(TimeSlot, timeSlot);
 
             await queryRunner.commitTransaction();
 
             this.notificationClient.emit('booking_created', {
                 correlationId,
-                doctorId: timeSlot.doctorId
+                doctorId: timeSlot.doctorId,
+                date: timeSlot.clinicDate,
+                startTime: timeSlot.startTime,
+                clinicType: timeSlot.clinicType
             });
 
             return {
@@ -249,12 +252,18 @@ export class BookingsService implements OnModuleInit {
                 if (userId == booking.patientId) {
                     this.notificationClient.emit('booking_canceled_by_patient', {
                         correlationId,
-                        doctorId: booking.timeSlot.doctorId
+                        doctorId: booking.timeSlot.doctorId,
+                        date: booking.timeSlot.clinicDate,
+                        startTime: booking.timeSlot.startTime,
+                        clinicType: booking.timeSlot.clinicType
                     });
                 } else if (userId == booking.timeSlot.doctorId) {
                     this.notificationClient.emit('booking_canceled_by_doctor', {
                         correlationId,
-                        patientId: booking.patientId
+                        patientId: booking.patientId,
+                        date: booking.timeSlot.clinicDate,
+                        startTime: booking.timeSlot.startTime,
+                        clinicType: booking.timeSlot.clinicType
                     });
                 }
             }

@@ -388,4 +388,31 @@ export class UsersController {
       };
     }
   }
+
+  /**
+   * Lấy FCM token của user qua gRPC
+   * @param {Object} data - Dữ liệu yêu cầu
+   * @param {number} data.id - ID của user
+   * @param {string} data.correlationId - ID theo dõi request
+   */
+  @GrpcMethod('UserService', 'GetFcmTokenById')
+  async getFcmTokenById(data: any) {
+    try {
+      this.processLog('GetFcmTokenById', data.correlationId, 'Nhận được yêu cầu lấy FCM token');
+
+      const result = await this.usersService.getFcmTokenById(data);
+
+      this.processLog('GetFcmTokenById', data.correlationId, 'Kết thúc xử lý lấy FCM token');
+
+      return result;
+    } catch (e) {
+      this.processLog('GetFcmTokenById', data.correlationId, `Lỗi khi xử lý lấy FCM token: ${e}`, 'error');
+
+      return {
+        ok: false,
+        status: 500,
+        error: 'Lỗi hệ thống'
+      };
+    }
+  }
 }

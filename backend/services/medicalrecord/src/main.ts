@@ -4,17 +4,14 @@ import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { join } from 'node:path';
 
 async function bootstrap() {
-  const app = await NestFactory.createMicroservice<MicroserviceOptions>(
-    AppModule,
-    {
-      transport: Transport.GRPC,
-      options: {
-        package: 'medicalrecord',
-        protoPath: join(process.cwd(), process.env.PROTO_PATH!),
-        url: process.env.URL!
-      }
+  const app = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
+    transport: Transport.GRPC,
+    options: {
+      package: 'medicalrecord',
+      protoPath: join(process.cwd(), process.env.PROTO_PATH!),
+      url: process.env.URL!
     }
-  );
+  });
 
   await app.listen();
 }

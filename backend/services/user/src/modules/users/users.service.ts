@@ -570,4 +570,24 @@ export class UsersService {
       message: 'Cập nhật trạng thái thành công'
     };
   }
+
+  async getFcmTokenById(data: any) {
+    const user = await this.userRepository.findOne({
+      where: { id: data.id }
+    });
+
+    if (!user) {
+      return {
+        ok: false,
+        status: 404,
+        error: 'Không tìm thấy người dùng'
+      };
+    }
+
+    return {
+      ok: true,
+      status: 200,
+      fcmToken: user.fcmToken
+    };
+  }
 }

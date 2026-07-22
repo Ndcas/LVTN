@@ -13,8 +13,8 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
         name: 'LOG_SERVICE',
         transport: Transport.RMQ,
         options: {
-          urls: [process.env.RABBITMQ_URL!],
-          queue: 'log_queue',
+          urls: [process.env.RMQ_URL!],
+          queue: 'log',
           queueOptions: { durable: true }
         }
       }
