@@ -12,6 +12,7 @@ import Dashboard from '../pages/Dashboard';
 import Users from '../pages/Users';
 import Doctors from '../pages/Doctors';
 import Nurses from '../pages/Nurses';
+import Holidays from '../pages/Holidays';
 import Logout from '../pages/Logout';
 
 /**
@@ -172,7 +173,7 @@ export default function AppRouter() {
             path="/schedule/holidays"
             element={
               <ProtectedRoute roles={[Role.Admin]}>
-                <ComingSoon title="Ngày lễ" />
+                <Holidays />
               </ProtectedRoute>
             }
           />
@@ -189,22 +190,6 @@ export default function AppRouter() {
             element={
               <ProtectedRoute roles={[Role.Admin]}>
                 <ComingSoon title="Yêu cầu đổi lịch" />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/schedule/time-slots"
-            element={
-              <ProtectedRoute roles={[Role.Admin]}>
-                <ComingSoon title="Lịch khám" />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/bookings"
-            element={
-              <ProtectedRoute roles={[Role.Admin]}>
-                <ComingSoon title="Quản lý lịch hẹn" />
               </ProtectedRoute>
             }
           />

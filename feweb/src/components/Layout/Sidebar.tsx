@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, Stethoscope, CalendarOff, CalendarClock, CalendarCheck, ClipboardList, Pill, ShieldAlert, Receipt, Heart, Activity, MessageSquareText, LogOut } from 'lucide-react';
+import { LayoutDashboard, Users, Stethoscope, CalendarOff, CalendarClock, CalendarCheck, Pill, ShieldAlert, Receipt, Heart, Activity, MessageSquareText, LogOut } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { Role } from '../../types';
 import type { ComponentType } from 'react';
@@ -34,17 +34,9 @@ const navigation: SidebarSection[] = [
   {
     title: 'Lịch khám',
     items: [
-      { label: 'Giờ làm việc', path: '/schedule/opening-time', icon: CalendarClock, roles: [Role.Admin] },
       { label: 'Ngày lễ', path: '/schedule/holidays', icon: CalendarOff, roles: [Role.Admin] },
       { label: 'Đơn nghỉ phép', path: '/schedule/leaves', icon: CalendarClock, roles: [Role.Admin] },
       { label: 'Yêu cầu đổi lịch', path: '/schedule/change-requests', icon: CalendarCheck, roles: [Role.Admin] },
-      { label: 'Lịch khám', path: '/schedule/time-slots', icon: ClipboardList, roles: [Role.Admin] },
-    ],
-  },
-  {
-    title: 'Lịch hẹn',
-    items: [
-      { label: 'Quản lý lịch hẹn', path: '/bookings', icon: CalendarCheck, roles: [Role.Admin] },
     ],
   },
   {

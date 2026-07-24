@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package log;
+
+service LogService {
+    rpc GetLogs(GetLogsRequest) returns (GetLogsResponse) {}
+}
+
+message GetLogsRequest {
+    string correlationId = 1;
+    optional string keyword = 2;
+    optional string minLevel = 3;
+    optional string date = 4;
+    optional string traceId = 5;
+}
+
+message LogItem {
+    string level = 1;
+    string message = 2;
+    string service = 3;
+    string correlationID = 4;
+    string timestamp = 5;
+}
+
+message GetLogsResponse {
+    bool ok = 1;
+    int32 status = 2;
+    string error = 3;
+    repeated LogItem data = 4;
+}

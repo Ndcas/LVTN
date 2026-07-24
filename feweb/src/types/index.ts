@@ -134,6 +134,16 @@ export interface PaginatedResponse<T> {
   totalPages: number;
 }
 
+/** Ngày lễ toàn phòng khám */
+export interface Holiday {
+  id: number;
+  holidayDate: string;
+  name: string;
+  description: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 /** Params phân trang chuẩn */
 export interface PaginationParams {
   page: number;

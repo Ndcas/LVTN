@@ -158,4 +158,31 @@ export class InvoicesController {
             };
         }
     }
+
+    /**
+     * Lấy số hóa đơn chưa thanh toán
+     * @param {Object} data
+     * @param {number} [data.patientId]
+     * @param {string} data.correlationId
+     */
+    @GrpcMethod('PaymentService', 'GetUnpaidInvoicesCount')
+    async getUnpaidInvoicesCount(data: any) {
+        try {
+            this.processLog('GetUnpaidInvoicesCount', data.correlationId, 'Nhận yêu cầu lấy số lượng hóa đơn chưa thanh toán');
+
+            const result = await this.invoicesService.getUnpaidInvoicesCount(data);
+
+            this.processLog('GetUnpaidInvoicesCount', data.correlationId, 'Hoàn thành lấy số lượng hóa đơn chưa thanh toán');
+
+            return result;
+        } catch (error) {
+            this.processLog('GetUnpaidInvoicesCount', data.correlationId, `Lỗi: ${error}`, 'error');
+
+            return {
+                ok: false,
+                status: 500,
+                error: 'Lỗi hệ thống'
+            };
+        }
+    }
 }

@@ -1,29 +1,13 @@
-import { LogOut } from 'lucide-react';
-import { useAuth } from '../../hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
-import toast from 'react-hot-toast';
-
 interface HeaderProps {
   title: string;
   subtitle?: string;
+  action?: {
+    label: string;
+    onClick: () => void;
+  };
 }
 
-export default function Header({ title, subtitle }: HeaderProps) {
-  const { logout } = useAuth();
-  const navigate = useNavigate();
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-
-      toast.success('Đăng xuất thành công');
-
-      navigate('/login', { replace: true });
-    } catch {
-      toast.error('Đăng xuất thất bại');
-    }
-  };
-
+export default function Header({ title, subtitle, action }: HeaderProps) {
   return (
     <header className="header">
       <div className="header-left">
@@ -34,10 +18,11 @@ export default function Header({ title, subtitle }: HeaderProps) {
       </div>
 
       <div className="header-right">
-        <button className="logout-btn" onClick={handleLogout}>
-          <LogOut size={16} />
-          <span>Đăng xuất</span>
-        </button>
+        {action && (
+          <button className="btn btn-primary" onClick={action.onClick} style={{ marginRight: '16px' }}>
+            {action.label}
+          </button>
+        )}
       </div>
     </header>
   );

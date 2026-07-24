@@ -9,6 +9,7 @@ import { ScheduleModule } from './modules/schedule/schedule.module';
 import { MedicalRecordModule } from './modules/medicalrecord/medical-record.module';
 import { PaymentModule } from './modules/payment/payment.module';
 import { FeedbackModule } from './modules/feedback/feedback.module';
+import { GeneralModule } from './modules/general/general.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { FeedbackModule } from './modules/feedback/feedback.module';
       secret: process.env.JWT_ACCESS_SECRET!,
       signOptions: { expiresIn: '10m' },
     }),
+    GeneralModule,
     FeedbackModule,
     UserModule,
     NotificationModule,

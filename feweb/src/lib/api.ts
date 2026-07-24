@@ -1,5 +1,5 @@
 import api from '../lib/axios';
-import type { User, Doctor, Specialty, Degree, RoleItem, PaginatedResponse, GetUsersParams, GetDoctorsParams } from '../types';
+import type { User, Doctor, Specialty, Degree, RoleItem, PaginatedResponse, GetUsersParams, GetDoctorsParams, Holiday } from '../types';
 
 // ─────────────────────────────────────────────
 // Users API
@@ -133,6 +133,75 @@ export async function fetchSpecialties(): Promise<Specialty[]> {
 /** Lấy danh sách bằng cấp */
 export async function fetchDegrees(): Promise<Degree[]> {
   const { data } = await api.get('/catalogs/degrees');
+
+  return data.data;
+}
+
+// ─────────────────────────────────────────────
+// Holidays API
+// ─────────────────────────────────────────────
+
+/** Lấy danh sách ngày lễ */
+export async function fetchHolidays(): Promise<Holiday[]> {
+  const { data } = await api.get('/holidays');
+
+  return data.data;
+}
+
+/** Tạo ngày lễ mới */
+export async function createHoliday(payload: {
+  holidayDate: string;
+  name: string;
+  description?: string
+}): Promise<string> {
+  const { data } = await api.post('/holidays', payload);
+
+  return data.message;
+}
+
+/** Cập nhật ngày lễ */
+export async function updateHoliday(id: number, payload: {
+  holidayDate?: string;
+  name?: string;
+  description?: string
+}): Promise<string> {
+  const { data } = await api.patch(`/holidays/${id}`, payload);
+
+  return data.message;
+}
+
+/** Xóa ngày lễ */
+export async function deleteHoliday(id: number): Promise<string> {
+  const { data } = await api.delete(`/holidays/${id}`);
+
+  return data.message;
+}
+
+// ─────────────────────────────────────────────
+// Dashboard API
+// ─────────────────────────────────────────────
+
+export interface LogItem {
+  level: string;
+  message: string;
+  service: string;
+  correlationID: string;
+  timestamp: string;
+}
+
+export interface DashboardData {
+  patientsCount: number;
+  todayAppointmentsCount: number;
+  unpaidInvoicesCount: number;
+  unreadFeedbackCount: number;
+  logs: LogItem[];
+}
+
+/** Lấy dữ liệu admin dashboard (stats + logs) */
+export async function fetchAdminDashboard(forceRefresh = false): Promise<DashboardData> {
+  const { data } = await api.get('/general/admin-dashboard', {
+    params: forceRefresh ? { forceRefresh: '1' } : undefined
+  });
 
   return data.data;
 }

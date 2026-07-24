@@ -10,7 +10,7 @@ start "Schedule" cmd /k "cd backend\services\schedule && npm run start:dev"
 start "MedicalRecord" cmd /k "cd backend\services\medicalrecord && npm run start:dev"
 start "Payment" cmd /k "cd backend\services\payment && npm run start:dev"
 start "Feedback" cmd /k "cd backend\services\feedback && npm run start:dev"
-@REM start "Notification" cmd /k "cd backend\services\notification && npm run start:dev"
+start "Notification" cmd /k "cd backend\services\notification && npm run start:dev"
 start "Log" cmd /k "cd backend\services\log && npm run start:dev"
 
 :: Start Frontend Web

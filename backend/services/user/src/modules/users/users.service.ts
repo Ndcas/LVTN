@@ -590,4 +590,19 @@ export class UsersService {
       fcmToken: user.fcmToken
     };
   }
+
+  async getTotalPatientsCount(data: any) {
+    const count = await this.userRepository.count({
+      where: {
+        roleId: 3,
+        isActive: IsActive.ACTIVE
+      }
+    });
+
+    return {
+      ok: true,
+      status: 200,
+      count
+    };
+  }
 }

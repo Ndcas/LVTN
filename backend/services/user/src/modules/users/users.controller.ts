@@ -415,4 +415,30 @@ export class UsersController {
       };
     }
   }
+
+  /**
+   * Lấy tổng số bệnh nhân qua gRPC
+   * @param {Object} data - Dữ liệu yêu cầu
+   * @param {string} data.correlationId - ID theo dõi request
+   */
+  @GrpcMethod('UserService', 'GetTotalPatientsCount')
+  async getTotalPatientsCount(data: any) {
+    try {
+      this.processLog('GetTotalPatientsCount', data.correlationId, 'Nhận được yêu cầu lấy tổng số bệnh nhân');
+
+      const result = await this.usersService.getTotalPatientsCount(data);
+
+      this.processLog('GetTotalPatientsCount', data.correlationId, 'Kết thúc xử lý lấy tổng số bệnh nhân');
+
+      return result;
+    } catch (e) {
+      this.processLog('GetTotalPatientsCount', data.correlationId, `Lỗi khi xử lý lấy tổng số bệnh nhân: ${e}`, 'error');
+
+      return {
+        ok: false,
+        status: 500,
+        error: 'Lỗi hệ thống'
+      };
+    }
+  }
 }

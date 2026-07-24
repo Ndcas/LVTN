@@ -90,4 +90,30 @@ export class TimeSlotsController {
             message: 'Đã nhận được yêu cầu, hệ thống đang tiến hành xóa time slot cũ'
         };
     }
+
+    /**
+     * Lấy số lượng lịch hẹn trong ngày hôm nay
+     * @param {Object} data - Dữ liệu yêu cầu
+     * @param {string} data.correlationId - ID theo dõi request
+     */
+    @GrpcMethod('ScheduleService', 'GetTodayAppointmentsCount')
+    async getTodayAppointmentsCount(data: any) {
+        try {
+            this.processLog('GetTodayAppointmentsCount', data.correlationId, 'Nhận được yêu cầu lấy số lượng lịch hẹn trong ngày hôm nay');
+
+            const result = await this.timeSlotsService.getTodayAppointmentsCount(data);
+
+            this.processLog('GetTodayAppointmentsCount', data.correlationId, 'Kết thúc xử lý lấy số lượng lịch hẹn trong ngày hôm nay');
+
+            return result;
+        } catch (error) {
+            this.processLog('GetTodayAppointmentsCount', data.correlationId, `Lỗi khi xử lý lấy số lượng lịch hẹn trong ngày hôm nay: ${error}`, 'error');
+
+            return {
+                ok: false,
+                status: 500,
+                error: 'Lỗi hệ thống',
+            };
+        }
+    }
 }

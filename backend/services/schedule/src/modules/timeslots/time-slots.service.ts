@@ -59,6 +59,22 @@ export class TimeSlotsService {
         };
     }
 
+    async getTodayAppointmentsCount(data: any) {
+        const today = this.dateToYYYYMMDD(new Date());
+        const count = await this.timeSlotRepository.count({
+            where: {
+                clinicDate: today,
+                status: TimeSlotStatus.BOOKED
+            }
+        });
+
+        return {
+            ok: true,
+            status: 200,
+            count
+        }
+    }
+
     @Cron(CronExpression.EVERY_WEEK)
     async scheduleTimeSlots() {
         if (await this.cacheManager.get('Lock:Scheduling')) {
@@ -226,10 +242,10 @@ export class TimeSlotsService {
 
         try {
             await this.dataSource.query(`
-                DELETE ts
+                DELETE ts, b
                 FROM time_slots ts
                 LEFT JOIN bookings b ON b.time_slot_id = ts.id
-                WHERE ts.status = 'AVAILABLE' AND b.id IS NULL AND ts.clinic_date < CURDATE()
+                WHERE ts.clinic_date < CURDATE() AND ((ts.status = 'AVAILABLE' AND b.id IS NULL) OR (ts.status = 'BOOKED' AND b.status = 'CONFIRMED'))
             `);
 
             this.processLog('DeleteOldTimeSlots', 'system', `Xóa lịch cũ thành công`);

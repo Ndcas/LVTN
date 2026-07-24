@@ -1,6 +1,6 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, MoreThanOrEqual, Repository } from 'typeorm';
 import { Booking, Status as BookingStatus } from './entities/booking.entity';
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Status as TimeSlotStatus, TimeSlot } from '../timeslots/entities/time-slot.entity';
@@ -10,17 +10,18 @@ import { RtcRole, RtcTokenBuilder } from 'agora-token';
 import { ConfigService } from '@nestjs/config';
 
 interface UserServiceClient {
-    GetDoctorExaminationFee(data: any): Observable<any>;
+    getDoctorExaminationFee(data: any): Observable<any>;
 }
 
 interface MedicalRecordServiceClient {
-    CreateRecord(data: any): Observable<any>;
-    DeleteRecord(data: any): Observable<any>;
+    createRecord(data: any): Observable<any>;
+    deleteRecord(data: any): Observable<any>;
 }
 
 interface PaymentServiceClient {
-    CreateInvoice(data: any): Observable<any>;
-    DeleteInvoice(data: any): Observable<any>;
+    createInvoice(data: any): Observable<any>;
+    deleteInvoice(data: any): Observable<any>;
+    getUnpaidInvoicesCount(data: any): Observable<any>;
 }
 
 @Injectable()
@@ -142,6 +143,25 @@ export class BookingsService implements OnModuleInit {
         }
 
         const { timeSlotId, patientId, correlationId } = data;
+
+        const unpaidCountResp: any = await lastValueFrom(this.paymentService.getUnpaidInvoicesCount({ patientId, correlationId }));
+
+        if (!unpaidCountResp.ok) {
+            return {
+                ok: false,
+                status: unpaidCountResp.status,
+                error: unpaidCountResp.error
+            };
+        }
+
+        if (unpaidCountResp.count > 0) {
+            return {
+                ok: false,
+                status: 409,
+                error: 'Bệnh nhân còn hóa đơn chưa thanh toán'
+            };
+        }
+
         const queryRunner = this.dataSource.createQueryRunner();
 
         await queryRunner.connect();
@@ -149,6 +169,26 @@ export class BookingsService implements OnModuleInit {
         await queryRunner.startTransaction();
 
         try {
+            const unfinishedCount = await queryRunner.manager.find(Booking, {
+                where: {
+                    patientId,
+                    status: BookingStatus.CONFIRMED,
+                    timeSlot: { clinicDate: MoreThanOrEqual(this.getYYYMMDD()) }
+                },
+                relations: { timeSlot: true },
+                lock: { mode: 'pessimistic_read' }
+            });
+
+            if (unfinishedCount.length >= 3) {
+                await queryRunner.rollbackTransaction();
+
+                return {
+                    ok: false,
+                    status: 409,
+                    error: 'Bệnh nhân chỉ có thể có tối đa 3 lịch hẹn cùng lúc'
+                };
+            }
+
             const timeSlot = await queryRunner.manager.findOne(TimeSlot, {
                 where: {
                     id: timeSlotId,
@@ -314,7 +354,7 @@ export class BookingsService implements OnModuleInit {
                 };
             }
 
-            const feeResp: any = await lastValueFrom(this.userService.GetDoctorExaminationFee({
+            const feeResp: any = await lastValueFrom(this.userService.getDoctorExaminationFee({
                 id: doctorId,
                 correlationId
             }));
@@ -326,7 +366,7 @@ export class BookingsService implements OnModuleInit {
             const examinationFee = feeResp.fee;
             let recordId = null;
             let medicineFee = 0;
-            const recordResp: any = await lastValueFrom(this.medicalRecordService.CreateRecord({
+            const recordResp: any = await lastValueFrom(this.medicalRecordService.createRecord({
                 bookingId,
                 patientId: booking.patientId,
                 doctorId,
@@ -347,7 +387,7 @@ export class BookingsService implements OnModuleInit {
 
             const totalAmount = examinationFee + medicineFee;
             let invoiceId = null;
-            const invoiceResp: any = await lastValueFrom(this.paymentService.CreateInvoice({
+            const invoiceResp: any = await lastValueFrom(this.paymentService.createInvoice({
                 bookingId,
                 patientId: booking.patientId,
                 examinationFee,
@@ -357,7 +397,7 @@ export class BookingsService implements OnModuleInit {
             }));
 
             if (!invoiceResp.ok) {
-                lastValueFrom(this.medicalRecordService.DeleteRecord({
+                lastValueFrom(this.medicalRecordService.deleteRecord({
                     id: recordId,
                     correlationId
                 })).catch(() => { });
@@ -373,10 +413,10 @@ export class BookingsService implements OnModuleInit {
                 await queryRunner.commitTransaction();
             } catch (bookingError) {
                 if (invoiceId) {
-                    lastValueFrom(this.paymentService.DeleteInvoice({ id: invoiceId, correlationId })).catch(() => { });
+                    lastValueFrom(this.paymentService.deleteInvoice({ id: invoiceId, correlationId })).catch(() => { });
                 }
                 if (recordId) {
-                    lastValueFrom(this.medicalRecordService.DeleteRecord({ id: recordId, correlationId })).catch(() => { });
+                    lastValueFrom(this.medicalRecordService.deleteRecord({ id: recordId, correlationId })).catch(() => { });
                 }
 
                 throw bookingError;
@@ -463,5 +503,13 @@ export class BookingsService implements OnModuleInit {
         const [h, m, s] = time.split(':');
 
         return [parseInt(h), parseInt(m), parseInt(s)];
+    }
+    private getYYYMMDD() {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = (today.getMonth() + 1).toString().padStart(2, '0');
+        const day = today.getDate().toString().padStart(2, '0');
+
+        return `${year}-${month}-${day}`;
     }
 }

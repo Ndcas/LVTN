@@ -21,6 +21,7 @@ service UserService {
   rpc UpdateUser(UpdateUserRequest) returns (BaseResponse) {}
   rpc ToggleUserActive(IdRequest) returns (BaseResponse) {}
   rpc GetFcmTokenById(IdRequest) returns (GetFcmTokenByIdResponse) {}
+  rpc GetTotalPatientsCount(EmptyRequest) returns (CountResponse) {}
 
   // === CRUD Doctors ===
   rpc GetAllDoctors(GetAllDoctorsRequest) returns (DoctorListResponse) {}
@@ -62,6 +63,13 @@ message BaseResponse {
   int32 status = 2;
   string error = 3;
   string message = 4;
+}
+
+message CountResponse {
+  bool ok = 1;
+  int32 status = 2;
+  string error = 3;
+  int32 count = 4;
 }
 
 // === Auth Messages ===

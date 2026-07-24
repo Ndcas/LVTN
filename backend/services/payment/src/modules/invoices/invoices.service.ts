@@ -168,4 +168,22 @@ export class InvoicesService {
             message: 'Đã xóa hóa đơn thành công'
         };
     }
+
+    async getUnpaidInvoicesCount(data: any) {
+        const queryBuilder = this.invoiceRepository.createQueryBuilder('invoice');
+
+        queryBuilder.andWhere('invoice.status = :status', { status: Status.UNPAID });
+
+        if (data.patientId) {
+            queryBuilder.andWhere('invoice.patientId = :patientId', { patientId: data.patientId });
+        }
+
+        const count = await queryBuilder.getCount();
+
+        return {
+            ok: true,
+            status: 200,
+            count
+        };
+    }
 }

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { UserFeedback } from './entities/user-feedback.entity';
+import { IsRead, UserFeedback } from './entities/user-feedback.entity';
 
 @Injectable()
 export class AppService {
@@ -100,7 +100,7 @@ export class AppService {
             };
         }
 
-        feedback.isRead = '1';
+        feedback.isRead = IsRead.YES;
 
         await this.feedbackRepository.save(feedback);
 
@@ -113,14 +113,13 @@ export class AppService {
 
     async getUnreadCount(data: any) {
         const count = await this.feedbackRepository.count({
-            where: { isRead: '0' }
+            where: { isRead: IsRead.NO }
         });
 
         return {
             ok: true,
             status: 200,
-            message: 'Thành công',
             count
-        }
+        };
     }
 }

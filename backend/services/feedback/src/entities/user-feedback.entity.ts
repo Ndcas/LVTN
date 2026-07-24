@@ -1,5 +1,10 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
+export enum IsRead {
+  NO = '0',
+  YES = '1'
+}
+
 @Entity('user_feedbacks')
 export class UserFeedback {
   @PrimaryGeneratedColumn()
@@ -23,10 +28,10 @@ export class UserFeedback {
   @Column({
     name: 'is_read',
     type: 'enum',
-    enum: ['0', '1'],
-    default: '0'
+    enum: IsRead,
+    default: IsRead.NO
   })
-  isRead: string;
+  isRead: IsRead;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
