@@ -22,6 +22,8 @@ service UserService {
   rpc ToggleUserActive(IdRequest) returns (BaseResponse) {}
   rpc GetFcmTokenById(IdRequest) returns (GetFcmTokenByIdResponse) {}
   rpc GetTotalPatientsCount(EmptyRequest) returns (CountResponse) {}
+  rpc GetAllUserNamesBySpecialtyId(IdRequest) returns (UserNameListResponse) {}
+  rpc GetAllUserNamesByIds(IdsRequest) returns (UserNameListResponse) {}
 
   // === CRUD Doctors ===
   rpc GetAllDoctors(GetAllDoctorsRequest) returns (DoctorListResponse) {}
@@ -29,8 +31,6 @@ service UserService {
   rpc GetDoctorExaminationFee(IdRequest) returns (GetDoctorExaminationFeeResponse) {}
   rpc CreateDoctor(CreateDoctorRequest) returns (BaseResponse) {}
   rpc UpdateDoctor(UpdateDoctorRequest) returns (BaseResponse) {}
-  rpc GetAllDoctorNamesBySpecialtyId(IdRequest) returns (DoctorNameListResponse) {}
-  rpc GetAllDoctorNamesByIds(IdsRequest) returns (DoctorNameListResponse) {}
 
   // === Catalogs ===
   rpc GetAllSpecialties(EmptyRequest) returns (SpecialtyListResponse) {}
@@ -201,6 +201,18 @@ message GetFcmTokenByIdResponse {
   string fcmToken = 4;
 }
 
+message SimpleUserItem {
+  int32 id = 1;
+  string fullName = 2;
+}
+
+message UserNameListResponse {
+  bool ok = 1;
+  int32 status = 2;
+  string error = 3;
+  repeated SimpleUserItem data = 4;
+}
+
 // === Doctor CRUD Messages ===
 
 message GetAllDoctorsRequest {
@@ -285,18 +297,6 @@ message UpdateDoctorRequest {
   optional string biography = 11;
   optional string workType = 12;
   string correlationId = 13;
-}
-
-message SimpleDoctorItem {
-  int32 id = 1;
-  string fullName = 2;
-}
-
-message DoctorNameListResponse {
-  bool ok = 1;
-  int32 status = 2;
-  string error = 3;
-  repeated SimpleDoctorItem data = 4;
 }
 
 // === Catalog Messages ===

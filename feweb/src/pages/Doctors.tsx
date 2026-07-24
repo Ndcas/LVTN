@@ -190,10 +190,14 @@ export default function DoctorsPage() {
 
     if (!form.fullName.trim()) {
       errs.fullName = 'Họ tên là bắt buộc';
+    } else if (form.fullName.trim().length > 100) {
+      errs.fullName = 'Họ tên không được vượt quá 100 ký tự';
     }
 
     if (!form.email.trim()) {
       errs.email = 'Email là bắt buộc';
+    } else if (form.email.trim().length > 100) {
+      errs.email = 'Email không được vượt quá 100 ký tự';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
       errs.email = 'Email không hợp lệ';
     }
@@ -206,6 +210,8 @@ export default function DoctorsPage() {
 
     if (!form.phone.trim()) {
       errs.phone = 'SĐT là bắt buộc';
+    } else if (form.phone.trim().length > 15) {
+      errs.phone = 'SĐT không được vượt quá 15 ký tự';
     }
 
     if (!form.gender) {

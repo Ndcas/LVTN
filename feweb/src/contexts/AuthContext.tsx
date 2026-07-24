@@ -87,6 +87,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(async (email: string, password: string) => {
     const { data } = await api.post('/users/login', { email, password });
     const payload = decodeJwtPayload(data.accessToken);
+
+    if (![1, 4].includes(payload.roleId as number)) {
+      throw new Error('Bạn không có quyền đăng nhập');
+    }
+
     const authUser: AuthUser = {
       userId: payload?.userId as number,
       roleId: payload?.roleId as number,

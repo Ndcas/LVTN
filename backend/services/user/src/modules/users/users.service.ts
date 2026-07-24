@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 import bcrypt from 'bcrypt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Not } from 'typeorm';
+import { Repository, Not, In } from 'typeorm';
 import { IsActive, User } from './entities/user.entity';
 import { ConfigService } from '@nestjs/config';
 import { MailService } from '../mail/mail.service';
@@ -121,7 +121,7 @@ export class UsersService {
       };
     }
 
-    if (user.isActive == '0') {
+    if (user.isActive == IsActive.INACTIVE) {
       return {
         ok: false,
         status: 403,
@@ -588,6 +588,40 @@ export class UsersService {
       ok: true,
       status: 200,
       fcmToken: user.fcmToken
+    };
+  }
+
+  async getAllNamesBySpecialtyId(data: any) {
+    const doctors = await this.userRepository.find({
+      where: {
+        doctorMetadata: { specialtyId: data.id }
+      },
+      relations: { doctorMetadata: true }
+    });
+
+    return {
+      ok: true,
+      status: 200,
+      data: doctors.map(d => ({
+        id: d.id,
+        fullName: d.fullName
+      }))
+    };
+  }
+
+  async getAllNamesByIds(data: any) {
+    const doctors = await this.userRepository.find({
+      where: { id: In(data.ids) },
+      relations: { doctorMetadata: true }
+    });
+
+    return {
+      ok: true,
+      status: 200,
+      data: doctors.map(d => ({
+        id: d.id,
+        fullName: d.fullName
+      }))
     };
   }
 

@@ -339,46 +339,4 @@ export class DoctorsService {
       message: 'Cập nhật bác sĩ thành công'
     };
   }
-
-  async getAllNamesBySpecialtyId(data: any) {
-    const doctors = await this.userRepository.find({
-      where: {
-        roleId: 2,
-        isActive: IsActive.ACTIVE,
-        doctorMetadata: {
-          specialtyId: data.id
-        }
-      },
-      relations: { doctorMetadata: true }
-    });
-
-    return {
-      ok: true,
-      status: 200,
-      data: doctors.map(d => ({
-        id: d.id,
-        fullName: d.fullName
-      }))
-    };
-  }
-
-  async getAllNamesByIds(data: any) {
-    const doctors = await this.userRepository.find({
-      where: {
-        roleId: 2,
-        isActive: IsActive.ACTIVE,
-        id: In(data.ids)
-      },
-      relations: { doctorMetadata: true }
-    });
-
-    return {
-      ok: true,
-      status: 200,
-      data: doctors.map(d => ({
-        id: d.id,
-        fullName: d.fullName
-      }))
-    };
-  }
 }

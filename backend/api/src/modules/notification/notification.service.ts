@@ -1,6 +1,6 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { type ClientGrpc } from '@nestjs/microservices';
-import { firstValueFrom, Observable } from 'rxjs';
+import { lastValueFrom, Observable } from 'rxjs';
 
 interface NotificationServiceClient {
   getAllNotificationsByUserId(data: any): Observable<any>;
@@ -16,7 +16,7 @@ export class NotificationService implements OnModuleInit {
     this.notificationService = this.client.getService<NotificationServiceClient>('NotificationService');
   }
 
-  async getAllNotificationsByUserId(data: any) {
-    return await firstValueFrom(this.notificationService.getAllNotificationsByUserId(data));
+  getAllNotificationsByUserId(data: any) {
+    return lastValueFrom(this.notificationService.getAllNotificationsByUserId(data));
   }
 }

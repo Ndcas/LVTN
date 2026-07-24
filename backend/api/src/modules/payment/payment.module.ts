@@ -17,6 +17,15 @@ import { PaymentService } from './payment.service';
       },
     }]),
     ClientsModule.register([{
+      name: 'USER_PACKAGE',
+      transport: Transport.GRPC,
+      options: {
+        package: 'user',
+        protoPath: join(process.cwd(), process.env.USER_PROTO_PATH!),
+        url: process.env.USER_SERVICE_URL!,
+      },
+    }]),
+    ClientsModule.register([{
       name: 'LOG_SERVICE',
       transport: Transport.RMQ,
       options: {

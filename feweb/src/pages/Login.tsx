@@ -21,6 +21,8 @@ export default function Login() {
 
     if (!email.trim()) {
       newErrors.email = 'Vui lòng nhập email';
+    } else if (email.length > 100) {
+      newErrors.email = 'Email không được vượt quá 100 ký tự';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       newErrors.email = 'Email không hợp lệ';
     }

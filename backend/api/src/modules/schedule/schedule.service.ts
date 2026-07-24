@@ -42,8 +42,8 @@ interface ScheduleServiceClient {
 }
 
 interface UserServiceClient {
-    getAllDoctorNamesBySpecialtyId(data: any): Observable<any>;
-    getAllDoctorNamesByIds(data: any): Observable<any>;
+    getAllUserNamesBySpecialtyId(data: any): Observable<any>;
+    getAllUserNamesByIds(data: any): Observable<any>;
     getDoctorById(data: any): Observable<any>;
     getUserById(data: any): Observable<any>;
 }
@@ -94,7 +94,7 @@ export class ScheduleService implements OnModuleInit {
     async getAvailableTimeSlots(data: any) {
         const { specialtyId, date, startTime, endTime, clinicType, correlationId } = data;
 
-        const doctorsNamesResponse = await lastValueFrom(this.userService.getAllDoctorNamesBySpecialtyId({
+        const doctorsNamesResponse = await lastValueFrom(this.userService.getAllUserNamesBySpecialtyId({
             id: specialtyId,
             correlationId
         }));
@@ -238,7 +238,7 @@ export class ScheduleService implements OnModuleInit {
             return leavesResponse;
         }
 
-        if (leavesResponse.data.length == 0) {
+        if (!leavesResponse.data) {
             return {
                 ok: true,
                 status: 200,
@@ -251,7 +251,7 @@ export class ScheduleService implements OnModuleInit {
 
         const doctorIds = Array.from(new Set(leavesResponse.data.map(doctor => doctor.doctorId)));
 
-        const doctorsResponse = await lastValueFrom(this.userService.getAllDoctorNamesByIds({
+        const doctorsResponse = await lastValueFrom(this.userService.getAllUserNamesByIds({
             ids: doctorIds,
             correlationId: data.correlationId
         }));
@@ -299,13 +299,24 @@ export class ScheduleService implements OnModuleInit {
     async getAllScheduleChangeRequests(data: any) {
         const requestsResponse = await lastValueFrom(this.scheduleService.getAllScheduleChangeRequests(data));
 
-        if (!requestsResponse.ok || requestsResponse.data.length == 0) {
+        if (!requestsResponse.ok) {
             return requestsResponse;
+        }
+
+        if (!requestsResponse.data) {
+            return {
+                ok: true,
+                status: 200,
+                data: [],
+                total: requestsResponse.total,
+                page: requestsResponse.page,
+                limit: requestsResponse.limit
+            };
         }
 
         const doctorIds = Array.from(new Set(requestsResponse.data.map(request => request.doctorId)));
 
-        const doctorsResponse = await lastValueFrom(this.userService.getAllDoctorNamesByIds({
+        const doctorsResponse = await lastValueFrom(this.userService.getAllUserNamesByIds({
             ids: doctorIds,
             correlationId: data.correlationId
         }));

@@ -8,7 +8,7 @@ import { CreateMedicineDto } from '../dtos/create-medicine.dto';
 import { UpdateMedicineDto } from '../dtos/update-medicine.dto';
 import { ToggleMedicineActiveDto } from '../dtos/toggle-medicine-active.dto';
 
-@Controller('medical/medicines')
+@Controller('medicines')
 export class MedicinesController {
   constructor(private medicalRecordService: MedicalRecordService, @Inject('LOG_SERVICE') private logClient: ClientProxy) { }
 
@@ -147,7 +147,7 @@ export class MedicinesController {
    * @param {string} body.isActive - Trạng thái cần đổi ('0' hoặc '1')
    * @param {Request} req - Request object để lấy headers
    */
-  @Patch(':id/active')
+  @Patch('toggle/:id')
   @UseGuards(AccessGuard)
   @Roles(['Admin'])
   async toggleMedicineActive(@Param('id', ParseIntPipe) id: number, @Body() body: ToggleMedicineActiveDto, @Req() req: Request) {

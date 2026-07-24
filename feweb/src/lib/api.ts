@@ -1,5 +1,5 @@
 import api from '../lib/axios';
-import type { User, Doctor, Specialty, Degree, RoleItem, PaginatedResponse, GetUsersParams, GetDoctorsParams, Holiday } from '../types';
+import type { User, Doctor, Specialty, Degree, RoleItem, PaginatedResponse, GetUsersParams, GetDoctorsParams, Holiday, DoctorLeave, GetLeavesParams, ChangeRequest, GetChangeRequestsParams, Disease, Medicine, Feedback, Invoice } from '../types';
 
 // ─────────────────────────────────────────────
 // Users API
@@ -161,7 +161,6 @@ export async function createHoliday(payload: {
 
 /** Cập nhật ngày lễ */
 export async function updateHoliday(id: number, payload: {
-  holidayDate?: string;
   name?: string;
   description?: string
 }): Promise<string> {
@@ -173,6 +172,151 @@ export async function updateHoliday(id: number, payload: {
 /** Xóa ngày lễ */
 export async function deleteHoliday(id: number): Promise<string> {
   const { data } = await api.delete(`/holidays/${id}`);
+
+  return data.message;
+}
+
+// ───────────────────────────────────────────────
+// Leaves API
+// ───────────────────────────────────────────────
+
+/** Lấy danh sách đơn xin nghỉ phép (phân trang + filter status) */
+export async function fetchLeaves(params: GetLeavesParams): Promise<PaginatedResponse<DoctorLeave>> {
+  const { data } = await api.get('/leaves', { params });
+
+  return data;
+}
+
+/** Duyệt đơn xin nghỉ phép */
+export async function approveLeave(id: number): Promise<string> {
+  const { data } = await api.patch(`/leaves/${id}`, { status: 'APPROVED' });
+
+  return data.message;
+}
+
+/** Từ chối đơn xin nghỉ phép */
+export async function rejectLeave(id: number, rejectedReason?: string): Promise<string> {
+  const { data } = await api.patch(`/leaves/${id}`, {
+    status: 'REJECTED',
+    rejectedReason: rejectedReason || undefined,
+  });
+
+  return data.message;
+}
+
+// ───────────────────────────────────────────────
+// Change Requests API
+// ───────────────────────────────────────────────
+
+/** Lấy danh sách yêu cầu đổi lịch (phân trang + filter status) */
+export async function fetchChangeRequests(params: GetChangeRequestsParams): Promise<PaginatedResponse<ChangeRequest>> {
+  const { data } = await api.get('/change-requests', { params });
+
+  return data;
+}
+
+/** Lấy chi tiết yêu cầu đổi lịch theo ID */
+export async function getChangeRequestById(id: number): Promise<ChangeRequest> {
+  const { data } = await api.get(`/change-requests/${id}`);
+
+  return data;
+}
+
+/** Duyệt yêu cầu đổi lịch */
+export async function approveChangeRequest(id: number): Promise<string> {
+  const { data } = await api.patch(`/change-requests/${id}`, { status: 'APPROVED' });
+
+  return data.message;
+}
+
+/** Từ chối yêu cầu đổi lịch */
+export async function rejectChangeRequest(id: number, rejectedReason?: string): Promise<string> {
+  const { data } = await api.patch(`/change-requests/${id}`, {
+    status: 'REJECTED',
+    rejectedReason: rejectedReason || undefined,
+  });
+
+  return data.message;
+}
+
+// ───────────────────────────────────────────────
+// Diseases API
+// ───────────────────────────────────────────────
+
+/** Lấy danh sách bệnh lý (search theo keyword) */
+export async function fetchDiseases(keyword?: string): Promise<Disease[]> {
+  const { data } = await api.get('/diseases', { params: keyword ? { keyword } : undefined });
+
+  return data.data || [];
+}
+
+/** Tạo bệnh lý mới */
+export async function createDisease(payload: {
+  name: string;
+  diseaseCode: string;
+  description?: string;
+}): Promise<string> {
+  const { data } = await api.post('/diseases', payload);
+
+  return data.message;
+}
+
+/** Cập nhật bệnh lý */
+export async function updateDisease(id: number, payload: {
+  name?: string;
+  diseaseCode?: string;
+  description?: string
+}): Promise<string> {
+  const { data } = await api.patch(`/diseases/${id}`, payload);
+
+  return data.message;
+}
+
+// ───────────────────────────────────────────────
+// Medicines API
+// ───────────────────────────────────────────────
+
+/** Lấy danh sách thuốc */
+export async function fetchMedicines(keyword?: string, isActive?: string): Promise<Medicine[]> {
+  const params: Record<string, string> = {};
+
+  if (keyword) {
+    params.keyword = keyword;
+  }
+
+  if (isActive) {
+    params.isActive = isActive;
+  }
+
+  const { data } = await api.get('/medicines', { params });
+
+  return data.data || [];
+}
+
+/** Tạo thuốc mới */
+export async function createMedicine(payload: {
+  name: string;
+  unit: string;
+  pricePerUnit: number;
+}): Promise<string> {
+  const { data } = await api.post('/medicines', payload);
+
+  return data.message;
+}
+
+/** Cập nhật thuốc */
+export async function updateMedicine(id: number, payload: {
+  name?: string;
+  unit?: string;
+  pricePerUnit?: number
+}): Promise<string> {
+  const { data } = await api.patch(`/medicines/${id}`, payload);
+  return data.message;
+}
+
+/** Đổi trạng thái thuốc */
+export async function toggleMedicineActive(id: number, isActive: '0' | '1'): Promise<string> {
+  const { data } = await api.patch(`/medicines/toggle/${id}`, { isActive });
 
   return data.message;
 }
@@ -204,4 +348,66 @@ export async function fetchAdminDashboard(forceRefresh = false): Promise<Dashboa
   });
 
   return data.data;
+}
+
+// ─────────────────────────────────────────────
+// Feedback API
+// ─────────────────────────────────────────────
+
+export interface GetFeedbacksParams {
+  page?: number;
+  limit?: number;
+  isRead?: '0' | '1';
+}
+
+/** Lấy danh sách hòm thư góp ý */
+export async function fetchFeedbacks(params?: GetFeedbacksParams): Promise<PaginatedResponse<Feedback>> {
+  const { data } = await api.get('/feedbacks', { params });
+
+  return data;
+}
+
+/** Lấy chi tiết góp ý theo ID */
+export async function fetchFeedbackById(id: number): Promise<Feedback> {
+  const { data } = await api.get(`/feedbacks/${id}`);
+
+  return data.data;
+}
+
+/** Đánh dấu đã đọc góp ý */
+export async function markFeedbackAsRead(id: number): Promise<string> {
+  const { data } = await api.patch(`/feedbacks/${id}/read`);
+
+  return data.message;
+}
+
+// ─────────────────────────────────────────────
+// Invoices API
+// ─────────────────────────────────────────────
+
+export interface GetInvoicesParams {
+  page?: number;
+  limit?: number;
+  status?: string; // '0' | '1'
+}
+
+/** Lấy danh sách hóa đơn */
+export async function fetchInvoices(params?: GetInvoicesParams): Promise<PaginatedResponse<Invoice>> {
+  const { data } = await api.get('/invoices', { params });
+
+  return data;
+}
+
+/** Lấy chi tiết hóa đơn */
+export async function getInvoiceById(id: number): Promise<Invoice> {
+  const { data } = await api.get(`/invoices/${id}`);
+
+  return data.data;
+}
+
+/** Đánh dấu hóa đơn đã thanh toán tiền mặt */
+export async function markCashPaid(id: number): Promise<string> {
+  const { data } = await api.patch(`/invoices/cash-paid/${id}`);
+
+  return data.message;
 }

@@ -14,14 +14,23 @@ interface PaymentServiceClient {
   validateIpnUrl(data: any): Observable<any>;
 }
 
+interface UserServiceClient {
+  getAllUserNamesByIds(data: any): Observable<any>;
+}
+
 @Injectable()
 export class PaymentService implements OnModuleInit {
   private paymentService: PaymentServiceClient;
+  private userService: UserServiceClient;
 
-  constructor(@Inject('PAYMENT_PACKAGE') private client: ClientGrpc) { }
+  constructor(
+    @Inject('PAYMENT_PACKAGE') private paymentClient: ClientGrpc,
+    @Inject('USER_PACKAGE') private userClient: ClientGrpc
+  ) { }
 
   onModuleInit() {
-    this.paymentService = this.client.getService<PaymentServiceClient>('PaymentService');
+    this.paymentService = this.paymentClient.getService<PaymentServiceClient>('PaymentService');
+    this.userService = this.userClient.getService<UserServiceClient>('UserService');
   }
 
   // === Invoices ===
@@ -29,8 +38,25 @@ export class PaymentService implements OnModuleInit {
     return lastValueFrom(this.paymentService.getAllInvoices(data));
   }
 
-  getInvoiceById(data: any) {
-    return lastValueFrom(this.paymentService.getInvoiceById(data));
+  async getInvoiceById(data: any) {
+    const invoiceResponse = await lastValueFrom(this.paymentService.getInvoiceById(data));
+
+    if (!invoiceResponse.ok) {
+      return invoiceResponse;
+    }
+
+    const userResponse = await lastValueFrom(this.userService.getAllUserNamesByIds({
+      ids: [invoiceResponse.data.patientId],
+      correlationId: data.correlationId
+    }));
+
+    if (!userResponse.ok) {
+      return userResponse;
+    }
+
+    invoiceResponse.data.patientName = userResponse.data[0].fullName;
+
+    return invoiceResponse;
   }
 
   markCashPaid(data: any) {

@@ -415,6 +415,59 @@ export class UsersController {
       };
     }
   }
+  /**
+ * Lấy danh sách người dùng (id và fullName) theo chuyên khoa qua gRPC
+ * @param {Object} data - Dữ liệu yêu cầu
+ * @param {number} data.id - ID chuyên khoa
+ * @param {string} data.correlationId - ID theo dõi request
+ */
+  @GrpcMethod('UserService', 'GetAllUserNamesBySpecialtyId')
+  async getAllUserNamesBySpecialtyId(data: any) {
+    try {
+      this.processLog('GetAllUserNamesBySpecialtyId', data.correlationId, 'Nhận được yêu cầu lấy danh sách tên người dùng theo chuyên khoa');
+
+      const result = await this.usersService.getAllNamesBySpecialtyId(data);
+
+      this.processLog('GetAllUserNamesBySpecialtyId', data.correlationId, 'Kết thúc xử lý lấy danh sách tên người dùng theo chuyên khoa');
+
+      return result;
+    } catch (e) {
+      this.processLog('GetAllUserNamesBySpecialtyId', data.correlationId, `Lỗi khi xử lý lấy danh sách tên người dùng theo chuyên khoa: ${e}`, 'error');
+
+      return {
+        ok: false,
+        status: 500,
+        error: 'Lỗi hệ thống'
+      };
+    }
+  }
+
+  /**
+   * Lấy danh sách người dùng (id và fullName) theo ID qua gRPC
+   * @param {Object} data - Dữ liệu yêu cầu
+   * @param {number[]} data.ids - Mảng ID bác sĩ
+   * @param {string} data.correlationId - ID theo dõi request
+   */
+  @GrpcMethod('UserService', 'GetAllUserNamesByIds')
+  async getAllUserNamesByIds(data: any) {
+    try {
+      this.processLog('GetAllUserNamesByIds', data.correlationId, 'Nhận được yêu cầu lấy danh sách tên người dùng theo ID');
+
+      const result = await this.usersService.getAllNamesByIds(data);
+
+      this.processLog('GetAllUserNamesByIds', data.correlationId, 'Kết thúc xử lý lấy danh sách tên người dùng theo ID');
+
+      return result;
+    } catch (e) {
+      this.processLog('GetAllUserNamesByIds', data.correlationId, `Lỗi khi xử lý lấy danh sách tên người dùng theo ID: ${e}`, 'error');
+
+      return {
+        ok: false,
+        status: 500,
+        error: 'Lỗi hệ thống'
+      };
+    }
+  }
 
   /**
    * Lấy tổng số bệnh nhân qua gRPC

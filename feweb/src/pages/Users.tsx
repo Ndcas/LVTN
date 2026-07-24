@@ -118,16 +118,22 @@ export default function UsersPage() {
 
     if (!editForm.fullName.trim()) {
       errs.fullName = 'Họ tên là bắt buộc';
+    } else if (editForm.fullName.length > 100) {
+      errs.fullName = 'Họ tên không được vượt quá 100 ký tự';
     }
 
     if (!editForm.email.trim()) {
-      errs.email = 'Email là bắt buộc';
+      errs.email = 'Email là bắt buộc và không được vượt quá 100 ký tự';
+    } else if (editForm.email.length > 100) {
+      errs.email = 'Email không được vượt quá 100 ký tự';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(editForm.email)) {
       errs.email = 'Email không hợp lệ';
     }
 
     if (!editForm.phone.trim()) {
       errs.phone = 'SĐT là bắt buộc';
+    } else if (editForm.phone.length > 15) {
+      errs.phone = 'SĐT không được vượt quá 15 ký tự';
     }
 
     if (!editForm.gender) {

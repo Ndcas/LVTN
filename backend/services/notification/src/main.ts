@@ -9,7 +9,7 @@ async function bootstrap() {
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.GRPC,
     options: {
-      package: 'medicalrecord',
+      package: 'notification',
       protoPath: join(process.cwd(), process.env.PROTO_PATH!),
       url: process.env.URL!
     }

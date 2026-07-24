@@ -80,7 +80,11 @@ export default function HolidaysPage() {
   const openCreate = () => {
     setEditingId(null);
 
-    setForm({ name: '', holidayDate: '', description: '' });
+    setForm({
+      name: '',
+      holidayDate: '',
+      description: ''
+    });
 
     setFormErrors({});
 
@@ -114,10 +118,16 @@ export default function HolidaysPage() {
 
     if (!form.name.trim()) {
       errs.name = 'Tên ngày lễ là bắt buộc';
+    } else if (form.name.length > 150) {
+      errs.name = 'Tên ngày lễ không được vượt quá 150 ký tự';
     }
 
     if (!form.holidayDate) {
       errs.holidayDate = 'Ngày lễ là bắt buộc';
+    }
+
+    if (form.description.length > 255) {
+      errs.description = 'Mô tả không được vượt quá 255 ký tự';
     }
 
     setFormErrors(errs);
@@ -136,8 +146,7 @@ export default function HolidaysPage() {
       if (editingId) {
         await updateHoliday(editingId, {
           name: form.name,
-          holidayDate: form.holidayDate,
-          description: form.description || undefined,
+          description: form.description || undefined
         });
 
         toast.success('Cập nhật thành công');
@@ -145,7 +154,7 @@ export default function HolidaysPage() {
         await createHoliday({
           name: form.name,
           holidayDate: form.holidayDate,
-          description: form.description || undefined,
+          description: form.description || undefined
         });
 
         toast.success('Thêm ngày lễ thành công');
@@ -248,7 +257,7 @@ export default function HolidaysPage() {
             limit={limit}
             onPageChange={setPage}
             searchValue={search}
-            onSearchChange={setSearch}
+            onSearchChange={(v) => { setSearch(v); setPage(1); }}
             searchPlaceholder="Tìm kiếm tên ngày lễ..."
             rowKey={(h) => h.id}
           />
@@ -289,12 +298,15 @@ export default function HolidaysPage() {
                   <label className="form-label" htmlFor="form-description">Mô tả</label>
                   <textarea
                     id="form-description"
-                    className="form-input"
+                    className={`form-input${formErrors.description ? ' error' : ''}`}
                     rows={3}
                     placeholder="Ghi chú thêm..."
                     value={form.description}
                     onChange={(e) => updateField('description', e.target.value)}
                   />
+                  {formErrors.description && (
+                    <span className="form-error" style={{ display: 'block', marginTop: '4px', fontSize: '0.875rem', color: 'var(--danger)' }}>{formErrors.description}</span>
+                  )}
                 </div>
               </div>
             </div>

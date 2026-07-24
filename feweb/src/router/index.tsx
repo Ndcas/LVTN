@@ -13,6 +13,12 @@ import Users from '../pages/Users';
 import Doctors from '../pages/Doctors';
 import Nurses from '../pages/Nurses';
 import Holidays from '../pages/Holidays';
+import Leaves from '../pages/Leaves';
+import ChangeRequests from '../pages/ChangeRequests';
+import Diseases from '../pages/Diseases';
+import Medicines from '../pages/Medicines';
+import Feedback from '../pages/Feedback';
+import Invoices from '../pages/Invoices';
 import Logout from '../pages/Logout';
 
 /**
@@ -181,7 +187,7 @@ export default function AppRouter() {
             path="/schedule/leaves"
             element={
               <ProtectedRoute roles={[Role.Admin]}>
-                <ComingSoon title="Đơn nghỉ phép" />
+                <Leaves />
               </ProtectedRoute>
             }
           />
@@ -189,7 +195,7 @@ export default function AppRouter() {
             path="/schedule/change-requests"
             element={
               <ProtectedRoute roles={[Role.Admin]}>
-                <ComingSoon title="Yêu cầu đổi lịch" />
+                <ChangeRequests />
               </ProtectedRoute>
             }
           />
@@ -197,7 +203,7 @@ export default function AppRouter() {
             path="/medical/diseases"
             element={
               <ProtectedRoute roles={[Role.Admin]}>
-                <ComingSoon title="Danh mục bệnh" />
+                <Diseases />
               </ProtectedRoute>
             }
           />
@@ -205,7 +211,7 @@ export default function AppRouter() {
             path="/medical/medicines"
             element={
               <ProtectedRoute roles={[Role.Admin]}>
-                <ComingSoon title="Kho thuốc" />
+                <Medicines />
               </ProtectedRoute>
             }
           />
@@ -213,17 +219,15 @@ export default function AppRouter() {
             path="/feedback"
             element={
               <ProtectedRoute roles={[Role.Admin]}>
-                <ComingSoon title="Hòm thư góp ý" />
+                <Feedback />
               </ProtectedRoute>
             }
           />
-
-          {/* Nurse only */}
           <Route
             path="/payment/invoices"
             element={
               <ProtectedRoute roles={[Role.Admin, Role.Nurse]}>
-                <ComingSoon title="Quản lý hóa đơn" />
+                <Invoices />
               </ProtectedRoute>
             }
           />
