@@ -1,13 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:provider/provider.dart';
 import 'firebase_options.dart';
+import 'core/constants/app_colors.dart';
+import 'core/providers/auth_provider.dart';
+import 'core/services/api_service.dart';
+import 'core/services/storage_service.dart';
+import 'router/app_router.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
+
+  // Load .env
+  await dotenv.load();
+
+  // Init Firebase
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // Init SharedPreferences
+  await StorageService.init();
+
+  // Init Dio singleton
+  ApiService().init();
+
+  runApp(
+    ChangeNotifierProvider(create: (_) => AuthProvider(), child: const MyApp()),
   );
-  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -15,18 +34,49 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    final authProvider = context.read<AuthProvider>();
+
+    return MaterialApp.router(
       title: 'Phòng Khám',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
         useMaterial3: true,
-      ),
-      home: const Scaffold(
-        body: Center(
-          child: Text('Firebase đã khởi tạo thành công!'),
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: Colors.white,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: AppColors.border),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: AppColors.border),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: AppColors.primary, width: 2),
+          ),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 14,
+          ),
         ),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          scrolledUnderElevation: 1,
+          titleTextStyle: TextStyle(
+            color: AppColors.textHeading,
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+          ),
+          iconTheme: IconThemeData(color: AppColors.textHeading),
+        ),
+        cardTheme: const CardThemeData(elevation: 0, color: Colors.white),
+        scaffoldBackgroundColor: AppColors.backgroundBody,
       ),
+      routerConfig: createRouter(authProvider),
     );
   }
 }

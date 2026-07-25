@@ -21,7 +21,7 @@ export class BookingsController {
     }
 
     /**
-     * Lấy danh sách lịch hẹn của bệnh nhân
+     * Lấy danh sách lịch hẹn
      * @param {string} page - Số trang
      * @param {string} limit - Số lượng trên mỗi trang
      * @param {string} status - Trạng thái lịch hẹn
@@ -29,7 +29,7 @@ export class BookingsController {
      */
     @Get()
     @UseGuards(AccessGuard)
-    @Roles(['Patient'])
+    @Roles(['Patient', 'Doctor'])
     async getAll(
         @Query('page') page: string,
         @Query('limit') limit: string,
@@ -44,7 +44,8 @@ export class BookingsController {
             page: parseInt(page) || 1,
             limit: parseInt(limit) || 10,
             status,
-            patientId: (req as any).user.userId,
+            userId: (req as any).user.userId,
+            roleId: (req as any).user.roleId,
             correlationId
         });
 

@@ -48,7 +48,7 @@ export class AppController {
       const { correlationId, doctorId, date, startTime, clinicType } = data;
       const clinic = clinicType == 'ONLINE' ? 'trực tuyến' : 'ngoại tuyến';
 
-      this.processLog('handleBookingCreated', correlationId, 'Nhận được yêu cầu tạo booking');
+      this.processLog('handleBookingCreated', correlationId, 'Nhận được yêu gửi thông báo booking đã được tạo');
 
       const result = await this.appService.sendMessage({
         correlationId,
@@ -61,59 +61,78 @@ export class AppController {
         this.processLog('handleBookingCreated', correlationId, `Lỗi khi gửi thông báo ${result.error}`, 'error');
       }
 
-      this.processLog('handleBookingCreated', correlationId, 'Kết thúc xử lý tạo booking');
+      this.processLog('handleBookingCreated', correlationId, 'Kết thúc xử lý gửi thông báo booking đã được tạo');
     } catch (error) {
-      this.processLog('handleBookingCreated', data.correlationId, `Lỗi khi xử lý tạo booking ${error}`, 'error');
+      this.processLog('handleBookingCreated', data.correlationId, `Lỗi khi gửi thông báo booking đã được tạo ${error}`, 'error');
     }
   }
 
-  @EventPattern('booking_canceled_by_patient')
-  async handleBookingCanceledByPatient(data: any) {
+  @EventPattern('booking_canceled')
+  async handleBookingCanceled(data: any) {
     try {
-      const { correlationId, doctorId, date, startTime, clinicType } = data;
+      const { correlationId, userId, date, startTime, clinicType, sourceRoleId } = data;
       const clinic = clinicType == 'ONLINE' ? 'trực tuyến' : 'ngoại tuyến';
+      let sourceRole = 'hệ thống';
 
-      this.processLog('handleBookingCanceledByPatient', correlationId, 'Nhận được yêu cầu hủy booking bởi bệnh nhân');
+      switch (sourceRoleId) {
+        case 2:
+          sourceRole = 'bác sĩ';
+          break;
+        case 3:
+          sourceRole = 'bệnh nhân';
+          break;
+      }
+
+      this.processLog('handleBookingCanceled', correlationId, 'Nhận được yêu cầu gửi thông báo booking đã bị hủy');
 
       const result = await this.appService.sendMessage({
         correlationId,
         title: 'Lịch hẹn bị hủy',
-        content: `Lịch hẹn ${clinic} của bạn vào ngày ${date} lúc ${startTime} đã bị hủy bởi bệnh nhân`,
-        userId: doctorId
+        content: `Lịch hẹn ${clinic} của bạn vào ngày ${date} lúc ${startTime} đã bị hủy bởi ${sourceRole}`,
+        userId: userId
       });
 
       if (!result.ok) {
-        this.processLog('handleBookingCanceledByPatient', correlationId, `Lỗi khi gửi thông báo ${result.error}`, 'error');
+        this.processLog('handleBookingCanceled', correlationId, `Lỗi khi gửi thông báo ${result.error}`, 'error');
       }
 
-      this.processLog('handleBookingCanceledByPatient', correlationId, 'Kết thúc xử lý hủy booking bởi bệnh nhân');
+      this.processLog('handleBookingCanceled', correlationId, 'Kết thúc xử lý gửi thông báo booking đã bị hủy');
     } catch (error) {
-      this.processLog('handleBookingCanceledByPatient', data.correlationId, `Lỗi khi xử lý hủy booking bởi bệnh nhân ${error}`, 'error');
+      this.processLog('handleBookingCanceled', data.correlationId, `Lỗi khi gửi thông báo booking đã bị hủy ${error}`, 'error');
     }
   }
 
-  @EventPattern('booking_canceled_by_doctor')
-  async handleBookingCanceledByDoctor(data: any) {
+  @EventPattern('video_call')
+  async handleVideoCall(data: any) {
     try {
-      const { correlationId, patientId, date, startTime, clinicType } = data;
-      const clinic = clinicType == 'ONLINE' ? 'trực tuyến' : 'ngoại tuyến';
+      const { correlationId, bookingId, sourceRoleId, userId } = data;
+      let sourceRole = 'hệ thống';
 
-      this.processLog('handleBookingCanceledByDoctor', correlationId, 'Nhận được yêu cầu hủy booking bởi bác sĩ');
+      switch (sourceRoleId) {
+        case 2:
+          sourceRole = 'bác sĩ';
+          break;
+        case 3:
+          sourceRole = 'bệnh nhân';
+          break;
+      }
+
+      this.processLog('handleVideoCall', correlationId, 'Nhận được yêu gửi thông báo video call');
 
       const result = await this.appService.sendMessage({
         correlationId,
-        title: 'Lịch hẹn bị hủy',
-        content: `Lịch hẹn ${clinic} của bạn vào ngày ${date} lúc ${startTime} đã bị hủy bởi bác sĩ`,
-        userId: patientId
+        title: `Ca khám ONLINE #${bookingId} đã bắt đầu`,
+        content: `${sourceRole} đã bắt đầu gọi video. Vui lòng tham gia`,
+        userId: userId
       });
 
       if (!result.ok) {
-        this.processLog('handleBookingCanceledByDoctor', correlationId, `Lỗi khi gửi thông báo ${result.error}`, 'error');
+        this.processLog('handleVideoCall', correlationId, `Lỗi khi gửi thông báo ${result.error}`, 'error');
       }
 
-      this.processLog('handleBookingCanceledByDoctor', correlationId, 'Kết thúc xử lý hủy booking bởi bác sĩ');
+      this.processLog('handleVideoCall', correlationId, 'Kết thúc xử lý gửi thông báo video call');
     } catch (error) {
-      this.processLog('handleBookingCanceledByDoctor', data.correlationId, `Lỗi khi xử lý hủy booking bởi bác sĩ ${error}`, 'error');
+      this.processLog('handleVideoCall', data.correlationId, `Lỗi khi gửi thông báo video call ${error}`, 'error');
     }
   }
 }

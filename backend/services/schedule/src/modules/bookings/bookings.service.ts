@@ -48,7 +48,7 @@ export class BookingsService implements OnModuleInit {
     }
 
     async getAll(data: any) {
-        const { page = 1, limit = 10, patientId, status } = data;
+        const { page = 1, limit = 10, userId, status, roleId } = data;
         const skip = (page - 1) * limit;
         const queryBuilder = this.bookingRepository
             .createQueryBuilder('booking')
@@ -65,8 +65,15 @@ export class BookingsService implements OnModuleInit {
                 'booking.patientId',
                 'timeSlot.doctorId',
                 'timeSlot.id'
-            ])
-            .andWhere('booking.patientId = :patientId', { patientId });
+            ]);
+
+        if (roleId == 2) {
+            queryBuilder
+                .leftJoinAndSelect('booking.timeSlot', 'timeSlot')
+                .andWhere('timeSlot.doctorId = :doctorId', { doctorId: userId });
+        } else if (roleId == 3) {
+            queryBuilder.andWhere('booking.patientId = :patientId', { patientId: userId });
+        }
 
         if (status) {
             queryBuilder.andWhere('booking.status = :status', { status });
@@ -293,20 +300,22 @@ export class BookingsService implements OnModuleInit {
 
             if (status == BookingStatus.CANCELED) {
                 if (userId == booking.patientId) {
-                    this.notificationClient.emit('booking_canceled_by_patient', {
+                    this.notificationClient.emit('booking_canceled', {
                         correlationId,
-                        doctorId: booking.timeSlot.doctorId,
+                        userId: booking.timeSlot.doctorId,
                         date: booking.timeSlot.clinicDate,
                         startTime: booking.timeSlot.startTime,
-                        clinicType: booking.timeSlot.clinicType
+                        clinicType: booking.timeSlot.clinicType,
+                        sourceRoleId: 3
                     });
-                } else if (userId == booking.timeSlot.doctorId) {
-                    this.notificationClient.emit('booking_canceled_by_doctor', {
+                } else {
+                    this.notificationClient.emit('booking_canceled', {
                         correlationId,
-                        patientId: booking.patientId,
+                        userId: booking.patientId,
                         date: booking.timeSlot.clinicDate,
                         startTime: booking.timeSlot.startTime,
-                        clinicType: booking.timeSlot.clinicType
+                        clinicType: booking.timeSlot.clinicType,
+                        sourceRoleId: 2
                     });
                 }
             }
@@ -437,7 +446,7 @@ export class BookingsService implements OnModuleInit {
     }
 
     async generateVideoCallToken(data: any) {
-        const { userId, bookingId } = data;
+        const { correlationId, userId, bookingId } = data;
         const booking = await this.bookingRepository.findOne({
             where: [{
                 id: bookingId,
@@ -488,6 +497,22 @@ export class BookingsService implements OnModuleInit {
             secToExpire,
             secToExpire + 300
         );
+
+        if (booking.patientId == userId) {
+            lastValueFrom(this.notificationClient.emit('video_call', {
+                correlationId,
+                bookingId,
+                sourceRoleId: 3,
+                userId: booking.timeSlot.doctorId
+            })).catch((e) => { });
+        } else {
+            lastValueFrom(this.notificationClient.emit('video_call', {
+                correlationId,
+                bookingId,
+                sourceRoleId: 2,
+                userId: booking.patientId
+            })).catch((e) => { });
+        }
 
         return {
             ok: true,

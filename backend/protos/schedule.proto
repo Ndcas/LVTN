@@ -156,9 +156,10 @@ message GetAvailableTimeSlotsResponse {
 message GetAllBookingsRequest {
     int32 page = 1;
     int32 limit = 2;
-    int32 patientId = 3;
-    optional string status = 4;
-    string correlationId = 5;
+    int32 userId = 3;
+    int32 roleId = 4;
+    optional string status = 5;
+    string correlationId = 6;
 }
 
 message BookingItem {
