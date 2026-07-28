@@ -28,7 +28,7 @@ service ScheduleService {
     rpc CreateBooking(CreateBookingRequest) returns (BaseResponse) {}
     rpc UpdateBookingStatus(UpdateBookingStatusRequest) returns (BaseResponse) {}
     rpc FinishBooking(FinishBookingRequest) returns (BaseResponse) {}
-    rpc GetVideoCallToken(GetVideoCallTokenRequest) returns (GetVideoCallTokenResponse) {}
+    rpc GenerateVideoCallId(GenerateVideoCallIdRequest) returns (GenerateVideoCallIdResponse) {}
 
     // === DoctorLeave ===
     rpc GetAllDoctorLeaves(GetAllDoctorLeavesRequest) returns (GetAllDoctorLeavesResponse) {}
@@ -224,20 +224,18 @@ message FinishBookingRequest {
     string correlationId = 7;
 }
 
-message GetVideoCallTokenRequest {
+message GenerateVideoCallIdRequest {
     int32 userId = 1;
     int32 bookingId = 2;
     string correlationId = 3;
 }
 
-message GetVideoCallTokenResponse {
+message GenerateVideoCallIdResponse {
     bool ok = 1;
     int32 status = 2;
     string error = 3;
     string message = 4;
-    int32 userId = 5;
-    string channelName = 6;
-    string token = 7;
+    string callId = 5;
 }
 
 // === DoctorLeave ===

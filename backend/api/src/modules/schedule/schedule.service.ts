@@ -27,7 +27,7 @@ interface ScheduleServiceClient {
     createBooking(data: any): Observable<any>;
     updateBookingStatus(data: any): Observable<any>;
     finishBooking(data: any): Observable<any>;
-    getVideoCallToken(data: any): Observable<any>;
+    generateVideoCallId(data: any): Observable<any>;
 
     // === DoctorLeave ===
     getAllDoctorLeaves(data: any): Observable<any>;
@@ -226,8 +226,8 @@ export class ScheduleService implements OnModuleInit {
         return lastValueFrom(this.scheduleService.finishBooking(data));
     }
 
-    getVideoCallToken(data: any) {
-        return lastValueFrom(this.scheduleService.getVideoCallToken(data));
+    generateVideoCallId(data: any) {
+        return lastValueFrom(this.scheduleService.generateVideoCallId(data));
     }
 
     // === DoctorLeave ===

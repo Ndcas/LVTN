@@ -11,6 +11,7 @@ import '../auth/screens/forgot_password_screen.dart';
 import '../shared/screens/splash_screen.dart';
 import '../shared/screens/notification_screen.dart';
 import '../shared/screens/profile_screen.dart';
+import '../shared/screens/call_screen.dart';
 
 // === Patient Screens ===
 import '../patient/screens/patient_shell.dart';
@@ -21,6 +22,8 @@ import '../patient/screens/booking_detail_screen.dart';
 import '../patient/screens/medical_history_screen.dart';
 import '../patient/screens/medical_record_detail_screen.dart';
 import '../patient/screens/invoice_detail_screen.dart';
+import '../patient/screens/invoice_list_screen.dart';
+import '../patient/screens/vnpay_webview_screen.dart';
 import '../patient/screens/feedback_screen.dart';
 
 // === Doctor Screens ===
@@ -48,15 +51,15 @@ GoRouter createRouter(AuthProvider authProvider) {
         return path == '/splash' ? null : '/splash';
       }
 
-      // Chưa auth → chỉ cho phép đến auth pages
-      final authPaths = ['/login', '/register', '/forgot-password', '/splash'];
+      // Chưa auth → chỉ cho phép đến auth pages (không bao gồm splash)
+      final authPaths = ['/login', '/register', '/forgot-password'];
 
       if (status == AuthStatus.unauthenticated) {
         return authPaths.contains(path) ? null : '/login';
       }
 
-      // Đã auth → không cho vào auth pages
-      if (authPaths.contains(path)) {
+      // Đã auth → không cho vào auth pages hoặc splash
+      if (authPaths.contains(path) || path == '/splash') {
         return authProvider.isDoctor ? '/doctor' : '/patient';
       }
 
@@ -80,6 +83,14 @@ GoRouter createRouter(AuthProvider authProvider) {
       GoRoute(
         path: '/forgot-password',
         builder: (_, __) => const ForgotPasswordScreen(),
+      ),
+
+      // === Video Call Route ===
+      GoRoute(
+        path: '/call/:callId',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (_, state) =>
+            CallScreen(callId: state.pathParameters['callId']!),
       ),
 
       // === Patient Shell ===
@@ -109,6 +120,20 @@ GoRouter createRouter(AuthProvider authProvider) {
                   GoRoute(
                     path: 'feedback',
                     builder: (_, __) => const FeedbackScreen(),
+                  ),
+                  GoRoute(
+                    path: 'invoices',
+                    builder: (_, __) => const InvoiceListScreen(),
+                  ),
+                  GoRoute(
+                    path: 'vnpay',
+                    builder: (_, state) {
+                      final extra = state.extra as Map<String, dynamic>;
+                      return VNPayWebViewScreen(
+                        url: extra['url'] as String,
+                        onComplete: extra['onComplete'] as Function(bool),
+                      );
+                    },
                   ),
                 ],
               ),

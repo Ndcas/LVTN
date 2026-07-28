@@ -233,24 +233,24 @@ export class BookingsController {
     @Get('video-call/:id')
     @UseGuards(AccessGuard)
     @Roles(['Patient', 'Doctor'])
-    async getVideoCallToken(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
+    async generateVideoCallId(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
         const correlationId = req.headers['correlation-id'] as string;
 
-        this.processLog('GetVideoCallToken', correlationId, 'Nhận được yêu cầu lấy mã token video call');
+        this.processLog('GenerateVideoCallId', correlationId, 'Nhận được yêu cầu tạo ID cuộc gọi video call');
 
-        const result = await this.scheduleService.getVideoCallToken({
+        const result = await this.scheduleService.generateVideoCallId({
             bookingId: id,
             userId: (req as any).user.userId,
             correlationId
         });
 
         if (!result.ok) {
-            this.processLog('GetVideoCallToken', correlationId, `Không thành công ${result.error}`, 'warn');
+            this.processLog('GenerateVideoCallId', correlationId, `Không thành công ${result.error}`, 'warn');
 
             throw new HttpException(result.error, result.status);
         }
 
-        this.processLog('GetVideoCallToken', correlationId, 'Thành công');
+        this.processLog('GenerateVideoCallId', correlationId, 'Thành công');
 
         const { ok, status, error, ...data } = result;
 

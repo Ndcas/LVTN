@@ -161,18 +161,18 @@ export class BookingsController {
      * @param {number} data.bookingId - ID lịch hẹn
      * @param {number} data.userId - ID người dùng
      */
-    @GrpcMethod('ScheduleService', 'GetVideoCallToken')
-    async getVideoCallToken(data: any) {
+    @GrpcMethod('ScheduleService', 'GenerateVideoCallId')
+    async generateVideoCallId(data: any) {
         try {
-            this.processLog('GetVideoCallToken', data.correlationId, 'Nhận được yêu cầu lấy mã token video call');
+            this.processLog('GenerateVideoCallId', data.correlationId, 'Nhận được yêu cầu tạo ID cuộc gọi');
 
-            const result = await this.bookingsService.generateVideoCallToken(data);
+            const result = await this.bookingsService.generateVideoCallId(data);
 
-            this.processLog('GetVideoCallToken', data.correlationId, 'Kết thúc xử lý lấy mã token video call');
+            this.processLog('GenerateVideoCallId', data.correlationId, `Kết thúc xử lý tạo ID cuộc gọi với ID: ${result.callId}`);
 
             return result;
         } catch (e) {
-            this.processLog('GetVideoCallToken', data.correlationId, `Lỗi khi xử lý lấy mã token video call: ${e}`, 'error');
+            this.processLog('GenerateVideoCallId', data.correlationId, `Lỗi khi xử lý tạo ID cuộc gọi: ${e}`, 'error');
 
             return {
                 ok: false,

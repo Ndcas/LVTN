@@ -6,7 +6,6 @@ import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Status as TimeSlotStatus, TimeSlot } from '../timeslots/entities/time-slot.entity';
 import { type ClientGrpc, ClientProxy } from '@nestjs/microservices';
 import { lastValueFrom, Observable } from 'rxjs';
-import { RtcRole, RtcTokenBuilder } from 'agora-token';
 import { ConfigService } from '@nestjs/config';
 
 interface UserServiceClient {
@@ -445,7 +444,7 @@ export class BookingsService implements OnModuleInit {
         }
     }
 
-    async generateVideoCallToken(data: any) {
+    async generateVideoCallId(data: any) {
         const { correlationId, userId, bookingId } = data;
         const booking = await this.bookingRepository.findOne({
             where: [{
@@ -466,9 +465,6 @@ export class BookingsService implements OnModuleInit {
             };
         }
 
-        const channelName = `Room_${bookingId}`;
-        const appCertificate = this.configService.get<string>('AGORA_APP_CERTIFICATE');
-        const appId = this.configService.get<string>('AGORA_APP_ID');
         const expireTime = new Date(booking.timeSlot.clinicDate);
         const [h, m, s] = this.getTimeComponent(booking.timeSlot.endTime);
         const now = Date.now();
@@ -487,16 +483,7 @@ export class BookingsService implements OnModuleInit {
             };
         }
 
-        const secToExpire = Math.ceil((expireTime.getTime() - now) / 1000);
-        const token = RtcTokenBuilder.buildTokenWithUid(
-            appId!,
-            appCertificate!,
-            channelName,
-            userId,
-            RtcRole.PUBLISHER,
-            secToExpire,
-            secToExpire + 300
-        );
+        const callId = `Room_${bookingId}_${booking.timeSlot.doctorId}_${booking.patientId}`;
 
         if (booking.patientId == userId) {
             lastValueFrom(this.notificationClient.emit('video_call', {
@@ -517,10 +504,8 @@ export class BookingsService implements OnModuleInit {
         return {
             ok: true,
             status: 200,
-            message: 'Lấy token thành công',
-            userId,
-            channelName,
-            token
+            message: 'Tạo ID cuộc gọi thành công',
+            callId
         };
     }
 

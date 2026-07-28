@@ -162,7 +162,7 @@ export class DoctorsService {
       };
     }
 
-    const saltRounds = this.configService.get<number>('BCRYPT_SALT_ROUNDS')!;
+    const saltRounds = parseInt(this.configService.get<string>('BCRYPT_SALT_ROUNDS')!);
     const hashedPassword = await bcrypt.hash(data.password, saltRounds);
     const queryRunner = this.dataSource.createQueryRunner();
 

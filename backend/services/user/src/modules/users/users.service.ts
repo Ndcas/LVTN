@@ -86,7 +86,10 @@ export class UsersService {
       };
     }
 
-    const saltRounds = this.configService.get<number>('BCRYPT_SALT_ROUNDS')!;
+    const saltRounds = parseInt(this.configService.get<string>('BCRYPT_SALT_ROUNDS')!);
+
+    console.log(saltRounds);
+
     const hashedPassword = await bcrypt.hash(data.password, saltRounds);
     const newUser = this.userRepository.create({
       roleId: 3,
@@ -306,7 +309,7 @@ export class UsersService {
       };
     }
 
-    const saltRounds = this.configService.get<number>('BCRYPT_SALT_ROUNDS')!;
+    const saltRounds = parseInt(this.configService.get<string>('BCRYPT_SALT_ROUNDS')!);
     const hashedPassword = await bcrypt.hash(data.password, saltRounds);
     user.password = hashedPassword;
     await this.userRepository.save(user);
@@ -442,9 +445,8 @@ export class UsersService {
       };
     }
 
-    const saltRounds = this.configService.get<number>('BCRYPT_SALT_ROUNDS')!;
+    const saltRounds = parseInt(this.configService.get<string>('BCRYPT_SALT_ROUNDS')!);
     const hashedPassword = await bcrypt.hash(data.password, saltRounds);
-
     const newUser = this.userRepository.create({
       email: data.email,
       password: hashedPassword,
