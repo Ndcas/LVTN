@@ -1,3 +1,5 @@
+import 'package:dio/dio.dart';
+import 'package:femobile/core/services/api_service.dart';
 import 'package:flutter/material.dart';
 import '../../core/services/shared_service.dart';
 
@@ -68,9 +70,13 @@ class _NotificationScreenState extends State<NotificationScreen> {
       if (mounted) {
         setState(() => _isLoading = false);
 
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Lỗi tải thông báo: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Lỗi tải thông báo: ${e is DioException ? parseDioError(e) : e.toString()}',
+            ),
+          ),
+        );
       }
     }
   }

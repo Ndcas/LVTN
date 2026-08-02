@@ -4,6 +4,8 @@ import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { join } from 'node:path';
 
 async function bootstrap() {
+  process.env.TZ = 'Asia/Ho_Chi_Minh';
+
   const app = await NestFactory.create(AppModule);
 
   app.connectMicroservice<MicroserviceOptions>({

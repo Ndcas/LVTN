@@ -129,7 +129,11 @@ export class FeedbackController {
 
     this.processLog('CreateFeedback', correlationId, 'Nhận được yêu cầu tạo góp ý');
 
-    const result: any = await this.feedbackService.createFeedback({ ...createFeedbackDto, correlationId });
+    const result: any = await this.feedbackService.createFeedback({
+      ...createFeedbackDto,
+      correlationId,
+      userId: (req as any).user.userId
+    });
 
     if (!result.ok) {
       this.processLog('CreateFeedback', correlationId, `Không thành công ${result.error}`, 'warn');

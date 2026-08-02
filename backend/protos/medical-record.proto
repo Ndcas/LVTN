@@ -143,7 +143,7 @@ message PrescriptionDetailItem {
     int32 quantity = 4;
     string dosage = 5;
     double priceAtBooking = 6;
-    MedicineItem medicine = 7;
+    string medicine = 7;
 }
 
 message MedicalRecordItem {

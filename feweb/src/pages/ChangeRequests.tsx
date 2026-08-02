@@ -110,7 +110,7 @@ export default function ChangeRequestsPage() {
 
     setViewRequest({
       ...req,
-      details: undefined
+      scheduleChangeRequestDetails: undefined
     }); // show modal immediately
 
     try {
@@ -326,7 +326,7 @@ export default function ChangeRequestsPage() {
                     <span className="spinner" style={{ width: 16, height: 16, borderWidth: 2 }} />
                     <span style={{ fontSize: '0.875rem' }}>Đang tải...</span>
                   </div>
-                ) : viewRequest.details && viewRequest.details.length > 0 ? (
+                ) : viewRequest.scheduleChangeRequestDetails && viewRequest.scheduleChangeRequestDetails.length > 0 ? (
                   <div style={{ border: '1px solid var(--neutral-200)', borderRadius: 8, overflow: 'hidden' }}>
                     <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                       <thead>
@@ -338,8 +338,8 @@ export default function ChangeRequestsPage() {
                         </tr>
                       </thead>
                       <tbody>
-                        {viewRequest.details.map((d, idx) => (
-                          <tr key={d.id ?? idx} style={{ borderBottom: idx < (viewRequest.details?.length ?? 0) - 1 ? '1px solid var(--neutral-100)' : 'none' }}>
+                        {viewRequest.scheduleChangeRequestDetails.map((d, idx) => (
+                          <tr key={d.id ?? idx} style={{ borderBottom: idx < (viewRequest.scheduleChangeRequestDetails?.length ?? 0) - 1 ? '1px solid var(--neutral-100)' : 'none' }}>
                             <td style={{ padding: '9px 14px', fontSize: '0.9rem', color: 'var(--neutral-900)', fontWeight: 500 }}>{DAY_OF_WEEK_MAP[d.dayOfWeek] ?? `Thứ ${d.dayOfWeek}`}</td>
                             <td style={{ padding: '9px 14px', fontSize: '0.9rem', color: 'var(--neutral-700)' }}>{fmtTime(d.startTime)}</td>
                             <td style={{ padding: '9px 14px', fontSize: '0.9rem', color: 'var(--neutral-700)' }}>{fmtTime(d.endTime)}</td>

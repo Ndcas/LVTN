@@ -1,3 +1,5 @@
+import 'package:dio/dio.dart';
+import 'package:femobile/core/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/services/patient_service.dart';
@@ -79,9 +81,13 @@ class _MedicalHistoryScreenState extends State<MedicalHistoryScreen> {
       if (mounted) {
         setState(() => _isLoading = false);
 
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Lỗi tải hồ sơ: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Lỗi tải hồ sơ: ${e is DioException ? parseDioError(e) : e.toString()}',
+            ),
+          ),
+        );
       }
     }
   }
@@ -132,14 +138,14 @@ class _MedicalHistoryScreenState extends State<MedicalHistoryScreen> {
   }
 
   Widget _buildRecordCard(dynamic record) {
-    final booking = record['booking'];
-    final diagnosis = record['diagnosis'] ?? 'Không rõ';
-    DateTime? startTime;
+    final bookingId = record['bookingId'];
+    final diagnosis = record['diseaseName'] ?? 'Không rõ';
+    DateTime? visitDate;
 
-    if (booking != null &&
-        booking['timeSlot'] != null &&
-        booking['timeSlot']['startTime'] != null) {
-      startTime = DateTime.tryParse(booking['timeSlot']['startTime']);
+    if (record['visitDate'] != null) {
+      visitDate = DateTime.tryParse(record['visitDate']);
+    } else if (record['createdAt'] != null) {
+      visitDate = DateTime.tryParse(record['createdAt']);
     }
 
     return Card(
@@ -151,8 +157,8 @@ class _MedicalHistoryScreenState extends State<MedicalHistoryScreen> {
           child: const Icon(Icons.assignment, color: Colors.green),
         ),
         title: Text(
-          startTime != null
-              ? DateFormat('dd/MM/yyyy').format(startTime)
+          visitDate != null
+              ? DateFormat('dd/MM/yyyy').format(visitDate)
               : 'Ngày khám',
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
@@ -169,8 +175,8 @@ class _MedicalHistoryScreenState extends State<MedicalHistoryScreen> {
         ),
         trailing: const Icon(Icons.arrow_forward_ios, size: 16),
         onTap: () {
-          if (booking != null && booking['id'] != null) {
-            context.go('/patient/records/${booking['id']}');
+          if (bookingId != null) {
+            context.go('/patient/records/$bookingId');
           }
         },
       ),

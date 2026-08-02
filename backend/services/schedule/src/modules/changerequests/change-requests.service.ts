@@ -50,7 +50,10 @@ export class ChangeRequestsService {
     async getById(data: any) {
         const { id, doctorId } = data;
         const request = await this.scheduleChangeRequestRepository.findOne({
-            where: { id, doctorId },
+            where: {
+                id,
+                ...(doctorId ? { doctorId } : {})
+            },
             relations: { scheduleChangeRequestDetails: true }
         });
 
@@ -79,6 +82,21 @@ export class ChangeRequestsService {
 
     async create(data: any) {
         const { doctorId, details } = data;
+
+        const pendingRequest = await this.scheduleChangeRequestRepository.exists({
+            where: {
+                doctorId,
+                status: Status.PENDING
+            }
+        });
+
+        if (pendingRequest) {
+            return {
+                ok: false,
+                status: 400,
+                error: 'Bạn đã có yêu cầu đang chờ xử lý'
+            };
+        }
 
         for (const detail of details) {
             detail.startTimeSeconds = this.timeToSeconds(detail.startTime);

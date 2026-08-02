@@ -14,6 +14,7 @@ class ApiEndpoints {
   // === Schedule ===
   static const String openingTime = '/opening-time';
   static const String timeSlotsAvailable = '/time-slots/available';
+  static const String templates = '/templates';
 
   // === Bookings ===
   static const String bookings = '/bookings';
@@ -62,7 +63,7 @@ class ApiEndpoints {
   static const String diseases = '/diseases';
 
   // === Medicines ===
-  static const String medicines = '/medical/medicines';
+  static const String medicines = '/medicines';
 
   // === Leaves ===
   static const String leaves = '/leaves';

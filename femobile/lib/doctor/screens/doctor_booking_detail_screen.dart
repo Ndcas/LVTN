@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:dio/dio.dart';
 import '../../core/services/doctor_service.dart';
 import '../../core/services/shared_service.dart';
+import '../../core/services/api_service.dart';
 import 'package:intl/intl.dart';
 
 class DoctorBookingDetailScreen extends StatefulWidget {
@@ -41,9 +43,13 @@ class _DoctorBookingDetailScreenState extends State<DoctorBookingDetailScreen> {
       if (mounted) {
         setState(() => _isLoading = false);
 
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Lỗi tải chi tiết: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Lỗi tải chi tiết: ${e is DioException ? parseDioError(e) : e.toString()}',
+            ),
+          ),
+        );
       }
     }
   }
@@ -82,9 +88,13 @@ class _DoctorBookingDetailScreenState extends State<DoctorBookingDetailScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Lỗi cập nhật: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Lỗi cập nhật: ${e is DioException ? parseDioError(e) : e.toString()}',
+            ),
+          ),
+        );
       }
     }
   }
@@ -106,18 +116,41 @@ class _DoctorBookingDetailScreenState extends State<DoctorBookingDetailScreen> {
       return const Center(child: Text('Không tìm thấy thông tin lịch hẹn'));
     }
 
-    final timeSlot = _booking['timeSlot'];
-    DateTime? startTime;
+    final patient = _booking['patient'];
+    final patientName = patient?['fullName'] ?? 'Bệnh nhân';
+    final patientId = patient?['id'];
+    final patientGender = patient?['gender'] == 'MALE'
+        ? 'Nam'
+        : (patient?['gender'] == 'FEMALE' ? 'Nữ' : 'Không rõ');
+    String dobString = patient?['dob'] ?? 'Chưa cập nhật';
 
-    if (timeSlot != null && timeSlot['startTime'] != null) {
-      startTime = DateTime.tryParse(timeSlot['startTime']);
+    if (patient != null && patient['dob'] != null) {
+      try {
+        final dob = DateTime.parse(patient['dob']);
+        final age = DateTime.now().year - dob.year;
+        dobString = '${DateFormat('dd/MM/yyyy').format(dob)} ($age tuổi)';
+      } catch (e) {
+        // ignore
+      }
     }
 
-    final patientName = _booking['patient']?['name'] ?? 'Bệnh nhân';
-    final patientPhone = _booking['patient']?['phone'] ?? 'Chưa cập nhật';
     final status = _booking['status'] ?? '';
     final clinicType = _booking['clinicType'] ?? '';
-    final patientId = _booking['patientId'];
+    final clinicDateStr = _booking['clinicDate'] as String?;
+    final startTimeStr = _booking['startTime'] as String?;
+    String timeString = 'Chưa xếp lịch';
+
+    if (clinicDateStr != null &&
+        startTimeStr != null &&
+        startTimeStr.length >= 5) {
+      try {
+        final date = DateTime.parse(clinicDateStr);
+        timeString =
+            '${startTimeStr.substring(0, 5)} - ${DateFormat('dd/MM/yyyy').format(date)}';
+      } catch (e) {
+        timeString = '${startTimeStr.substring(0, 5)} - $clinicDateStr';
+      }
+    }
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
@@ -142,12 +175,7 @@ class _DoctorBookingDetailScreenState extends State<DoctorBookingDetailScreen> {
                         ? 'Khám qua Video'
                         : 'Khám trực tiếp',
                   ),
-                  _buildDetailRow(
-                    'Thời gian',
-                    startTime != null
-                        ? DateFormat('HH:mm - dd/MM/yyyy').format(startTime)
-                        : 'Chưa xếp lịch',
-                  ),
+                  _buildDetailRow('Thời gian', timeString),
                 ],
               ),
             ),
@@ -165,7 +193,8 @@ class _DoctorBookingDetailScreenState extends State<DoctorBookingDetailScreen> {
                   ),
                   const Divider(),
                   _buildDetailRow('Bệnh nhân', patientName),
-                  _buildDetailRow('Số điện thoại', patientPhone),
+                  _buildDetailRow('Giới tính', patientGender),
+                  _buildDetailRow('Ngày sinh', dobString),
                   const SizedBox(height: 12),
                   OutlinedButton.icon(
                     onPressed: () {
@@ -235,18 +264,26 @@ class _DoctorBookingDetailScreenState extends State<DoctorBookingDetailScreen> {
                   showDialog(
                     context: context,
                     barrierDismissible: false,
-                    builder: (_) => const Center(child: CircularProgressIndicator()),
+                    builder: (_) =>
+                        const Center(child: CircularProgressIndicator()),
                   );
-                  final callId = await _sharedService.getVideoCallToken(widget.bookingId);
+                  final callId = await _sharedService.getVideoCallToken(
+                    widget.bookingId,
+                  );
                   if (mounted) {
-                    Navigator.pop(context);
+                    Navigator.of(context, rootNavigator: true).pop();
                     context.push('/call/$callId');
                   }
                 } catch (e) {
                   if (mounted) {
-                    Navigator.pop(context);
+                    Navigator.of(context, rootNavigator: true).pop();
+
+                    final msg = e is DioException
+                        ? parseDioError(e)
+                        : e.toString();
+
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Lỗi kết nối Video Call: $e')),
+                      SnackBar(content: Text('Lỗi kết nối Video Call: $msg')),
                     );
                   }
                 }

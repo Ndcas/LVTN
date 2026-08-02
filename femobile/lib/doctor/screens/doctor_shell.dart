@@ -29,12 +29,12 @@ class DoctorShell extends StatelessWidget {
           NavigationDestination(
             icon: Icon(Icons.event_note_outlined),
             selectedIcon: Icon(Icons.event_note, color: AppColors.primary),
-            label: 'Đơn từ',
+            label: 'Xin nghỉ',
           ),
           NavigationDestination(
-            icon: Icon(Icons.notifications_outlined),
-            selectedIcon: Icon(Icons.notifications, color: AppColors.primary),
-            label: 'Thông báo',
+            icon: Icon(Icons.calendar_month_outlined),
+            selectedIcon: Icon(Icons.calendar_month, color: AppColors.primary),
+            label: 'Lịch làm việc',
           ),
           NavigationDestination(
             icon: Icon(Icons.person_outline),

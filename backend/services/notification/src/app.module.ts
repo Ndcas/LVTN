@@ -24,8 +24,8 @@ import { join } from 'node:path';
         name: 'LOG_SERVICE',
         transport: Transport.RMQ,
         options: {
-          urls: [process.env.RABBITMQ_URL!],
-          queue: 'log_queue',
+          urls: [process.env.RMQ_URL!],
+          queue: 'log',
           queueOptions: { durable: true }
         }
       }

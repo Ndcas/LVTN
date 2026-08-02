@@ -218,7 +218,7 @@ INSERT INTO `time_slots` (`id`, `doctor_id`, `clinic_date`, `start_time`, `end_t
 --
 ALTER TABLE `bookings`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `time_slot_id` (`time_slot_id`),
+  ADD KEY `idx_time_slot_id` (`time_slot_id`),
   ADD KEY `idx_patient_history` (`patient_id`,`created_at`);
 
 --

@@ -1,3 +1,5 @@
+import 'package:dio/dio.dart';
+import 'package:femobile/core/services/api_service.dart';
 import 'package:flutter/material.dart';
 import '../../core/services/shared_service.dart';
 import '../../core/constants/app_colors.dart';
@@ -11,28 +13,37 @@ class FeedbackScreen extends StatefulWidget {
 
 class _FeedbackScreenState extends State<FeedbackScreen> {
   final SharedService _sharedService = SharedService();
+  final TextEditingController _titleController = TextEditingController();
   final TextEditingController _contentController = TextEditingController();
   bool _isSubmitting = false;
 
   Future<void> _submitFeedback() async {
+    final title = _titleController.text.trim();
     final content = _contentController.text.trim();
+
+    if (title.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Vui lòng nhập tiêu đề')));
+      return;
+    }
 
     if (content.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Vui lòng nhập nội dung góp ý')),
       );
-
       return;
     }
 
     setState(() => _isSubmitting = true);
 
     try {
-      await _sharedService.sendFeedback(content);
+      await _sharedService.sendFeedback(title, content);
 
       if (mounted) {
         setState(() => _isSubmitting = false);
 
+        _titleController.clear();
         _contentController.clear();
 
         showDialog(
@@ -61,15 +72,21 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
       if (mounted) {
         setState(() => _isSubmitting = false);
 
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Lỗi gửi góp ý: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Lỗi gửi góp ý: ${e is DioException ? parseDioError(e) : e.toString()}',
+            ),
+          ),
+        );
       }
     }
   }
 
   @override
   void dispose() {
+    _titleController.dispose();
+
     _contentController.dispose();
 
     super.dispose();
@@ -89,6 +106,11 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
               style: TextStyle(fontSize: 16, color: Colors.black87),
             ),
             const SizedBox(height: 24),
+            TextField(
+              controller: _titleController,
+              decoration: const InputDecoration(hintText: 'Tiêu đề góp ý'),
+            ),
+            const SizedBox(height: 16),
             TextField(
               controller: _contentController,
               maxLines: 6,

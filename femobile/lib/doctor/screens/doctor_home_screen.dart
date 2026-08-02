@@ -1,3 +1,5 @@
+import 'package:dio/dio.dart';
+import 'package:femobile/core/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/services/doctor_service.dart';
@@ -14,12 +16,27 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
   final DoctorService _doctorService = DoctorService();
   bool _isLoading = true;
   List<dynamic> _todayBookings = [];
+  bool _isActive = true;
 
   @override
   void initState() {
     super.initState();
 
     _fetchTodayBookings();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final location = GoRouterState.of(context).uri.path;
+    final isCurrentlyActive = (location == '/doctor');
+
+    if (isCurrentlyActive && !_isActive) {
+      _fetchTodayBookings();
+    }
+
+    _isActive = isCurrentlyActive;
   }
 
   Future<void> _fetchTodayBookings() async {
@@ -37,8 +54,9 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
           _todayBookings = response['data'] ?? [];
           // Sort by time
           _todayBookings.sort((a, b) {
-            final aTime = a['timeSlot']?['startTime'] ?? '';
-            final bTime = b['timeSlot']?['startTime'] ?? '';
+            final aTime = a['startTime'] ?? '';
+            final bTime = b['startTime'] ?? '';
+
             return aTime.compareTo(bTime);
           });
           _isLoading = false;
@@ -48,9 +66,13 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
       if (mounted) {
         setState(() => _isLoading = false);
 
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Lỗi tải lịch khám: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Lỗi tải lịch khám: ${e is DioException ? parseDioError(e) : e.toString()}',
+            ),
+          ),
+        );
       }
     }
   }
@@ -110,13 +132,10 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
       itemCount: _todayBookings.length,
       itemBuilder: (context, index) {
         final booking = _todayBookings[index];
-        final patientName = booking['patient']?['name'] ?? 'Bệnh nhân';
-        final timeSlot = booking['timeSlot'];
-
-        DateTime? startTime;
-        if (timeSlot != null && timeSlot['startTime'] != null) {
-          startTime = DateTime.tryParse(timeSlot['startTime']);
-        }
+        final startTimeStr = booking['startTime'] as String?;
+        final timeString = (startTimeStr != null && startTimeStr.length >= 5)
+            ? startTimeStr.substring(0, 5)
+            : 'Chưa xếp lịch';
 
         return Card(
           margin: const EdgeInsets.only(bottom: 16),
@@ -132,17 +151,13 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
               ),
             ),
             title: Text(
-              startTime != null
-                  ? DateFormat('HH:mm').format(startTime)
-                  : 'Chưa xếp lịch',
+              timeString,
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
             ),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 8),
-                Text('BN: $patientName', style: const TextStyle(fontSize: 16)),
-                const SizedBox(height: 4),
                 Text(
                   booking['clinicType'] == 'ONLINE'
                       ? 'Khám trực tuyến'
@@ -158,7 +173,7 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
             ),
             trailing: const Icon(Icons.arrow_forward_ios, size: 16),
             onTap: () {
-              context.go('/doctor/bookings/${booking['id']}');
+              context.push('/doctor/bookings/${booking['id']}');
             },
           ),
         );

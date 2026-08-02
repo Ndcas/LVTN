@@ -1,3 +1,5 @@
+import 'package:dio/dio.dart';
+import 'package:femobile/core/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -39,9 +41,13 @@ class _InvoiceDetailScreenState extends State<InvoiceDetailScreen> {
       if (mounted) {
         setState(() => _isLoading = false);
 
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Lỗi tải hóa đơn: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Lỗi tải hóa đơn: ${e is DioException ? parseDioError(e) : e.toString()}',
+            ),
+          ),
+        );
       }
     }
   }
@@ -57,7 +63,7 @@ class _InvoiceDetailScreenState extends State<InvoiceDetailScreen> {
       final url = await _paymentService.createPaymentUrl(widget.invoiceId);
 
       if (mounted) {
-        Navigator.pop(context); // close dialog
+        Navigator.of(context, rootNavigator: true).pop(); // close dialog
 
         context.push(
           '/patient/vnpay',
@@ -73,11 +79,15 @@ class _InvoiceDetailScreenState extends State<InvoiceDetailScreen> {
       }
     } catch (e) {
       if (mounted) {
-        Navigator.pop(context); // close dialog
+        Navigator.of(context, rootNavigator: true).pop(); // close dialog
 
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Lỗi tạo thanh toán: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Lỗi tạo thanh toán: ${e is DioException ? parseDioError(e) : e.toString()}',
+            ),
+          ),
+        );
       }
     }
   }
@@ -104,6 +114,24 @@ class _InvoiceDetailScreenState extends State<InvoiceDetailScreen> {
     final total = _invoice['totalAmount'] ?? 0;
     final status = _invoice['status'];
     final isUnpaid = status == 'UNPAID';
+    final cashierId = _invoice['cashierId'];
+    String? paymentMethod = _invoice['paymentMethod'];
+    final paidAtStr = _invoice['paidAt'];
+    String? formattedPaidAt;
+
+    if (paidAtStr != null) {
+      final parsedDate = DateTime.tryParse(paidAtStr);
+
+      if (parsedDate != null) {
+        formattedPaidAt = DateFormat(
+          'dd/MM/yyyy HH:mm',
+        ).format(parsedDate.toLocal());
+      }
+    }
+
+    if (paymentMethod == 'CASH') {
+      paymentMethod = 'Tiền mặt';
+    }
 
     return Scaffold(
       appBar: AppBar(title: const Text('Chi tiết hóa đơn')),
@@ -134,6 +162,18 @@ class _InvoiceDetailScreenState extends State<InvoiceDetailScreen> {
                     const SizedBox(height: 24),
                     _buildRow('Mã hóa đơn', '#${_invoice['id']}'),
                     const Divider(),
+                    if (cashierId != null) ...[
+                      _buildRow('Mã thu ngân', '#$cashierId'),
+                      const Divider(),
+                    ],
+                    if (paymentMethod != null) ...[
+                      _buildRow('Phương thức thanh toán', paymentMethod),
+                      const Divider(),
+                    ],
+                    if (formattedPaidAt != null) ...[
+                      _buildRow('Thời gian', formattedPaidAt),
+                      const Divider(),
+                    ],
                     _buildRow('Tiền khám', formatCurrency.format(examFee)),
                     const Divider(),
                     _buildRow('Tiền thuốc', formatCurrency.format(medicineFee)),

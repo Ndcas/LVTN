@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:dio/dio.dart';
 import '../../core/services/patient_service.dart';
 import '../../core/services/shared_service.dart';
+import '../../core/services/api_service.dart';
 import 'package:intl/intl.dart';
 
 class BookingDetailScreen extends StatefulWidget {
@@ -40,9 +42,13 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
       if (mounted) {
         setState(() => _isLoading = false);
 
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Lỗi tải chi tiết: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Lỗi tải chi tiết: ${e is DioException ? parseDioError(e) : e.toString()}',
+            ),
+          ),
+        );
       }
     }
   }
@@ -82,9 +88,13 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Lỗi hủy lịch: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Lỗi hủy lịch: ${e is DioException ? parseDioError(e) : e.toString()}',
+            ),
+          ),
+        );
       }
     }
   }
@@ -106,16 +116,20 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
       return const Center(child: Text('Không tìm thấy thông tin lịch hẹn'));
     }
 
-    final timeSlot = _booking['timeSlot'];
     DateTime? startTime;
 
-    if (timeSlot != null && timeSlot['startTime'] != null) {
-      startTime = DateTime.tryParse(timeSlot['startTime']);
+    if (_booking['clinicDate'] != null && _booking['startTime'] != null) {
+      final datePart = _booking['clinicDate'].toString().split('T')[0];
+      startTime = DateTime.tryParse('$datePart ${_booking['startTime']}');
     }
 
-    final doctorMetadata = _booking['doctor']?['doctorMetadata'];
-    final specialty = doctorMetadata?['specialty']?['name'] ?? 'Đa khoa';
-    final doctorName = _booking['doctor']?['name'] ?? 'Bác sĩ';
+    final doctorInfo = _booking['doctor'];
+    final specialty = doctorInfo?['specialtyName'] ?? 'Đa khoa';
+    final doctorName = doctorInfo?['fullName'] ?? 'Bác sĩ';
+    final degree = doctorInfo?['degreeName'] ?? '';
+    final doctorTitle = degree.isNotEmpty
+        ? '$degree $doctorName'
+        : 'BS. $doctorName';
     final status = _booking['status'] ?? '';
     final clinicType = _booking['clinicType'] ?? '';
 
@@ -164,7 +178,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                   ),
                   const Divider(),
-                  _buildDetailRow('Bác sĩ', 'BS. $doctorName'),
+                  _buildDetailRow('Bác sĩ', doctorTitle),
                   _buildDetailRow('Chuyên khoa', specialty),
                 ],
               ),
@@ -225,18 +239,26 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                   showDialog(
                     context: context,
                     barrierDismissible: false,
-                    builder: (_) => const Center(child: CircularProgressIndicator()),
+                    builder: (_) =>
+                        const Center(child: CircularProgressIndicator()),
                   );
-                  final callId = await _sharedService.getVideoCallToken(widget.bookingId);
+                  final callId = await _sharedService.getVideoCallToken(
+                    widget.bookingId,
+                  );
                   if (mounted) {
-                    Navigator.pop(context);
+                    Navigator.of(context, rootNavigator: true).pop();
                     context.push('/call/$callId');
                   }
                 } catch (e) {
                   if (mounted) {
-                    Navigator.pop(context);
+                    Navigator.of(context, rootNavigator: true).pop();
+
+                    final msg = e is DioException
+                        ? parseDioError(e)
+                        : e.toString();
+
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Lỗi kết nối Video Call: $e')),
+                      SnackBar(content: Text('Lỗi kết nối Video Call: $msg')),
                     );
                   }
                 }

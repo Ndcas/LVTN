@@ -46,15 +46,13 @@ export class AppService implements OnModuleInit {
       ok: true,
       status: 200,
       message: 'Lấy danh sách thông báo thành công',
-      data: {
-        notifications: notifications.map(n => ({
-          ...n,
-          createdAt: n.createdAt.toISOString()
-        })),
-        total,
-        page,
-        limit
-      }
+      data: notifications.map(n => ({
+        ...n,
+        createdAt: n.createdAt.toISOString()
+      })),
+      total,
+      page,
+      limit
     };
   }
 

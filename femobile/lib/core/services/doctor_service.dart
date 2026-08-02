@@ -4,6 +4,13 @@ import '../constants/api_endpoints.dart';
 class DoctorService {
   final ApiService _apiService = ApiService();
 
+  // === Schedule ===
+  Future<Map<String, dynamic>> getWeeklyTemplate() async {
+    final response = await _apiService.dio.get(ApiEndpoints.templates);
+
+    return response.data as Map<String, dynamic>;
+  }
+
   // === Bookings ===
   Future<Map<String, dynamic>> getBookings({
     int page = 1,

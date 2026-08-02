@@ -1,3 +1,5 @@
+import 'package:dio/dio.dart';
+import 'package:femobile/core/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/services/patient_service.dart';
@@ -30,6 +32,7 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
   @override
   void initState() {
     super.initState();
+
     _fetchSpecialties();
   }
 
@@ -47,7 +50,9 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
       if (mounted) {
         setState(() => _isLoadingSpecialties = false);
 
-        _showError('Lỗi tải chuyên khoa: $e');
+        _showError(
+          'Lỗi tải chuyên khoa: ${e is DioException ? parseDioError(e) : e.toString()}',
+        );
       }
     }
   }
@@ -82,7 +87,9 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
       if (mounted) {
         setState(() => _isLoadingSlots = false);
 
-        _showError('Lỗi tải ca khám: $e');
+        _showError(
+          'Lỗi tải ca khám: ${e is DioException ? parseDioError(e) : e.toString()}',
+        );
       }
     }
   }
@@ -108,7 +115,9 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
       if (mounted) {
         setState(() => _isBooking = false);
 
-        _showError('Lỗi đặt lịch: $e');
+        _showError(
+          'Lỗi đặt lịch: ${e is DioException ? parseDioError(e) : e.toString()}',
+        );
       }
     }
   }
@@ -320,26 +329,59 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
       return const Text('Không có ca khám nào trống trong ngày này');
     }
 
-    return Wrap(
-      spacing: 8.0,
-      runSpacing: 8.0,
-      children: _availableSlots.map((item) {
-        final startTime = DateTime.tryParse(item['startTime']);
-        final endTime = DateTime.tryParse(item['endTime']);
-        final doctorName = item['doctor']?['name'] ?? 'Bác sĩ';
+    final Map<String, List<dynamic>> groupedSlots = {};
+    for (var slot in _availableSlots) {
+      final doctorName = slot['doctorName'] ?? 'Bác sĩ';
+      if (!groupedSlots.containsKey(doctorName)) {
+        groupedSlots[doctorName] = [];
+      }
+      groupedSlots[doctorName]!.add(slot);
+    }
 
-        final timeString = startTime != null && endTime != null
-            ? '${DateFormat('HH:mm').format(startTime)} - ${DateFormat('HH:mm').format(endTime)}'
-            : 'Unknown';
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: groupedSlots.entries.map((entry) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Text(
+                entry.key,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+            Wrap(
+              spacing: 8.0,
+              runSpacing: 8.0,
+              children: entry.value.map((item) {
+                final startTimeStr = item['startTime'] as String?;
+                final endTimeStr = item['endTime'] as String?;
+                final timeString =
+                    (startTimeStr != null &&
+                        endTimeStr != null &&
+                        startTimeStr.length >= 5 &&
+                        endTimeStr.length >= 5)
+                    ? '${startTimeStr.substring(0, 5)} - ${endTimeStr.substring(0, 5)}'
+                    : 'Unknown';
+                final isSelected = _selectedSlotId == item['id'];
 
-        final isSelected = _selectedSlotId == item['id'];
-
-        return ChoiceChip(
-          label: Text('$timeString\nBS. $doctorName'),
-          selected: isSelected,
-          onSelected: (selected) {
-            setState(() => _selectedSlotId = selected ? item['id'] : null);
-          },
+                return ChoiceChip(
+                  label: Text(timeString),
+                  selected: isSelected,
+                  onSelected: (selected) {
+                    setState(
+                      () => _selectedSlotId = selected ? item['id'] : null,
+                    );
+                  },
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 16),
+          ],
         );
       }).toList(),
     );
@@ -365,8 +407,14 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
           orElse: () => {'name': ''},
         )['name'] ??
         '';
-    final doctorName = slot['doctor']?['name'] ?? 'Bác sĩ';
-    final startTime = DateTime.tryParse(slot['startTime']);
+    final doctorName = slot['doctorName'] ?? 'Bác sĩ';
+    final startTimeStr = slot['startTime'] as String?;
+    final timeFormatted = (startTimeStr != null && startTimeStr.length >= 5)
+        ? startTimeStr.substring(0, 5)
+        : '';
+    final dateFormatted = _selectedDate != null
+        ? DateFormat('dd/MM/yyyy').format(_selectedDate!)
+        : '';
 
     return Card(
       child: Padding(
@@ -382,9 +430,7 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
               'Hình thức: ${_selectedClinicType == 'ONLINE' ? 'Khám qua Video (Online)' : 'Khám trực tiếp (Offline)'}',
             ),
             const SizedBox(height: 8),
-            Text(
-              'Thời gian: ${startTime != null ? DateFormat('HH:mm - dd/MM/yyyy').format(startTime) : ''}',
-            ),
+            Text('Thời gian: $timeFormatted - $dateFormatted'),
           ],
         ),
       ),

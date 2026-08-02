@@ -1,3 +1,5 @@
+import 'package:dio/dio.dart';
+import 'package:femobile/core/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import 'package:intl/intl.dart';
@@ -104,7 +106,11 @@ class _ChangeRequestListTabState extends State<_ChangeRequestListTab> {
         setState(() => _isLoading = false);
 
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Lỗi tải danh sách yêu cầu: $e')),
+          SnackBar(
+            content: Text(
+              'Lỗi tải danh sách yêu cầu: ${e is DioException ? parseDioError(e) : e.toString()}',
+            ),
+          ),
         );
       }
     }
@@ -262,9 +268,13 @@ class _CreateChangeRequestTabState extends State<_CreateChangeRequestTab> {
       if (mounted) {
         setState(() => _isLoading = false);
 
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Lỗi tải giờ mở cửa: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Lỗi tải giờ mở cửa: ${e is DioException ? parseDioError(e) : e.toString()}',
+            ),
+          ),
+        );
       }
     }
   }
@@ -277,10 +287,6 @@ class _CreateChangeRequestTabState extends State<_CreateChangeRequestTab> {
     final s = parts.length > 2 ? parts[2] : 0;
 
     return h * 3600 + m * 60 + s;
-  }
-
-  bool _isOverlapping(int startA, int endA, int startB, int endB) {
-    return math.max(startA, startB) < math.min(endA, endB);
   }
 
   String? _validateDetails() {
@@ -404,9 +410,13 @@ class _CreateChangeRequestTabState extends State<_CreateChangeRequestTab> {
       if (mounted) {
         setState(() => _isSubmitting = false);
 
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Lỗi gửi yêu cầu: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Lỗi gửi yêu cầu: ${e is DioException ? parseDioError(e) : e.toString()}',
+            ),
+          ),
+        );
       }
     }
   }

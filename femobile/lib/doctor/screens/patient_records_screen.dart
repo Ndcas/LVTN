@@ -1,3 +1,5 @@
+import 'package:dio/dio.dart';
+import 'package:femobile/core/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../core/services/doctor_service.dart';
@@ -75,9 +77,13 @@ class _PatientRecordsScreenState extends State<PatientRecordsScreen> {
       if (mounted) {
         setState(() => _isLoading = false);
 
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Lỗi tải lịch sử khám: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Lỗi tải lịch sử khám: ${e is DioException ? parseDioError(e) : e.toString()}',
+            ),
+          ),
+        );
       }
     }
   }
@@ -112,17 +118,17 @@ class _PatientRecordsScreenState extends State<PatientRecordsScreen> {
         }
 
         final record = _records[index];
-        final booking = record['booking'];
-        final timeSlot = booking?['timeSlot'];
+        final visitDateStr = record['visitDate'] ?? record['createdAt'];
         DateTime? date;
 
-        if (timeSlot != null && timeSlot['startTime'] != null) {
-          date = DateTime.tryParse(timeSlot['startTime']);
+        if (visitDateStr != null) {
+          date = DateTime.tryParse(visitDateStr);
         }
 
-        final doctorName =
-            booking?['doctor']?['doctorMetadata']?['name'] ?? 'Bác sĩ';
-        final diagnosis = record['diagnosis'] ?? 'Không có chẩn đoán';
+        final diagnosis =
+            record['diseaseName'] ??
+            record['diagnoseDetail'] ??
+            'Không có chẩn đoán';
 
         return Card(
           margin: const EdgeInsets.only(bottom: 16),
@@ -140,38 +146,25 @@ class _PatientRecordsScreenState extends State<PatientRecordsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Bác sĩ khám: $doctorName'),
-                    const SizedBox(height: 8),
-                    Text('Triệu chứng: ${record['symptoms'] ?? 'Không rõ'}'),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'Các bệnh lý (ICD-10):',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                    Text(
+                      'Triệu chứng: ${record['clinicalIndicators'] ?? 'Không rõ'}',
                     ),
-                    if (record['diseases'] != null &&
-                        record['diseases'].isNotEmpty)
-                      ...List.generate(
-                        record['diseases'].length,
-                        (i) => Text(
-                          '- ${record['diseases'][i]['icdCode']} - ${record['diseases'][i]['name']}',
-                        ),
-                      )
-                    else
-                      const Text('Không có'),
                     const SizedBox(height: 8),
                     const Text(
                       'Đơn thuốc:',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    if (record['prescriptions'] != null &&
-                        record['prescriptions'].isNotEmpty)
-                      ...List.generate(record['prescriptions'].length, (i) {
-                        final p = record['prescriptions'][i];
-                        final medicine = p['medicine'];
+                    if (record['prescriptionDetails'] != null &&
+                        record['prescriptionDetails'].isNotEmpty)
+                      ...List.generate(record['prescriptionDetails'].length, (
+                        i,
+                      ) {
+                        final p = record['prescriptionDetails'][i];
+                        final medicineName = p['medicine'] ?? 'Thuốc không rõ';
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 4.0),
                           child: Text(
-                            '- ${medicine?['name']} (${medicine?['unit']}): ${p['quantity']} - ${p['dosage']}',
+                            '- $medicineName: ${p['quantity']} viên - ${p['dosage'] ?? 'Không có liều dùng'}',
                           ),
                         );
                       })

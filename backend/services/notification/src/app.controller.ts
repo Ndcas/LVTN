@@ -25,14 +25,14 @@ export class AppController {
   @GrpcMethod('NotificationService', 'GetAllNotificationsByUserId')
   async getAllNotificationsByUserId(data: any) {
     try {
-      this.processLog('getAllNotificationsByUserId', data.correlationId, 'Nhận được yêu cầu lấy danh sách thông báo');
+      this.processLog('GetAllNotificationsByUserId', data.correlationId, 'Nhận được yêu cầu lấy danh sách thông báo');
 
       const result = await this.appService.getAllByUserId(data);
 
-      this.processLog('getAllNotificationsByUserId', data.correlationId, 'Kết thúc xử lý lấy danh sách thông báo');
+      this.processLog('GetAllNotificationsByUserId', data.correlationId, 'Kết thúc xử lý lấy danh sách thông báo');
       return result;
     } catch (error) {
-      this.processLog('getAllNotificationsByUserId', data.correlationId, `Lỗi khi xử lý lấy danh sách thông báo ${error}`, 'error');
+      this.processLog('GetAllNotificationsByUserId', data.correlationId, `Lỗi khi xử lý lấy danh sách thông báo ${error}`, 'error');
 
       return {
         ok: false,
@@ -48,7 +48,7 @@ export class AppController {
       const { correlationId, doctorId, date, startTime, clinicType } = data;
       const clinic = clinicType == 'ONLINE' ? 'trực tuyến' : 'ngoại tuyến';
 
-      this.processLog('handleBookingCreated', correlationId, 'Nhận được yêu gửi thông báo booking đã được tạo');
+      this.processLog('HandleBookingCreated', correlationId, 'Nhận được yêu gửi thông báo booking đã được tạo');
 
       const result = await this.appService.sendMessage({
         correlationId,
@@ -58,12 +58,12 @@ export class AppController {
       });
 
       if (!result.ok) {
-        this.processLog('handleBookingCreated', correlationId, `Lỗi khi gửi thông báo ${result.error}`, 'error');
+        this.processLog('HandleBookingCreated', correlationId, `Lỗi khi gửi thông báo ${result.error}`, 'error');
       }
 
-      this.processLog('handleBookingCreated', correlationId, 'Kết thúc xử lý gửi thông báo booking đã được tạo');
+      this.processLog('HandleBookingCreated', correlationId, 'Kết thúc xử lý gửi thông báo booking đã được tạo');
     } catch (error) {
-      this.processLog('handleBookingCreated', data.correlationId, `Lỗi khi gửi thông báo booking đã được tạo ${error}`, 'error');
+      this.processLog('HandleBookingCreated', data.correlationId, `Lỗi khi gửi thông báo booking đã được tạo ${error}`, 'error');
     }
   }
 
@@ -83,7 +83,7 @@ export class AppController {
           break;
       }
 
-      this.processLog('handleBookingCanceled', correlationId, 'Nhận được yêu cầu gửi thông báo booking đã bị hủy');
+      this.processLog('HandleBookingCanceled', correlationId, 'Nhận được yêu cầu gửi thông báo booking đã bị hủy');
 
       const result = await this.appService.sendMessage({
         correlationId,
@@ -93,12 +93,12 @@ export class AppController {
       });
 
       if (!result.ok) {
-        this.processLog('handleBookingCanceled', correlationId, `Lỗi khi gửi thông báo ${result.error}`, 'error');
+        this.processLog('HandleBookingCanceled', correlationId, `Lỗi khi gửi thông báo ${result.error}`, 'error');
       }
 
-      this.processLog('handleBookingCanceled', correlationId, 'Kết thúc xử lý gửi thông báo booking đã bị hủy');
+      this.processLog('HandleBookingCanceled', correlationId, 'Kết thúc xử lý gửi thông báo booking đã bị hủy');
     } catch (error) {
-      this.processLog('handleBookingCanceled', data.correlationId, `Lỗi khi gửi thông báo booking đã bị hủy ${error}`, 'error');
+      this.processLog('HandleBookingCanceled', data.correlationId, `Lỗi khi gửi thông báo booking đã bị hủy ${error}`, 'error');
     }
   }
 
@@ -117,7 +117,7 @@ export class AppController {
           break;
       }
 
-      this.processLog('handleVideoCall', correlationId, 'Nhận được yêu gửi thông báo video call');
+      this.processLog('HandleVideoCall', correlationId, 'Nhận được yêu gửi thông báo video call');
 
       const result = await this.appService.sendMessage({
         correlationId,
@@ -127,12 +127,12 @@ export class AppController {
       });
 
       if (!result.ok) {
-        this.processLog('handleVideoCall', correlationId, `Lỗi khi gửi thông báo ${result.error}`, 'error');
+        this.processLog('HandleVideoCall', correlationId, `Lỗi khi gửi thông báo ${result.error}`, 'error');
       }
 
-      this.processLog('handleVideoCall', correlationId, 'Kết thúc xử lý gửi thông báo video call');
+      this.processLog('HandleVideoCall', correlationId, 'Kết thúc xử lý gửi thông báo video call');
     } catch (error) {
-      this.processLog('handleVideoCall', data.correlationId, `Lỗi khi gửi thông báo video call ${error}`, 'error');
+      this.processLog('HandleVideoCall', data.correlationId, `Lỗi khi gửi thông báo video call ${error}`, 'error');
     }
   }
 }

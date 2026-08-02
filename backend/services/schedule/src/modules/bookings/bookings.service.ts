@@ -67,9 +67,7 @@ export class BookingsService implements OnModuleInit {
             ]);
 
         if (roleId == 2) {
-            queryBuilder
-                .leftJoinAndSelect('booking.timeSlot', 'timeSlot')
-                .andWhere('timeSlot.doctorId = :doctorId', { doctorId: userId });
+            queryBuilder.andWhere('timeSlot.doctorId = :doctorId', { doctorId: userId });
         } else if (roleId == 3) {
             queryBuilder.andWhere('booking.patientId = :patientId', { patientId: userId });
         }
@@ -210,6 +208,20 @@ export class BookingsService implements OnModuleInit {
                     ok: false,
                     status: 409,
                     error: 'Khung giờ này đã được đặt hoặc không tồn tại'
+                };
+            }
+
+            const [year, month, day] = timeSlot.clinicDate.split('-');
+            const [h, m, s] = timeSlot.startTime.split(':');
+            const startTime = new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(h), parseInt(m), parseInt(s));
+
+            if (startTime <= new Date()) {
+                await queryRunner.rollbackTransaction();
+
+                return {
+                    ok: false,
+                    status: 409,
+                    error: 'Đã quá thời gian đặt khám cho khung giờ này'
                 };
             }
 
@@ -362,6 +374,24 @@ export class BookingsService implements OnModuleInit {
                 };
             }
 
+            const now = Date.now();
+            const startTime = new Date(booking.timeSlot.clinicDate);
+            const [sH, sM, sS] = this.getTimeComponent(booking.timeSlot.startTime);
+
+            startTime.setHours(sH);
+            startTime.setMinutes(sM);
+            startTime.setSeconds(sS);
+
+            if (startTime.getTime() > now + 300000) {
+                await queryRunner.rollbackTransaction();
+
+                return {
+                    ok: false,
+                    status: 400,
+                    error: 'Chưa đến giờ khám'
+                };
+            }
+
             const feeResp: any = await lastValueFrom(this.userService.getDoctorExaminationFee({
                 id: doctorId,
                 correlationId
@@ -417,7 +447,9 @@ export class BookingsService implements OnModuleInit {
 
             try {
                 booking.status = BookingStatus.FINISHED;
+
                 await queryRunner.manager.save(Booking, booking);
+
                 await queryRunner.commitTransaction();
             } catch (bookingError) {
                 if (invoiceId) {
@@ -466,20 +498,37 @@ export class BookingsService implements OnModuleInit {
         }
 
         const expireTime = new Date(booking.timeSlot.clinicDate);
-        const [h, m, s] = this.getTimeComponent(booking.timeSlot.endTime);
+        const [eH, eM, eS] = this.getTimeComponent(booking.timeSlot.endTime);
         const now = Date.now();
 
-        expireTime.setHours(h);
+        expireTime.setHours(eH);
 
-        expireTime.setMinutes(m);
+        expireTime.setMinutes(eM);
 
-        expireTime.setSeconds(s);
+        expireTime.setSeconds(eS);
 
         if (expireTime.getTime() < now) {
             return {
                 ok: false,
                 status: 400,
                 error: 'Đã hết giờ khám'
+            };
+        }
+
+        const startTime = new Date(booking.timeSlot.clinicDate);
+        const [sH, sM, sS] = this.getTimeComponent(booking.timeSlot.startTime);
+
+        startTime.setHours(sH);
+
+        startTime.setMinutes(sM);
+
+        startTime.setSeconds(sS);
+
+        if (startTime.getTime() > now + 300000) {
+            return {
+                ok: false,
+                status: 400,
+                error: 'Chưa đến giờ khám'
             };
         }
 

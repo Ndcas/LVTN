@@ -176,7 +176,7 @@ export interface ChangeRequest {
   rejectedReason?: string | null;
   createdAt?: string;
   updatedAt?: string;
-  details?: ChangeRequestDetail[];
+  scheduleChangeRequestDetails?: ChangeRequestDetail[];
 }
 
 /** Params lấy danh sách Change Requests */

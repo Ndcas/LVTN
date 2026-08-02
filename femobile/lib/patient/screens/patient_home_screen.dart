@@ -1,3 +1,5 @@
+import 'package:dio/dio.dart';
+import 'package:femobile/core/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/services/patient_service.dart';
@@ -14,12 +16,27 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
   final PatientService _patientService = PatientService();
   bool _isLoading = true;
   List<dynamic> _upcomingBookings = [];
+  bool _isActive = true;
 
   @override
   void initState() {
     super.initState();
 
     _fetchUpcomingBookings();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final location = GoRouterState.of(context).uri.path;
+    final isCurrentlyActive = (location == '/patient');
+
+    if (isCurrentlyActive && !_isActive) {
+      _fetchUpcomingBookings();
+    }
+
+    _isActive = isCurrentlyActive;
   }
 
   Future<void> _fetchUpcomingBookings() async {
@@ -43,7 +60,11 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Lỗi tải lịch hẹn: ${e.toString()}')),
+          SnackBar(
+            content: Text(
+              'Lỗi tải lịch hẹn: ${e is DioException ? parseDioError(e) : e.toString()}',
+            ),
+          ),
         );
       }
     }
@@ -123,14 +144,12 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
 
     return Column(
       children: _upcomingBookings.map((booking) {
-        final timeSlot = booking['timeSlot'];
-        final doctorMetadata = booking['doctor']?['doctorMetadata'];
-        final specialty = doctorMetadata?['specialty']?['name'] ?? 'Đa khoa';
-        final doctorName = booking['doctor']?['name'] ?? 'Bác sĩ';
+        final clinicType = booking['clinicType'];
         DateTime? startTime;
 
-        if (timeSlot != null && timeSlot['startTime'] != null) {
-          startTime = DateTime.tryParse(timeSlot['startTime']);
+        if (booking['clinicDate'] != null && booking['startTime'] != null) {
+          final datePart = booking['clinicDate'].toString().split('T')[0];
+          startTime = DateTime.tryParse('$datePart ${booking['startTime']}');
         }
 
         return Card(
@@ -140,9 +159,7 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
             leading: CircleAvatar(
               backgroundColor: Theme.of(context).colorScheme.primaryContainer,
               child: Icon(
-                booking['clinicType'] == 'ONLINE'
-                    ? Icons.videocam
-                    : Icons.local_hospital,
+                clinicType == 'ONLINE' ? Icons.videocam : Icons.local_hospital,
                 color: Theme.of(context).colorScheme.primary,
               ),
             ),
@@ -156,16 +173,10 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 4),
-                Text('BS. $doctorName - $specialty'),
-                const SizedBox(height: 4),
                 Text(
-                  booking['clinicType'] == 'ONLINE'
-                      ? 'Khám trực tuyến'
-                      : 'Khám trực tiếp',
+                  clinicType == 'ONLINE' ? 'Khám trực tuyến' : 'Khám trực tiếp',
                   style: TextStyle(
-                    color: booking['clinicType'] == 'ONLINE'
-                        ? Colors.blue
-                        : Colors.green,
+                    color: clinicType == 'ONLINE' ? Colors.blue : Colors.green,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -173,7 +184,7 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
             ),
             trailing: const Icon(Icons.arrow_forward_ios, size: 16),
             onTap: () {
-              context.go('/patient/bookings/${booking['id']}');
+              context.push('/patient/bookings/${booking['id']}');
             },
           ),
         );

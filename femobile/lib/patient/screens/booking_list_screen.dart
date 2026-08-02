@@ -1,3 +1,5 @@
+import 'package:dio/dio.dart';
+import 'package:femobile/core/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/services/patient_service.dart';
@@ -54,6 +56,7 @@ class _BookingListViewState extends State<_BookingListView> {
   @override
   void initState() {
     super.initState();
+
     _fetchBookings();
 
     _scrollController.addListener(() {
@@ -69,16 +72,22 @@ class _BookingListViewState extends State<_BookingListView> {
   @override
   void dispose() {
     _scrollController.dispose();
+
     super.dispose();
   }
 
   Future<void> _fetchBookings({bool loadMore = false}) async {
-    if (!mounted) return;
+    if (!mounted) {
+      return;
+    }
+
     if (loadMore) {
       _page++;
     } else {
       _page = 1;
+
       _bookings.clear();
+
       setState(() => _isLoading = true);
     }
 
@@ -98,6 +107,7 @@ class _BookingListViewState extends State<_BookingListView> {
           } else {
             _bookings = newBookings;
           }
+
           _hasMore = newBookings.length == 10;
           _isLoading = false;
         });
@@ -105,9 +115,14 @@ class _BookingListViewState extends State<_BookingListView> {
     } catch (e) {
       if (mounted) {
         setState(() => _isLoading = false);
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Lỗi tải danh sách: $e')));
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Lỗi tải danh sách: ${e is DioException ? parseDioError(e) : e.toString()}',
+            ),
+          ),
+        );
       }
     }
   }
@@ -151,14 +166,12 @@ class _BookingListViewState extends State<_BookingListView> {
   }
 
   Widget _buildBookingCard(dynamic booking) {
-    final timeSlot = booking['timeSlot'];
-    final doctorMetadata = booking['doctor']?['doctorMetadata'];
-    final specialty = doctorMetadata?['specialty']?['name'] ?? 'Đa khoa';
-    final doctorName = booking['doctor']?['name'] ?? 'Bác sĩ';
+    final clinicType = booking['clinicType'];
 
     DateTime? startTime;
-    if (timeSlot != null && timeSlot['startTime'] != null) {
-      startTime = DateTime.tryParse(timeSlot['startTime']);
+    if (booking['clinicDate'] != null && booking['startTime'] != null) {
+      final datePart = booking['clinicDate'].toString().split('T')[0];
+      startTime = DateTime.tryParse('$datePart ${booking['startTime']}');
     }
 
     return Card(
@@ -168,9 +181,7 @@ class _BookingListViewState extends State<_BookingListView> {
         leading: CircleAvatar(
           backgroundColor: Theme.of(context).colorScheme.primaryContainer,
           child: Icon(
-            booking['clinicType'] == 'ONLINE'
-                ? Icons.videocam
-                : Icons.local_hospital,
+            clinicType == 'ONLINE' ? Icons.videocam : Icons.local_hospital,
             color: Theme.of(context).colorScheme.primary,
           ),
         ),
@@ -184,16 +195,10 @@ class _BookingListViewState extends State<_BookingListView> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 4),
-            Text('BS. $doctorName - $specialty'),
-            const SizedBox(height: 4),
             Text(
-              booking['clinicType'] == 'ONLINE'
-                  ? 'Khám trực tuyến'
-                  : 'Khám trực tiếp',
+              clinicType == 'ONLINE' ? 'Khám trực tuyến' : 'Khám trực tiếp',
               style: TextStyle(
-                color: booking['clinicType'] == 'ONLINE'
-                    ? Colors.blue
-                    : Colors.green,
+                color: clinicType == 'ONLINE' ? Colors.blue : Colors.green,
                 fontWeight: FontWeight.w500,
               ),
             ),

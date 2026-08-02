@@ -34,6 +34,7 @@ import '../doctor/screens/examination_screen.dart';
 import '../doctor/screens/patient_records_screen.dart';
 import '../doctor/screens/leave_request_screen.dart';
 import '../doctor/screens/change_request_screen.dart';
+import '../doctor/screens/work_schedule_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -232,7 +233,7 @@ GoRouter createRouter(AuthProvider authProvider) {
               ),
             ],
           ),
-          // Tab 1: Đơn từ (Nghỉ phép + Đổi lịch)
+          // Tab 1: Xin nghỉ
           StatefulShellBranch(
             navigatorKey: GlobalKey<NavigatorState>(),
             routes: [
@@ -240,19 +241,22 @@ GoRouter createRouter(AuthProvider authProvider) {
                 path: '/doctor/leaves',
                 builder: (_, __) => const LeaveRequestScreen(),
               ),
-              GoRoute(
-                path: '/doctor/change-requests',
-                builder: (_, __) => const ChangeRequestScreen(),
-              ),
             ],
           ),
-          // Tab 2: Thông báo
+
+          // Tab 2: Lịch làm việc
           StatefulShellBranch(
             navigatorKey: GlobalKey<NavigatorState>(),
             routes: [
               GoRoute(
-                path: '/doctor/notifications',
-                builder: (_, __) => const NotificationScreen(),
+                path: '/doctor/work-schedule',
+                builder: (_, __) => const WorkScheduleScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'change-requests',
+                    builder: (_, __) => const ChangeRequestScreen(),
+                  ),
+                ],
               ),
             ],
           ),
@@ -263,6 +267,16 @@ GoRouter createRouter(AuthProvider authProvider) {
               GoRoute(
                 path: '/doctor/profile',
                 builder: (_, __) => const ProfileScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'feedback',
+                    builder: (_, __) => const FeedbackScreen(),
+                  ),
+                  GoRoute(
+                    path: 'notifications',
+                    builder: (_, __) => const NotificationScreen(),
+                  ),
+                ],
               ),
             ],
           ),

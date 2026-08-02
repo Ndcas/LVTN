@@ -25,7 +25,7 @@ class PaymentService {
   Future<Map<String, dynamic>> getInvoice(int id) async {
     final res = await _dio.get(ApiEndpoints.invoiceById(id));
 
-    return res.data;
+    return res.data['data'];
   }
 
   Future<String> createPaymentUrl(int invoiceId) async {

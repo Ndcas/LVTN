@@ -17,8 +17,11 @@ class SharedService {
     return res.data;
   }
 
-  Future<void> sendFeedback(String content) async {
-    await _dio.post(ApiEndpoints.feedbacks, data: {'content': content});
+  Future<void> sendFeedback(String title, String content) async {
+    await _dio.post(
+      ApiEndpoints.feedbacks,
+      data: {'title': title, 'content': content},
+    );
   }
 
   Future<String> getVideoCallToken(int bookingId) async {

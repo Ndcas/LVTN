@@ -6,7 +6,7 @@ import 'storage_service.dart';
 
 /// Dio singleton được cấu hình sẵn:
 /// - Base URL từ .env
-/// - Request interceptor: gắn Authorization + correlation-id
+/// - Request interceptor: gắn Authorization
 /// - Response interceptor: tự động refresh token khi gặp 401
 class ApiService {
   static final ApiService _instance = ApiService._internal();
@@ -20,6 +20,8 @@ class ApiService {
   late final Dio _dio;
   bool _isRefreshing = false;
   final List<Completer<String?>> _failedQueue = [];
+
+  static void Function()? onTokenExpired;
 
   void init() {
     _dio = Dio(
@@ -159,6 +161,8 @@ class ApiService {
       }
 
       _failedQueue.clear();
+
+      onTokenExpired?.call();
 
       handler.next(err);
     } finally {

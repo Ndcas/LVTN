@@ -32,13 +32,12 @@ export class TimeSlotsService {
     }
 
     async getAvailableTimeSlots(data: any) {
-        const { doctorIds, date, startTime, endTime, clinicType } = data;
+        const { doctorIds, date, clinicType } = data;
 
         const timeSlots = await this.timeSlotRepository.find({
             where: {
                 doctorId: In(doctorIds),
                 clinicDate: date,
-                startTime: Between(startTime, endTime),
                 status: TimeSlotStatus.AVAILABLE,
                 clinicType
             },

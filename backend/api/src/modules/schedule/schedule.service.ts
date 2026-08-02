@@ -92,7 +92,7 @@ export class ScheduleService implements OnModuleInit {
 
     // === TimeSlot ===
     async getAvailableTimeSlots(data: any) {
-        const { specialtyId, date, startTime, endTime, clinicType, correlationId } = data;
+        const { specialtyId, date, clinicType, correlationId } = data;
 
         const doctorsNamesResponse = await lastValueFrom(this.userService.getAllUserNamesBySpecialtyId({
             id: specialtyId,
@@ -107,8 +107,6 @@ export class ScheduleService implements OnModuleInit {
 
         const availableTimeSlotsResponse = await lastValueFrom(this.scheduleService.getAvailableTimeSlots({
             date,
-            startTime,
-            endTime,
             doctorIds,
             clinicType,
             correlationId
@@ -116,6 +114,14 @@ export class ScheduleService implements OnModuleInit {
 
         if (!availableTimeSlotsResponse.ok) {
             return availableTimeSlotsResponse;
+        }
+
+        if (!availableTimeSlotsResponse.data) {
+            return {
+                ok: true,
+                status: 200,
+                data: []
+            };
         }
 
         const doctorNameMap = new Map();
@@ -176,7 +182,7 @@ export class ScheduleService implements OnModuleInit {
         }
 
         const userResult = await lastValueFrom(this.userService.getUserById({
-            id: booking.userId,
+            id: booking.patientId,
             correlationId: data.correlationId
         }));
 
@@ -206,6 +212,7 @@ export class ScheduleService implements OnModuleInit {
                     biography: doctorResult.data.biography
                 },
                 patient: {
+                    id: booking.patientId,
                     fullName: userResult.data.fullName,
                     gender: userResult.data.gender,
                     dob: userResult.data.dob

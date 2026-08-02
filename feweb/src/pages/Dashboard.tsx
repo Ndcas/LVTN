@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { CalendarCheck, Receipt, MessageSquareText, Users, AlertTriangle, XCircle, RefreshCw, Activity } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Header from '../components/Layout/Header';
-import { fetchAdminDashboard, type DashboardData, type LogItem } from '../lib/api';
+import { fetchAdminDashboard, type DashboardData, type LogItem, triggerScheduleTimeSlots } from '../lib/api';
 import dayjs from 'dayjs';
 
 /* ─── Stat Card ─── */
@@ -58,6 +58,7 @@ export default function Dashboard() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [scheduling, setScheduling] = useState(false);
 
   const loadDashboard = async (force = false) => {
     try {
@@ -80,6 +81,24 @@ export default function Dashboard() {
   useEffect(() => {
     loadDashboard();
   }, []);
+
+  const handleSchedule = async () => {
+    if (confirm('Bạn có chắc chắn muốn tự động tạo lịch khám cho tuần tới? Quá trình này có thể mất một lúc.')) {
+      setScheduling(true);
+
+      try {
+        await triggerScheduleTimeSlots();
+
+        toast.success('Lên lịch khám thành công!');
+
+        loadDashboard(true); // Làm mới dashboard để xem có log nào mới không
+      } catch (e: any) {
+        toast.error(e.response?.data?.message || 'Lên lịch thất bại');
+      } finally {
+        setScheduling(false);
+      }
+    }
+  };
 
   const stats = [
     {
@@ -121,6 +140,17 @@ export default function Dashboard() {
     <>
       <Header title="Dashboard" subtitle="Tổng quan hệ thống" />
       <div className="page-content">
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
+          <button
+            className="btn btn-primary"
+            onClick={handleSchedule}
+            disabled={scheduling}
+          >
+            <CalendarCheck size={18} style={{ marginRight: '8px' }} />
+            {scheduling ? 'Đang xử lý...' : 'Tạo lịch khám tuần tới'}
+          </button>
+        </div>
+
         {/* Stats Grid */}
         <div className="stats-grid">
           {stats.map((stat) => (

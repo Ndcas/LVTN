@@ -2,6 +2,7 @@ import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:flutter/foundation.dart';
 import '../services/auth_service.dart';
 import '../services/storage_service.dart';
+import '../services/api_service.dart';
 
 /// Trạng thái xác thực
 enum AuthStatus { unknown, authenticated, unauthenticated }
@@ -13,6 +14,20 @@ enum AuthStatus { unknown, authenticated, unauthenticated }
 class AuthProvider extends ChangeNotifier {
   final AuthService _authService = AuthService();
   AuthStatus _status = AuthStatus.unknown;
+
+  AuthProvider() {
+    ApiService.onTokenExpired = forceLogout;
+  }
+
+  void forceLogout() {
+    _userId = null;
+    _roleId = null;
+    _email = null;
+    _fullName = null;
+    _status = AuthStatus.unauthenticated;
+
+    notifyListeners();
+  }
 
   AuthStatus get status {
     return _status;
@@ -71,7 +86,6 @@ class AuthProvider extends ChangeNotifier {
   /// Đăng nhập
   Future<void> login(String email, String password) async {
     final data = await _authService.login(email: email, password: password);
-
     final accessToken = data['accessToken'] as String;
     final refreshToken = data['refreshToken'] as String;
 

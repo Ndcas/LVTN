@@ -1,3 +1,5 @@
+import 'package:dio/dio.dart';
+import 'package:femobile/core/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -72,7 +74,11 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
         setState(() => _isLoading = false);
 
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Lỗi tải danh sách hóa đơn: $e')),
+          SnackBar(
+            content: Text(
+              'Lỗi tải danh sách hóa đơn: ${e is DioException ? parseDioError(e) : e.toString()}',
+            ),
+          ),
         );
       }
     }

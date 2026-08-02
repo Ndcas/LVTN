@@ -219,7 +219,7 @@ export async function fetchChangeRequests(params: GetChangeRequestsParams): Prom
 export async function getChangeRequestById(id: number): Promise<ChangeRequest> {
   const { data } = await api.get(`/change-requests/${id}`);
 
-  return data;
+  return data.data;
 }
 
 /** Duyệt yêu cầu đổi lịch */
@@ -348,6 +348,13 @@ export async function fetchAdminDashboard(forceRefresh = false): Promise<Dashboa
   });
 
   return data.data;
+}
+
+/** Tự động lên lịch khám cho tuần tới */
+export async function triggerScheduleTimeSlots(): Promise<any> {
+  const { data } = await api.post('/time-slots/schedule-time-slots');
+
+  return data;
 }
 
 // ─────────────────────────────────────────────

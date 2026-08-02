@@ -70,7 +70,9 @@ class ProfileScreen extends StatelessWidget {
                         const SizedBox(height: 4),
                         Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 2),
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
                             color: AppColors.primaryLight,
                             borderRadius: BorderRadius.circular(20),
@@ -94,18 +96,23 @@ class ProfileScreen extends StatelessWidget {
           const SizedBox(height: 20),
 
           // Menu items
-          if (auth.isPatient) ...[
-            _MenuItem(
-              icon: Icons.notifications_outlined,
-              label: 'Thông báo',
-              onTap: () => context.push('/patient/profile/notifications'),
+          _MenuItem(
+            icon: Icons.notifications_outlined,
+            label: 'Thông báo',
+            onTap: () => context.push(
+              auth.isPatient
+                  ? '/patient/profile/notifications'
+                  : '/doctor/profile/notifications',
             ),
-            _MenuItem(
-              icon: Icons.feedback_outlined,
-              label: 'Gửi góp ý',
-              onTap: () => context.push('/patient/feedback'),
+          ),
+
+          _MenuItem(
+            icon: Icons.feedback_outlined,
+            label: 'Gửi góp ý',
+            onTap: () => context.push(
+              auth.isPatient ? '/patient/feedback' : '/doctor/profile/feedback',
             ),
-          ],
+          ),
 
           const SizedBox(height: 8),
           const Divider(),
@@ -131,7 +138,8 @@ class ProfileScreen extends StatelessWidget {
                     FilledButton(
                       onPressed: () => Navigator.pop(ctx, true),
                       style: FilledButton.styleFrom(
-                          backgroundColor: AppColors.danger),
+                        backgroundColor: AppColors.danger,
+                      ),
                       child: const Text('Đăng xuất'),
                     ),
                   ],

@@ -56,7 +56,7 @@ export class CatalogsController {
    */
   @Get('specialties')
   @UseGuards(AccessGuard)
-  @Roles(['Admin'])
+  @Roles(['Admin', 'Patient'])
   async getAllSpecialties(@Req() req: Request) {
     const correlationId = req.headers['correlation-id'] as string;
 

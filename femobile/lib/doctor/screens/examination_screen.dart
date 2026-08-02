@@ -1,3 +1,5 @@
+import 'package:dio/dio.dart';
+import 'package:femobile/core/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/services/doctor_service.dart';
@@ -24,7 +26,7 @@ class _ExaminationScreenState extends State<ExaminationScreen> {
   // Form State
   String _symptoms = '';
   String _diagnosis = '';
-  final List<dynamic> _selectedDiseases = [];
+  List<dynamic> _selectedDiseases = [];
   final List<Map<String, dynamic>> _prescriptions = [];
 
   @override
@@ -53,7 +55,11 @@ class _ExaminationScreenState extends State<ExaminationScreen> {
         setState(() => _isLoading = false);
 
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Lỗi tải dữ liệu bệnh/thuốc: $e')),
+          SnackBar(
+            content: Text(
+              'Lỗi tải dữ liệu bệnh/thuốc: ${e is DioException ? parseDioError(e) : e.toString()}',
+            ),
+          ),
         );
       }
     }
@@ -66,18 +72,12 @@ class _ExaminationScreenState extends State<ExaminationScreen> {
 
     _formKey.currentState!.save();
 
-    if (_selectedDiseases.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Vui lòng chọn ít nhất 1 bệnh lý')),
-      );
-
-      return;
-    }
-
     setState(() => _isSubmitting = true);
 
     try {
-      final diseaseIds = _selectedDiseases.map((d) => d['id']).toList();
+      final diseaseId = _selectedDiseases.isNotEmpty
+          ? _selectedDiseases.first['id']
+          : null;
 
       // Clean up prescriptions data before sending
       final cleanedPrescriptions = _prescriptions
@@ -85,17 +85,18 @@ class _ExaminationScreenState extends State<ExaminationScreen> {
           .map((p) {
             return {
               'medicineId': p['medicine']['id'],
-              'quantity': int.tryParse(p['quantity'] ?? '0') ?? 0,
+              'quantity': int.tryParse(p['quantity'].toString()) ?? 0,
               'dosage': p['dosage'] ?? '',
               'note': p['note'] ?? '',
             };
           })
           .toList();
+
       final data = {
-        'symptoms': _symptoms,
-        'diagnosis': _diagnosis,
-        'diseaseIds': diseaseIds,
-        'prescriptions': cleanedPrescriptions,
+        'clinicalIndicators': _symptoms,
+        'diagnoseDetail': _diagnosis,
+        if (diseaseId != null) 'diseaseId': diseaseId,
+        'prescriptionDetails': cleanedPrescriptions,
       };
 
       await _doctorService.finishBooking(widget.bookingId, data);
@@ -111,9 +112,13 @@ class _ExaminationScreenState extends State<ExaminationScreen> {
       if (mounted) {
         setState(() => _isSubmitting = false);
 
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Lỗi: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Lỗi: ${e is DioException ? parseDioError(e) : e.toString()}',
+            ),
+          ),
+        );
       }
     }
   }
@@ -182,7 +187,7 @@ class _ExaminationScreenState extends State<ExaminationScreen> {
                     spacing: 8,
                     children: _selectedDiseases.map((d) {
                       return Chip(
-                        label: Text('${d['icdCode']} - ${d['name']}'),
+                        label: Text('${d['diseaseCode']} - ${d['name']}'),
                         onDeleted: () {
                           setState(() {
                             _selectedDiseases.remove(d);
@@ -204,22 +209,18 @@ class _ExaminationScreenState extends State<ExaminationScreen> {
                                 .contains(
                                   textEditingValue.text.toLowerCase(),
                                 ) ||
-                            disease['icdCode']
+                            disease['diseaseCode']
                                 .toString()
                                 .toLowerCase()
                                 .contains(textEditingValue.text.toLowerCase());
                       });
                     },
                     displayStringForOption: (Map<String, dynamic> option) =>
-                        '${option['icdCode']} - ${option['name']}',
+                        '${option['diseaseCode']} - ${option['name']}',
                     onSelected: (Map<String, dynamic> selection) {
-                      if (!_selectedDiseases.any(
-                        (d) => d['id'] == selection['id'],
-                      )) {
-                        setState(() {
-                          _selectedDiseases.add(selection);
-                        });
-                      }
+                      setState(() {
+                        _selectedDiseases = [selection];
+                      });
                     },
                     fieldViewBuilder:
                         (context, controller, focusNode, onFieldSubmitted) {

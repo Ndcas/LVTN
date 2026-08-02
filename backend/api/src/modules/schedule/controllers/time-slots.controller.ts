@@ -33,8 +33,6 @@ export class TimeSlotsController {
     async getAvailableTimeSlots(
         @Query('date') date: string,
         @Query('specialtyId', ParseIntPipe) specialtyId: number,
-        @Query('startTime') startTime: string,
-        @Query('endTime') endTime: string,
         @Query('clinicType') clinicType: string,
         @Req() req: Request
     ) {
@@ -52,17 +50,6 @@ export class TimeSlotsController {
             throw new BadRequestException('Loại hình không hợp lệ');
         }
 
-        try {
-            startTime = this.formatTimeString(startTime);
-            endTime = this.formatTimeString(endTime);
-        } catch (error) {
-            throw new BadRequestException('Thời gian sai định dạng');
-        }
-
-        if (this.timeStringToSeconds(startTime) >= this.timeStringToSeconds(endTime)) {
-            throw new BadRequestException('Thời gian bắt đầu phải trước thời gian kết thúc');
-        }
-
         const correlationId = req.headers['correlation-id'] as string;
 
         this.processLog('GetAvailableTimeSlots', correlationId, 'Nhận được yêu cầu lấy timeslot trống');
@@ -70,8 +57,6 @@ export class TimeSlotsController {
         const result = await this.scheduleService.getAvailableTimeSlots({
             date,
             specialtyId,
-            startTime,
-            endTime,
             clinicType,
             correlationId
         });

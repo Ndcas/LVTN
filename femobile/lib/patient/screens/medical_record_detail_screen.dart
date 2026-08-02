@@ -1,3 +1,5 @@
+import 'package:dio/dio.dart';
+import 'package:femobile/core/services/api_service.dart';
 import 'package:flutter/material.dart';
 import '../../core/services/patient_service.dart';
 
@@ -37,9 +39,13 @@ class _MedicalRecordDetailScreenState extends State<MedicalRecordDetailScreen> {
       if (mounted) {
         setState(() => _isLoading = false);
 
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Lỗi tải bệnh án: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Lỗi tải bệnh án: ${e is DioException ? parseDioError(e) : e.toString()}',
+            ),
+          ),
+        );
       }
     }
   }
@@ -61,10 +67,12 @@ class _MedicalRecordDetailScreenState extends State<MedicalRecordDetailScreen> {
       return const Center(child: Text('Không tìm thấy thông tin bệnh án'));
     }
 
-    final symptoms = _record['symptoms'] ?? 'Không có';
-    final diagnosis = _record['diagnosis'] ?? 'Không rõ';
-    final notes = _record['notes'] ?? '';
-    final prescriptions = _record['prescriptions'] as List<dynamic>? ?? [];
+    final symptoms = _record['clinicalIndicators'] ?? 'Không có';
+    final diagnosis =
+        _record['diseaseName'] ?? _record['disease']?['name'] ?? 'Không rõ';
+    final notes = _record['diagnoseDetail'] ?? '';
+    final prescriptionDetails =
+        _record['prescriptionDetails'] as List<dynamic>? ?? [];
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
@@ -101,45 +109,33 @@ class _MedicalRecordDetailScreenState extends State<MedicalRecordDetailScreen> {
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                   ),
                   const Divider(),
-                  if (prescriptions.isEmpty)
+                  if (prescriptionDetails.isEmpty)
                     const Text('Không có đơn thuốc')
                   else
-                    ...prescriptions.expand((p) {
-                      final details =
-                          p['prescriptionDetails'] as List<dynamic>? ?? [];
-                      return details.map((detail) {
-                        final medicineName =
-                            detail['medicine']?['name'] ?? 'Thuốc';
-                        final unit = detail['medicine']?['unit'] ?? 'Viên';
-                        final quantity = detail['quantity'] ?? 0;
-                        final dosage = detail['dosage'] ?? '';
-                        final note = detail['note'] ?? '';
+                    ...prescriptionDetails.map((detail) {
+                      final medicineName = detail['medicine'] ?? 'Thuốc';
+                      final quantity = detail['quantity'] ?? 0;
+                      final dosage = detail['dosage'] ?? '';
 
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 12.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '$medicineName - Số lượng: $quantity $unit',
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 12.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '$medicineName - Số lượng: $quantity',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
                               ),
-                              if (dosage.isNotEmpty)
-                                Text(
-                                  'Liều dùng: $dosage',
-                                  style: const TextStyle(color: Colors.grey),
-                                ),
-                              if (note.isNotEmpty)
-                                Text(
-                                  'Ghi chú: $note',
-                                  style: const TextStyle(color: Colors.grey),
-                                ),
-                            ],
-                          ),
-                        );
-                      });
+                            ),
+                            if (dosage.isNotEmpty)
+                              Text(
+                                'Liều dùng: $dosage',
+                                style: const TextStyle(color: Colors.grey),
+                              ),
+                          ],
+                        ),
+                      );
                     }),
                 ],
               ),

@@ -6,6 +6,8 @@ import cookieParser from 'cookie-parser';
 import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
+  process.env.TZ = 'Asia/Ho_Chi_Minh';
+
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   app.set('trust proxy', 1);

@@ -51,7 +51,10 @@ export class RecordsService {
 
         const [records, total] = await this.medicalRecordRepository.findAndCount({
             where: { patientId: id },
-            relations: { disease: true },
+            relations: { 
+                disease: true,
+                prescriptionDetails: { medicine: true } 
+            },
             order: { createdAt: 'DESC' },
             skip,
             take: limit
@@ -64,7 +67,12 @@ export class RecordsService {
                 ...record,
                 disease: undefined,
                 diseaseName: record.disease?.name,
-                createdAt: record.createdAt.toISOString()
+                createdAt: record.createdAt.toISOString(),
+                prescriptionDetails: record.prescriptionDetails?.map(d => ({
+                    ...d,
+                    priceAtBooking: Number(d.priceAtBooking),
+                    medicine: d.medicine.name
+                }))
             })),
             total,
             page,

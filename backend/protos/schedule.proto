@@ -68,7 +68,7 @@ message CountResponse {
 
 // === OpeningTime ===
 message OpeningTimeItem {
-    string dayOfWeek = 1;
+    int32 dayOfWeek = 1;
     string startTime = 2;
     string endTime = 3;
 }
@@ -131,10 +131,8 @@ message GetWeeklyTemplateByDoctorResponse {
 message GetAvailableTimeSlotsRequest {
     repeated int32 doctorIds = 1;
     string date = 2;
-    string startTime = 3;
-    string endTime = 4;
-    string clinicType = 5;
-    string correlationId = 6;
+    string clinicType = 3;
+    string correlationId = 4;
 }
 
 message TimeslotItem {

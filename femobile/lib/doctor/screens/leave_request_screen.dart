@@ -1,3 +1,5 @@
+import 'package:dio/dio.dart';
+import 'package:femobile/core/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../core/services/doctor_service.dart';
@@ -70,7 +72,11 @@ class _LeaveRequestScreenState extends State<LeaveRequestScreen> {
         setState(() => _isLoading = false);
 
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Lỗi tải danh sách nghỉ phép: $e')),
+          SnackBar(
+            content: Text(
+              'Lỗi tải danh sách nghỉ phép: ${e is DioException ? parseDioError(e) : e.toString()}',
+            ),
+          ),
         );
       }
     }
@@ -86,7 +92,6 @@ class _LeaveRequestScreenState extends State<LeaveRequestScreen> {
         ),
         child: _CreateLeaveForm(
           onSubmit: (date, reason) async {
-            Navigator.pop(context); // Close bottom sheet
             await _createLeave(date, reason);
           },
         ),
@@ -96,18 +101,15 @@ class _LeaveRequestScreenState extends State<LeaveRequestScreen> {
 
   Future<void> _createLeave(DateTime date, String reason) async {
     try {
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => const Center(child: CircularProgressIndicator()),
-      );
-
       final dateStr = DateFormat('yyyy-MM-dd').format(date);
 
-      await _doctorService.createLeave({'date': dateStr, 'reason': reason});
+      await _doctorService.createLeave({
+        'leaveDate': dateStr,
+        'reason': reason,
+      });
 
       if (mounted) {
-        Navigator.pop(context); // Close loading
+        Navigator.pop(context); // Close bottom sheet
 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Đã gửi đơn nghỉ phép thành công')),
@@ -117,11 +119,13 @@ class _LeaveRequestScreenState extends State<LeaveRequestScreen> {
       }
     } catch (e) {
       if (mounted) {
-        Navigator.pop(context); // Close loading
-
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Lỗi tạo đơn: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Lỗi tạo đơn: ${e is DioException ? parseDioError(e) : e.toString()}',
+            ),
+          ),
+        );
       }
     }
   }
@@ -161,7 +165,7 @@ class _LeaveRequestScreenState extends State<LeaveRequestScreen> {
         }
 
         final leave = _leaves[index];
-        final date = DateTime.tryParse(leave['date'] ?? '');
+        final date = DateTime.tryParse(leave['leaveDate'] ?? '');
         final status = leave['status'] ?? '';
         final reason = leave['reason'] ?? 'Không có lý do';
         final rejectedReason = leave['rejectedReason'];
@@ -254,6 +258,7 @@ class _CreateLeaveFormState extends State<_CreateLeaveForm> {
   final _formKey = GlobalKey<FormState>();
   DateTime? _selectedDate;
   String _reason = '';
+  bool _isSubmitting = false;
 
   @override
   Widget build(BuildContext context) {
@@ -304,22 +309,39 @@ class _CreateLeaveFormState extends State<_CreateLeaveForm> {
             ),
             const SizedBox(height: 24),
             ElevatedButton(
-              onPressed: () {
-                if (_selectedDate == null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Vui lòng chọn ngày nghỉ')),
-                  );
-                  return;
-                }
-                if (_formKey.currentState!.validate()) {
-                  _formKey.currentState!.save();
-                  widget.onSubmit(_selectedDate!, _reason);
-                }
-              },
+              onPressed: _isSubmitting
+                  ? null
+                  : () async {
+                      if (_selectedDate == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Vui lòng chọn ngày nghỉ'),
+                          ),
+                        );
+                        return;
+                      }
+                      if (_formKey.currentState!.validate()) {
+                        _formKey.currentState!.save();
+                        setState(() => _isSubmitting = true);
+                        await widget.onSubmit(_selectedDate!, _reason);
+                        if (mounted) {
+                          setState(() => _isSubmitting = false);
+                        }
+                      }
+                    },
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
-              child: const Text('Gửi yêu cầu', style: TextStyle(fontSize: 16)),
+              child: _isSubmitting
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    )
+                  : const Text('Gửi yêu cầu', style: TextStyle(fontSize: 16)),
             ),
           ],
         ),

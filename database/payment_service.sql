@@ -35,7 +35,7 @@ CREATE TABLE `invoices` (
   `medicine_fee` decimal(10,2) NOT NULL DEFAULT '0.00',
   `total_amount` decimal(10,2) NOT NULL,
   `payment_method` enum('CASH','VNPAY') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `status` enum('UNPAID','PAID','CANCELED') COLLATE utf8mb4_unicode_ci DEFAULT 'UNPAID',
+  `status` enum('UNPAID','PAID','CANCELED') NOT NULL COLLATE utf8mb4_unicode_ci DEFAULT 'UNPAID',
   `cashier_id` int DEFAULT NULL,
   `paid_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,

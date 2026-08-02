@@ -29,7 +29,7 @@ export class InvoicesController {
    */
   @Get()
   @UseGuards(AccessGuard)
-  @Roles(['Admin', 'Nurse'])
+  @Roles(['Admin', 'Nurse', 'Patient'])
   async getAllInvoices(
     @Query('page') page: string,
     @Query('limit') limit: string,
@@ -38,6 +38,10 @@ export class InvoicesController {
     @Req() req: Request
   ) {
     const correlationId = req.headers['correlation-id'] as string;
+
+    if ((req as any).user.roleId == 3) {
+      patientId = (req as any).user.userId;
+    }
 
     this.processLog('GetAllInvoices', correlationId, 'Nhận yêu cầu lấy danh sách hóa đơn');
 
