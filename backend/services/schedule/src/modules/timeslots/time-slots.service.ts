@@ -33,8 +33,18 @@ export class TimeSlotsService {
 
     async getAvailableTimeSlots(data: any) {
         const { doctorIds, date, clinicType } = data;
+        const now = new Date();
+        const nowStr = this.dateToYYYYMMDD(now);
 
-        const timeSlots = await this.timeSlotRepository.find({
+        if (date < nowStr) {
+            return {
+                ok: false,
+                status: 400,
+                error: 'Không thể đặt lịch khám trong quá khứ',
+            };
+        }
+
+        let timeSlots = await this.timeSlotRepository.find({
             where: {
                 doctorId: In(doctorIds),
                 clinicDate: date,
@@ -43,6 +53,10 @@ export class TimeSlotsService {
             },
             order: { startTime: 'ASC' }
         });
+
+        if (date == nowStr) {
+            timeSlots = timeSlots.filter(ts => this.timeToSeconds(ts.startTime) > (now.getHours() * 60 + now.getMinutes()) * 60 + now.getSeconds());
+        }
 
         const result = timeSlots.map(ts => ({
             id: ts.id,

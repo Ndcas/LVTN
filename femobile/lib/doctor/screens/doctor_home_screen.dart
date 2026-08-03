@@ -1,7 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:femobile/core/services/api_service.dart';
+import 'package:femobile/core/providers/booking_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import '../../core/services/doctor_service.dart';
 import 'package:intl/intl.dart';
 
@@ -16,7 +18,7 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
   final DoctorService _doctorService = DoctorService();
   bool _isLoading = true;
   List<dynamic> _todayBookings = [];
-  bool _isActive = true;
+  BookingNotifier? _bookingNotifier;
 
   @override
   void initState() {
@@ -29,14 +31,20 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    final location = GoRouterState.of(context).uri.path;
-    final isCurrentlyActive = (location == '/doctor');
+    final notifier = context.read<BookingNotifier>();
 
-    if (isCurrentlyActive && !_isActive) {
-      _fetchTodayBookings();
+    if (_bookingNotifier == null) {
+      _bookingNotifier = notifier;
+
+      _bookingNotifier!.addListener(_fetchTodayBookings);
     }
+  }
 
-    _isActive = isCurrentlyActive;
+  @override
+  void dispose() {
+    _bookingNotifier?.removeListener(_fetchTodayBookings);
+
+    super.dispose();
   }
 
   Future<void> _fetchTodayBookings() async {

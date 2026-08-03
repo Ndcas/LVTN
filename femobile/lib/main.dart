@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'core/constants/app_colors.dart';
 import 'core/providers/auth_provider.dart';
+import 'core/providers/booking_notifier.dart';
 import 'core/services/api_service.dart';
 import 'core/services/storage_service.dart';
 import 'router/app_router.dart';
@@ -63,7 +64,13 @@ void main() async {
   ApiService().init();
 
   runApp(
-    ChangeNotifierProvider(create: (_) => AuthProvider(), child: const MyApp()),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => BookingNotifier()),
+      ],
+      child: const MyApp(),
+    ),
   );
 }
 

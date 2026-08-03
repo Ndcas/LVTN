@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:dio/dio.dart';
+import 'package:provider/provider.dart';
+import '../../core/providers/booking_notifier.dart';
 import '../../core/services/patient_service.dart';
 import '../../core/services/shared_service.dart';
 import '../../core/services/api_service.dart';
@@ -80,11 +82,13 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
       await _patientService.cancelBooking(widget.bookingId);
 
       if (mounted) {
+        context.read<BookingNotifier>().notifyBookingChanged();
+
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(const SnackBar(content: Text('Đã hủy lịch hẹn')));
 
-        _fetchBookingDetail(); // Reload detail
+        _fetchBookingDetail();
       }
     } catch (e) {
       if (mounted) {

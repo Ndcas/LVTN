@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:dio/dio.dart';
+import 'package:provider/provider.dart';
+import '../../core/providers/booking_notifier.dart';
 import '../../core/services/doctor_service.dart';
 import '../../core/services/shared_service.dart';
 import '../../core/services/api_service.dart';
@@ -81,10 +83,13 @@ class _DoctorBookingDetailScreenState extends State<DoctorBookingDetailScreen> {
       await _doctorService.markNoShow(widget.bookingId);
 
       if (mounted) {
+        context.read<BookingNotifier>().notifyBookingChanged();
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Đã cập nhật trạng thái vắng mặt')),
         );
-        _fetchBookingDetail(); // Reload detail
+
+        _fetchBookingDetail();
       }
     } catch (e) {
       if (mounted) {
@@ -298,13 +303,15 @@ class _DoctorBookingDetailScreenState extends State<DoctorBookingDetailScreen> {
           const SizedBox(height: 16),
           ElevatedButton.icon(
             onPressed: () {
-              // Go to examine screen and wait for result
-              context.push('/doctor/bookings/${widget.bookingId}/examine').then((
-                _,
-              ) {
-                // Reload when returning from examine screen (maybe status changed)
-                _fetchBookingDetail();
-              });
+              context.push('/doctor/bookings/${widget.bookingId}/examine').then(
+                (_) {
+                  if (mounted) {
+                    context.read<BookingNotifier>().notifyBookingChanged();
+
+                    _fetchBookingDetail();
+                  }
+                },
+              );
             },
             icon: const Icon(Icons.edit_document),
             label: const Text('Khám bệnh'),
