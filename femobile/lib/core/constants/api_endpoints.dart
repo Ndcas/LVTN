@@ -5,7 +5,7 @@ class ApiEndpoints {
   static const String login = '/users/login';
   static const String refresh = '/users/refresh';
   static const String logout = '/users/logout';
-  static const String getForgotOtp = '/users/get-forgot-otp';
+  static const String getForgotOtp = '/users/get-forgot-password-otp';
   static const String forgotPassword = '/users/forgot-password';
 
   // === Catalogs ===

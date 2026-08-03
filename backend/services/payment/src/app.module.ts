@@ -15,7 +15,8 @@ import { VnpayModule } from './modules/vnpay/vnpay.module';
       password: process.env.DATABASE_PASSWORD,
       port: parseInt(process.env.DATABASE_PORT!),
       database: process.env.DATABASE_NAME,
-      autoLoadEntities: true
+      autoLoadEntities: true,
+      timezone: 'Z'
     }),
     ClientsModule.register([{
       name: 'LOG_SERVICE',

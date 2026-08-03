@@ -114,6 +114,24 @@ class _InvoiceDetailScreenState extends State<InvoiceDetailScreen> {
     final total = _invoice['totalAmount'] ?? 0;
     final status = _invoice['status'];
     final isUnpaid = status == 'UNPAID';
+    IconData statusIcon;
+    Color statusColor;
+    String statusText;
+
+    if (status == 'CANCELED') {
+      statusIcon = Icons.cancel;
+      statusColor = Colors.red;
+      statusText = 'Đã hủy';
+    } else if (isUnpaid) {
+      statusIcon = Icons.pending_actions;
+      statusColor = Colors.orange;
+      statusText = 'Chưa thanh toán';
+    } else {
+      statusIcon = Icons.check_circle;
+      statusColor = Colors.green;
+      statusText = 'Đã thanh toán';
+    }
+
     final cashierId = _invoice['cashierId'];
     String? paymentMethod = _invoice['paymentMethod'];
     final paidAtStr = _invoice['paidAt'];
@@ -145,18 +163,14 @@ class _InvoiceDetailScreenState extends State<InvoiceDetailScreen> {
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   children: [
-                    Icon(
-                      isUnpaid ? Icons.pending_actions : Icons.check_circle,
-                      color: isUnpaid ? Colors.orange : Colors.green,
-                      size: 64,
-                    ),
+                    Icon(statusIcon, color: statusColor, size: 64),
                     const SizedBox(height: 8),
                     Text(
-                      isUnpaid ? 'Chưa thanh toán' : 'Đã thanh toán',
+                      statusText,
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: isUnpaid ? Colors.orange : Colors.green,
+                        color: statusColor,
                       ),
                     ),
                     const SizedBox(height: 24),

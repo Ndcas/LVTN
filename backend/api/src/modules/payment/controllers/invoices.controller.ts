@@ -48,7 +48,7 @@ export class InvoicesController {
     const result = await this.paymentService.getAllInvoices({
       page: parseInt(page) || 1,
       limit: parseInt(limit) || 10,
-      status: (req as any).user.roleId == 4 ? 'UNPAID' : status,
+      status,
       patientId: parseInt(patientId) || undefined,
       correlationId
     });

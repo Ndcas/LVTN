@@ -151,6 +151,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             validator: (v) {
               if (v == null || v.isEmpty) return 'Vui lòng nhập email';
               if (!v.contains('@')) return 'Email không hợp lệ';
+              if (v.length > 100) return 'Email tối đa 100 ký tự';
               return null;
             },
           ),
@@ -200,7 +201,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               labelText: 'Mã OTP',
               prefixIcon: Icon(Icons.pin_outlined),
             ),
-            validator: (v) => (v == null || v.isEmpty) ? 'Nhập mã OTP' : null,
+            validator: (v) {
+              if (v == null || v.isEmpty) return 'Nhập mã OTP';
+              if (v.length != 6) return 'Mã OTP phải gồm 6 chữ số';
+              return null;
+            },
           ),
           const SizedBox(height: 12),
           TextFormField(
@@ -220,7 +225,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             ),
             validator: (v) {
               if (v == null || v.isEmpty) return 'Nhập mật khẩu mới';
-              if (v.length < 6) return 'Ít nhất 6 ký tự';
+              if (v.length < 8) return 'Ít nhất 8 ký tự';
               return null;
             },
           ),

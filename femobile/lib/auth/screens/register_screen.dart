@@ -169,6 +169,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             validator: (v) {
               if (v == null || v.isEmpty) return 'Vui lòng nhập email';
               if (!v.contains('@')) return 'Email không hợp lệ';
+              if (v.length > 100) return 'Email tối đa 100 ký tự';
               return null;
             },
           ),
@@ -237,7 +238,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
               labelText: 'Mã OTP',
               prefixIcon: Icon(Icons.pin_outlined),
             ),
-            validator: (v) => (v == null || v.isEmpty) ? 'Nhập mã OTP' : null,
+            validator: (v) {
+              if (v == null || v.isEmpty) return 'Nhập mã OTP';
+              if (v.length != 6) return 'Mã OTP phải gồm 6 chữ số';
+              return null;
+            },
           ),
           const SizedBox(height: 12),
           // Họ tên
@@ -247,7 +252,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
               labelText: 'Họ và tên *',
               prefixIcon: Icon(Icons.person_outline),
             ),
-            validator: (v) => (v == null || v.isEmpty) ? 'Nhập họ tên' : null,
+            validator: (v) {
+              if (v == null || v.isEmpty) return 'Nhập họ tên';
+              if (v.length > 100) return 'Họ tên tối đa 100 ký tự';
+              return null;
+            },
           ),
           const SizedBox(height: 12),
           // SĐT
@@ -258,8 +267,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
               labelText: 'Số điện thoại *',
               prefixIcon: Icon(Icons.phone_outlined),
             ),
-            validator: (v) =>
-                (v == null || v.isEmpty) ? 'Nhập số điện thoại' : null,
+            validator: (v) {
+              if (v == null || v.isEmpty) return 'Nhập số điện thoại';
+              if (!RegExp(r'^(84|0)\d{9}$').hasMatch(v)) {
+                return 'Số điện thoại không hợp lệ';
+              }
+              return null;
+            },
           ),
           const SizedBox(height: 12),
           // Mật khẩu
@@ -280,7 +294,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
             validator: (v) {
               if (v == null || v.isEmpty) return 'Nhập mật khẩu';
-              if (v.length < 6) return 'Ít nhất 6 ký tự';
+              if (v.length < 8) return 'Ít nhất 8 ký tự';
               return null;
             },
           ),
@@ -330,6 +344,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
               labelText: 'Địa chỉ (tùy chọn)',
               prefixIcon: Icon(Icons.location_on_outlined),
             ),
+            validator: (v) {
+              if (v != null && v.length > 255)
+                return 'Địa chỉ tối đa 255 ký tự';
+              return null;
+            },
           ),
           const SizedBox(height: 24),
           FilledButton(

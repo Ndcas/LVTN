@@ -108,12 +108,14 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
             const SizedBox(height: 24),
             TextField(
               controller: _titleController,
+              maxLength: 150,
               decoration: const InputDecoration(hintText: 'Tiêu đề góp ý'),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: _contentController,
               maxLines: 6,
+              maxLength: 500,
               decoration: const InputDecoration(
                 hintText: 'Nhập nội dung góp ý của bạn ở đây...',
                 alignLabelWithHint: true,

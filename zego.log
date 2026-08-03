@@ -1,0 +1,296 @@
+W/WindowOnBackDispatcher( 4130): sendCancelIfRunning: isInProgress=false callback=io.flutter.embedding.android.FlutterActivity$1@2245ca4
+D/ZegoUikitPlugin( 4130): onMethodCall: reporterUpdateCommonParams
+D/ZegoUikitPlugin( 4130): onMethodCall: reporterEvent
+I/PLogger ( 4130): {uikit-reporter}  {create}  {appID:1849806754, params:{call_version: 4.24.2, user_id: 5}}  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {uikit-reporter}  {create}  {had created before}  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {uikit-reporter}  {create}  {update common params}  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {call}  {prebuilt}  {mini machine state is ZegoCallMiniOverlayPageState.idle}  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {call}  {prebuilt}  {init duration}  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {adapter}  {get plugin}  {target:ZegoUIKitPluginType.signaling, current plugins:{ZegoUIKitPluginType.signaling: null, ZegoUIKitPluginType.beauty: null, ZegoUIKitPluginType.whiteboard: null, ZegoUIKitPluginType.callkit: null}}  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {call}  {prebuilt, onLocalInvitingUsersUpdated}  {signaling plugin is null}  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {call}  {controller.p}  {init by prebuilt}  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {call}  {controller.user.p}  {init by prebuilt}  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {call}  {controller.audioVideo.p}  {init by prebuilt}  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {call}  {controller.audioVideo.p}  {init by prebuilt}  {04/08/2026 03:38:00}  {INFO}
+D/ZEGO    ( 4130): [Flutter] [DartCall] [setEngineConfig]
+I/PLogger ( 4130): {call}  {controller.audioVideo.p}  {init by prebuilt}  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {call}  {controller.audioVideo.p}  {init by prebuilt}  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {call}  {controller.minimize.p}  {init by prebuilt}  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {call-minimize}  {overlay machine}  {add listener:Closure: (ZegoCallMiniOverlayPageState) => void from Function 'onMiniOverlayMachineStateChanged':., size:1}  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {call}  {controller.user.p}  {init by prebuilt}  {04/08/2026 03:38:00}  {INFO}
+D/ZEGO    ( 4130): [Flutter] [onApiCalledResult] errorCode: 0, funcName: setEngineConfig, info: Execution successful.
+I/PLogger ( 4130): {call}  {controller.pip.p android}  {init by prebuilt}  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {live-streaming}  {controller.screenSharing.p}  {init by prebuilt}  {04/08/2026 03:38:00}  {INFO}
+D/ZEGO    ( 4130): [Flutter] [DartCall] [enableCustomVideoProcessing]
+D/ZEGO    ( 4130): [Flutter] [DartCall] [setEngineConfig]
+I/PLogger ( 4130): {call-minimize}  {overlay machine}  {change state outside to ZegoCallMiniOverlayPageState.idle}  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {call-minimize}  {overlay machine}  {mini overlay, from State[ZegoCallMiniOverlayPageState.idle] to State[ZegoCallMiniOverlayPageState.idle]}  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {call}  {prebuilt}  {onAudioRouteChanged}  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {call}  {prebuilt}  {audio route changed: speaker=true, earpiece=false}  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {call}  {prebuilt, checkRequiredParticipant}  {requiredUsers not enabled}  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {call}  {prebuilt, checkInvitationParticipant}  {call invitation data is empty}  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {call}  {prebuilt}  {no response end timer is disabled}  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {uikit-reporter}  {updateCommonParams}  {{call_version: 4.24.2, user_id: 5, platform: flutter, uikit_version: zego_uikit: 2.29.1; zego_express:3.24.1.49694,mobile:platform:android, version:BE2A.250530.026.D1}}  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {uikit-channel}  {reporterUpdateCommonParams}  {params:{call_version: 4.24.2, user_id: 5, platform: flutter, uikit_version: zego_uikit: 2.29.1; zego_express:3.24.1.49694,mobile:platform:android, version:BE2A.250530.026.D1}, }  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {uikit-channel}  {reporterEvent}  {event:call/init, params:{source: page, error: 0, start_time: 1785789480059}, }  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {call}  {prebuilt}  {version: zego_uikit_prebuilt_call:4.24.2; zego_uikit: 2.29.1; zego_express:3.24.1.49694,mobile:platform:android, version:BE2A.250530.026.D1, 
+I/PLogger ( 4130): appID:1849806754, 
+I/PLogger ( 4130): callID:Room_13_5_2, 
+I/PLogger ( 4130): userID:5, 
+I/PLogger ( 4130): userName:dr.maiphuong@clinic.com, 
+I/PLogger ( 4130): config:ZegoUIKitPrebuiltCallConfig:{video:ZegoUIKitVideoConfig{fps:15, bitrate:600, width:360, height:640, }, audioVideoView:ZegoCallAudioVideoViewConfig:{containerBuilder:null, isVideoMirror:true, showMicrophoneStateOnView:true, showCameraStateOnView:false, showUserNameOnView:true, foregroundBuilder:null, backgroundBuilder:null, useVideoViewAspectFill:true, showAvatarInAudioMode:true, showSoundWavesInAudioMode:true, }, topMenuBar:ZegoCallTopMenuBarConfig:{isVisible:false, title:, hideAutomatically:true, hideByClick:true, buttons:[], extendButtons:[], style:ZegoCallMenuBarStyle.light, padding:null, margin:null, backgroundColor:null, height:null, }, bottomMenuBar:ZegoCallBottomMenuBarConfig:{hideAutomatically:true, hideByClick:true, buttons:[ZegoCallMenuBarButtonName.toggleCameraButton, ZegoCallMenuBarButtonName.switchCameraButton, ZegoCallMenuBarButtonName.hangUpButton, ZegoCallMenuBarButtonName.toggleMicrophoneButton, ZegoCallMenuBarButtonName.switchAudioOutputButton], extendButtons:[], maxCount:5, style:ZegoCallMenuBarStyle.light, padding:null, margin:null, backgroundColor:null, height:null, }, memberList:ZegoCallMemberListConfig:{showMicrophoneState:true, showCameraState:true, itemBuilder:null, }, duration:ZegoCallDurationConfig:{isVisible:true, onDurationUpdate:null, }, chatView:ZegoCallInRoomChatViewConfig:{itemBuilder:null, }, user:{requiredUsers:ZegoCallRequiredUserConfig:{users:[], detectSeconds:5, detectInDebugMode:true, }, }, device:{enableSyncDeviceStatusBySEI:true, }, layout:Instance of 'ZegoLayoutGalleryConfig', pip:ZegoCallPIPConfig:{android:ZegoCallPIPAndroidConfig:{background:null, }, iOS:ZegoCallPIPIOSConfig:{support:true, }, aspectWidth:9, aspectHeight:16, enableWhenAppBackToDesktop:false, }, screenSharing:ZegoCallScreenSharingConfig:{autoStop:ZegoCallScreenSharingAutoStopConfig:{invalidCount:3, canEnd:false, }, defaultFullScreen:false, }, noResponseEnd:ZegoCallNoResponseEndConfig:{enabled:false, timeoutSeconds:3, }, turnOnCameraWhenJoining:true, useFrontCameraWhenJoining:true, turnOnMicrophoneWhenJoining:true, useSpeakerWhenJoining:true, rootNavigator:false, advanceConfigs:{}, enableAccidentalTouchPrevention:true, foreground:null, background:null, hangUpConfirmDialog:ZegoCallHangUpConfirmDialogConfig:{info:null, titleStyle:null, contentStyle:null, actionTextStyle:null, backgroundBrightness:null, }, avatarBuilder:null, }, 
+I/PLogger ( 4130): events:null, 
+I/PLogger ( 4130): }  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {uikit}  {permission}  {Permission.camera status: PermissionStatus.granted}  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {call}  {controller.pip.p android}  {onPIPStatusUpdated, PiPStatus.disabled, lifecycleState: AppLifecycleState.resumed}  {04/08/2026 03:38:00}  {INFO}
+D/ZEGO    ( 4130): [Flutter] [onApiCalledResult] errorCode: 0, funcName: enableCustomVideoProcessing, info: Execution successful.
+I/PLogger ( 4130): {uikit}  {permission}  {Permission.microphone status: PermissionStatus.granted}  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {uikit-user}  {login}  {id:"5", name:dr.maiphuong@clinic.com}  {04/08/2026 03:38:00}  {INFO}
+D/ZEGO    ( 4130): [Flutter] [onApiCalledResult] errorCode: 0, funcName: setEngineConfig, info: Execution successful.
+E/PLogger ( 4130): {uikit-user}  {login}  {user is same}  {04/08/2026 03:38:00}  {WARNING}
+D/ZEGO    ( 4130): [Flutter] [DartCall] [setMinVideoBitrateForTrafficControl]
+D/ZEGO    ( 4130): [Flutter] [DartCall] [useFrontCamera]
+D/ZEGO    ( 4130): [Flutter] [DartCall] [setVideoMirrorMode]
+I/PLogger ( 4130): {uikit-service-core(736857931)}  {set advance configs}  {configs:{}}  {04/08/2026 03:38:00}  {INFO}
+D/ZEGO    ( 4130): [Flutter] [DartCall] [createTextureRenderer]
+D/ZEGO    ( 4130): [Flutter] [ZegoTextureRenderer] [init] renderer:259136796
+D/ZEGO    ( 4130): [Flutter] [createTextureRenderer] textureID:1, renderer:259136796
+D/ZEGO    ( 4130): [Flutter] [ZegoTextureRendererController] currentRenderers: [ID:1|Rnd:259136796] 
+D/ZEGO    ( 4130): [Flutter] [createTextureRenderer][Result] w: 0, h: 0, textureID: 1
+D/ZEGO    ( 4130): [Flutter] [DartCall] [muteMicrophone]
+D/ZEGO    ( 4130): [Flutter] [DartCall] [loginRoom]
+I/PLogger ( 4130): {call-invitation}  {service private(336858473)}  {reset _pageManager.isCurrentInvitationFromAcceptedAndroidOffline}  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {call}  {prebuilt}  {isFromAcceptedAndroidOfflineInvitation:false}  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {uikit-service-core(736857931)}  {enableSyncDeviceStatusByStreamExtraInfo}  {value: true}  {04/08/2026 03:38:00}  {INFO}
+E/PLogger ( 4130): {uikit-service-core(736857931)}  {init}  {had init}  {04/08/2026 03:38:00}  {WARNING}
+I/PLogger ( 4130): {adapter}  {get plugin}  {target:ZegoUIKitPluginType.beauty, current plugins:{ZegoUIKitPluginType.signaling: null, ZegoUIKitPluginType.beauty: null, ZegoUIKitPluginType.whiteboard: null, ZegoUIKitPluginType.callkit: null}}  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {uikit-stream}  {enableCustomVideoProcessing}  {disable custom video processing, buffer type:ZegoVideoBufferType.GLTexture2D, express engineState:ZegoUIKitExpressEngineState.stop, }  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {uikit-service-core(736857931)}  {set advance configs}  {configs:{}}  {04/08/2026 03:38:00}  {INFO}
+D/ZEGO    ( 4130): [Flutter] [onApiCalledResult] errorCode: 0, funcName: setMinVideoBitrateForTrafficControl, info: Execution successful.
+D/ZEGO    ( 4130): [Flutter] [DartCall] [setMinVideoResolutionForTrafficControl]
+D/ZEGO    ( 4130): [Flutter] [onApiCalledResult] errorCode: 0, funcName: useFrontCamera, info: Execution successful.
+D/ZEGO    ( 4130): [Flutter] [DartCall] [setVideoMirrorMode]
+D/ZEGO    ( 4130): [Flutter] [onApiCalledResult] errorCode: 0, funcName: setVideoMirrorMode, info: Execution successful.
+D/ZEGO    ( 4130): [Flutter] [DartCall] [enableCamera]
+D/ZEGO    ( 4130): [Flutter] [DartCall] [sendCustomLogMessage]
+D/ZEGO    ( 4130): [Flutter] [WidgetState] setViewMode. widget: 1, viewMode: ZegoViewMode.AspectFill
+D/ZEGO    ( 4130): [Flutter] [DartCall] [sendCustomLogMessage]
+D/ZEGO    ( 4130): [Flutter] [WidgetState] setBackgroundColor. widget: 1, backgroundColor: 0, hasAlpha: false
+D/ZEGO    ( 4130): [Flutter] [DartCall] [startPreview]
+D/ZEGO    ( 4130): [Flutter] [getTextureRenderer] textureID:1, renderer:259136796
+D/ZEGO    ( 4130): [Flutter] [ZegoTextureRendererController] currentRenderers: [ID:1|Rnd:259136796] 
+D/ZEGO    ( 4130): [Flutter] [DartCall] [enableCamera]
+D/ZEGO    ( 4130): [Flutter] [onApiCalledResult] errorCode: 0, funcName: muteMicrophone, info: Execution successful.
+D/ZEGO    ( 4130): [Flutter] [DartCall] [mutePublishStreamAudio]
+D/ZEGO    ( 4130): [Flutter] [onRoomStateUpdate] roomID: Room_13_5_2, state: CONNECTING, errorCode: 0
+D/ZEGO    ( 4130): [Flutter] [onRoomStateChanged] roomID: Room_13_5_2, reason: LOGINING, errorCode: 0
+D/ZEGO    ( 4130): [Flutter] [onApiCalledResult] errorCode: 0, funcName: loginRoom, info: Execution successful.
+I/PLogger ( 4130): {uikit-channel}  {enableCustomVideoRender}  {isEnabled:false, express engineState:ValueNotifier<ZegoUIKitExpressEngineState>#e15a5(ZegoUIKitExpressEngineState.stop), roomState:ZegoUIKitRoomState:{reason:ZegoRoomStateChangedReason.Logout, error code:0, extended data:{}, }, isPreviewing:false, isPublishingStream:false, isPlayingStream:false, }  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {uikit-channel}  {enableCustomVideoRender}  {state is same, ignore}  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {call}  {prebuilt}  {video config:ZegoUIKitVideoConfig{fps:15, bitrate:600, width:360, height:640, }}  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {uikit-stream}  {traffic control}  {enable:true, properties:[ZegoUIKitTrafficControlProperty.adaptiveResolution, ZegoUIKitTrafficControlProperty.adaptiveFPS], minimizeVideoConfig:ZegoUIKitVideoConfig{fps:15, bitrate:600, width:360, height:640, }, isFocusOnRemote:true, bitmask:3}  {04/08/2026 03:38:00}  {INFO}
+D/ZEGO    ( 4130): [Flutter] [onApiCalledResult] errorCode: 0, funcName: setMinVideoResolutionForTrafficControl, info: Execution successful.
+I/PLogger ( 4130): {adapter}  {get plugin}  {target:ZegoUIKitPluginType.beauty, current plugins:{ZegoUIKitPluginType.signaling: null, ZegoUIKitPluginType.beauty: null, ZegoUIKitPluginType.whiteboard: null, ZegoUIKitPluginType.callkit: null}}  {04/08/2026 03:38:00}  {INFO}
+D/ZEGO    ( 4130): [Flutter] [DartCall] [setMinVideoFpsForTrafficControl]
+I/PLogger ( 4130): {uikit-camera}  {use front facing camera}  {use front camera}  {04/08/2026 03:38:00}  {INFO}
+D/ZEGO    ( 4130): [Flutter] [onApiCalledResult] errorCode: 0, funcName: setVideoMirrorMode, info: Execution successful.
+I/PLogger ( 4130): {uikit-stream}  {update video view mode}  {mode is equal}  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {uikit-camera}  {switch camera}  {turn on local camera}  {04/08/2026 03:38:00}  {INFO}
+D/ZEGO    ( 4130): [Flutter] [onApiCalledResult] errorCode: 0, funcName: enableCamera, info: Execution successful.
+I/PLogger ( 4130): {uikit-stream}  {start preview}  {start preview}  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {uikit-stream}  {create local user video view}  {current streamChannel, streamType:ZegoStreamType.main, view id:-1,view:ValueNotifier<Widget?>#9383d(null), view hashCode:93927485}  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {uikit-stream}  {create canvas view}  {with express with key:null(null)}  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {uikit-microphone}  {switch microphone}  {turn on local microphone, muteMode:false}  {04/08/2026 03:38:00}  {INFO}
+D/xample.femobile( 4130): PlayerBase::PlayerBase()
+D/xample.femobile( 4130): TrackPlayerBase::TrackPlayerBase()
+I/libOpenSLES( 4130): Emulating old channel mask behavior (ignoring positional mask 0x3, using default mask 0x3 based on channel count of 2)
+I/CameraBase( 4130): Connect camera (legacy API) - rotationOverride 1, forceSlowJpegMode 0
+D/ZEGO    ( 4130): [Flutter] [onApiCalledResult] errorCode: 0, funcName: startPreview, info: Execution successful.
+D/ZEGO    ( 4130): [Flutter] [onApiCalledResult] errorCode: 0, funcName: enableCamera, info: Execution successful.
+D/ZEGO    ( 4130): [Flutter] [DartCall] [enableCamera]
+I/libOpenSLES( 4130): Emulating old channel mask behavior (ignoring positional mask 0x3, using default mask 0xc based on channel count of 2)
+I/PLogger ( 4130): {uikit-service-core(736857931)}  {set audio route to speaker:true}  {already use}  {04/08/2026 03:38:00}  {INFO}
+D/ZEGO    ( 4130): [Flutter] [onApiCalledResult] errorCode: 0, funcName: mutePublishStreamAudio, info: Execution successful.
+I/PLogger ( 4130): {uikit-room}  {join room}  {room id:"Room_13_5_2", has token:false, markAsLargeRoom:false, network state:ZegoUIKitNetworkState.online, }  {04/08/2026 03:38:00}  {INFO}
+D/ZEGO    ( 4130): [Flutter] [DartCall] [enableCamera]
+D/ZEGO    ( 4130): [Flutter] [onApiCalledResult] errorCode: 0, funcName: setMinVideoFpsForTrafficControl, info: Execution successful.
+I/PLogger ( 4130): {uikit}  {core data}  {clear}  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {uikit-stream}  {clearStream}  {clear stream}  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {uikit-media}  {clear}  {clear}  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {uikit-service-core}  {core room}  {clear}  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {uikit-room}  {setRoom}  {set room:"Room_13_5_2", markAsLargeRoom:false}}  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {uikit-event}  {init}  {init}  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {uikit-media}  {event}  {init}  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {uikit-room}  {join room}  {try join room id:"Room_13_5_2" by id:5, name:dr.maiphuong@clinic.com, isSimulated:false, }  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {uikit-camera}  {use front facing camera}  {update video mirror mode:ZegoVideoMirrorMode.BothMirror}  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {uikit-stream}  {create canvas view}  {createCanvasView onViewCreated, viewID:1, }  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {uikit-stream}  {create local user video view}  {view id done, streamType:ZegoStreamType.main, viewID:1}  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {uikit-service-core}  {core room}  {view id update, view id:1, stream id:, }  {04/08/2026 03:38:00}  {INFO}
+D/ZEGO    ( 4130): [Flutter] [DartCall] [setTrafficControlFocusOn]
+I/PLogger ( 4130): {uikit-stream}  {onViewCreatedByStartPreview}  {start preview, on view created,view id:1, }  {04/08/2026 03:38:00}  {INFO}
+D/ZEGO    ( 4130): [Flutter] [onEngineStateUpdate] state: START
+D/ZEGO    ( 4130): [Flutter] [onRecvExperimentalAPI] content: {"method":"liveroom.trace.on_tracing_update","params":{"error_code":0,"event":4,"is_play":0,"stream_id":"0"}}
+I/PLogger ( 4130): {uikit-stream}  {onViewCreatedByStartPreview}  {call express startPreview, for trace enableCustomVideoRender, isEnableCustomVideoRender:false}  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {uikit-stream}  {create local user video view}  {widget done, streamType:ZegoStreamType.main, widget:ZegoTextureWidget 986849409}  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {uikit-service-core}  {core room}  {view update, view:ZegoTextureWidget, stream id:, }  {04/08/2026 03:38:00}  {INFO}
+D/MediaRouter( 4130): onRestoreRoute() : route=RouteInfo{ name=Phone, description=null, status=null, category=RouteCategory{ name=System types=ROUTE_TYPE_LIVE_AUDIO ROUTE_TYPE_LIVE_VIDEO  groupable=false }, supportedTypes=ROUTE_TYPE_LIVE_AUDIO ROUTE_TYPE_LIVE_VIDEO , presentationDisplay=null }
+V/MediaRouter( 4130): Selecting route: RouteInfo{ name=Phone, description=null, status=null, category=RouteCategory{ name=System types=ROUTE_TYPE_LIVE_AUDIO ROUTE_TYPE_LIVE_VIDEO  groupable=false }, supportedTypes=ROUTE_TYPE_LIVE_AUDIO ROUTE_TYPE_LIVE_VIDEO , presentationDisplay=null }
+D/ZEGO    ( 4130): [Flutter] [onApiCalledResult] errorCode: 0, funcName: enableCamera, info: Execution successful.
+D/ZEGO    ( 4130): [Flutter] [DartCall] [muteMicrophone]
+D/ZEGO    ( 4130): [Flutter] [onApiCalledResult] errorCode: 0, funcName: enableCamera, info: Execution successful.
+D/ZEGO    ( 4130): [Flutter] [DartCall] [muteMicrophone]
+D/ZEGO    ( 4130): [Flutter] [onApiCalledResult] errorCode: 0, funcName: setTrafficControlFocusOn, info: Execution successful.
+I/PLogger ( 4130): {uikit-stream}  {start publish stream}  {updateConfigBeforeStartPublishingStream, view id:1, }  {04/08/2026 03:38:00}  {INFO}
+D/ZEGO    ( 4130): [Flutter] [onRecvExperimentalAPI] content: {"method":"liveroom.device.on_device_state_changed","params":{"channel":0,"devcie_type":"speaker","reason":0,"state":"on"}}
+D/ZEGO    ( 4130): [Flutter] [DartCall] [getAudioRouteType]
+D/ZEGO    ( 4130): [Flutter] [DartCall] [enableTrafficControl]
+D/ZEGO    ( 4130): [Flutter] [onRoomStateUpdate] roomID: Room_13_5_2, state: CONNECTED, errorCode: 0
+D/ZEGO    ( 4130): [Flutter] [onRoomStateChanged] roomID: Room_13_5_2, reason: LOGINED, errorCode: 0
+D/ZEGO    ( 4130): [Flutter] [onRoomOnlineUserCountUpdate] roomID: Room_13_5_2, count: 1
+D/ZEGO    ( 4130): [Flutter] [onPublisherCapturedAudioFirstFrame]
+D/ZEGO    ( 4130): [Flutter] [onApiCalledResult] errorCode: 0, funcName: muteMicrophone, info: Execution successful.
+D/ZEGO    ( 4130): [Flutter] [DartCall] [startPublishingStream]
+D/ZEGO    ( 4130): [Flutter] [onApiCalledResult] errorCode: 0, funcName: muteMicrophone, info: Execution successful.
+I/PLogger ( 4130): {uikit-stream}  {start publish stream}  {updateConfigBeforeStartPublishingStream, view id:1, }  {04/08/2026 03:38:00}  {INFO}
+I/PLogger ( 4130): {uikit-service-core}  {event}  {onRoomStateChanged roomID: Room_13_5_2, reason: ZegoRoomStateChangedReason.Logining, errorCode: 0, extendedData: {}}  {04/08/2026 03:38:00}  {INFO}
+D/ZEGO    ( 4130): [Flutter] [DartCall] [startPublishingStream]
+D/ZEGO    ( 4130): [Flutter] [onApiCalledResult] errorCode: 0, funcName: getAudioRouteType, info: Execution successful.
+D/ZEGO    ( 4130): [Flutter] [onApiCalledResult] errorCode: 0, funcName: enableTrafficControl, info: Execution successful.
+D/ZEGO    ( 4130): [Flutter] [DartCall] [setVideoConfig]
+D/ZEGO    ( 4130): [Flutter] [DartCall] [sendCustomLogMessage]
+D/ZEGO    ( 4130): [Flutter] [WidgetState] setViewMode. widget: 1, viewMode: ZegoViewMode.AspectFill
+D/ZEGO    ( 4130): [Flutter] [DartCall] [sendCustomLogMessage]
+D/ZEGO    ( 4130): [Flutter] [WidgetState] setBackgroundColor. widget: 1, backgroundColor: 0, hasAlpha: false
+I/xample.femobile( 4130): Background concurrent mark compact GC freed 8004KB AllocSpace bytes, 5(4160KB) LOS objects, 49% free, 9606KB/18MB, paused 674us,2.043ms total 238.094ms
+D/ZEGO    ( 4130): [Flutter] [DartCall] [startPreview]
+D/ZEGO    ( 4130): [Flutter] [getTextureRenderer] textureID:1, renderer:259136796
+D/ZEGO    ( 4130): [Flutter] [ZegoTextureRendererController] currentRenderers: [ID:1|Rnd:259136796] 
+D/ZEGO    ( 4130): [Flutter] [DartCall] [startSoundLevelMonitor]
+D/ZEGO    ( 4130): [Flutter] [onPublisherFaceDetectInfo] size: 0, w: 0 h: 0, channel: MAIN
+D/ZEGO    ( 4130): [Flutter] [onRecvExperimentalAPI] content: {"method":"liveroom.video.on_face_detect_state_update","params":{"channel":0,"state":0}}
+D/ZEGO    ( 4130): [Flutter] [onPublisherStateUpdate] streamID: Room_13_5_2_5_main, state: PUBLISH_REQUESTING, errorCode: 0
+D/ZEGO    ( 4130): [Flutter] [onApiCalledResult] errorCode: 0, funcName: startPublishingStream, info: Execution successful.
+D/ZEGO    ( 4130): [Flutter] [onApiCalledResult] errorCode: 0, funcName: startPublishingStream, info: Execution successful.
+D/ZEGO    ( 4130): [Flutter] [onApiCalledResult] errorCode: 0, funcName: setVideoConfig, info: Execution successful.
+D/ZEGO    ( 4130): [Flutter] [DartCall] [sendCustomLogMessage]
+D/ZEGO    ( 4130): [Flutter] [WidgetState] setViewMode. widget: 1, viewMode: ZegoViewMode.AspectFill
+D/ZEGO    ( 4130): [Flutter] [DartCall] [sendCustomLogMessage]
+D/ZEGO    ( 4130): [Flutter] [WidgetState] setBackgroundColor. widget: 1, backgroundColor: 0, hasAlpha: false
+D/ZEGO    ( 4130): [Flutter] [DartCall] [startPreview]
+D/ZEGO    ( 4130): [Flutter] [getTextureRenderer] textureID:1, renderer:259136796
+D/ZEGO    ( 4130): [Flutter] [ZegoTextureRendererController] currentRenderers: [ID:1|Rnd:259136796] 
+D/ZEGO    ( 4130): [Flutter] [DartCall] [setStreamExtraInfo]
+D/ZEGO    ( 4130): [Flutter] [DartCall] [sendCustomLogMessage]
+D/ZEGO    ( 4130): [Flutter] [WidgetState] setViewMode. widget: 1, viewMode: ZegoViewMode.AspectFill
+D/ZEGO    ( 4130): [Flutter] [DartCall] [sendCustomLogMessage]
+D/ZEGO    ( 4130): [Flutter] [WidgetState] setBackgroundColor. widget: 1, backgroundColor: 0, hasAlpha: false
+D/ZEGO    ( 4130): [Flutter] [DartCall] [startPreview]
+D/ZEGO    ( 4130): [Flutter] [getTextureRenderer] textureID:1, renderer:259136796
+D/ZEGO    ( 4130): [Flutter] [ZegoTextureRendererController] currentRenderers: [ID:1|Rnd:259136796] 
+D/ZEGO    ( 4130): [Flutter] [DartCall] [setStreamExtraInfo]
+I/PLogger ( 4130): {uikit-service-core}  {event}  {onEngineStateUpdate, state:ZegoEngineState.Start, }  {04/08/2026 03:38:00}  {INFO}
+D/ZEGO    ( 4130): [Flutter] [onApiCalledResult] errorCode: 0, funcName: startPreview, info: Execution successful.
+D/ZEGO    ( 4130): [Flutter] [onApiCalledResult] errorCode: 0, funcName: startSoundLevelMonitor, info: Execution successful.
+D/ZegoUikitPlugin( 4130): onMethodCall: reporterEvent
+D/ZEGO    ( 4130): [Flutter] [onApiCalledResult] errorCode: 0, funcName: startPreview, info: Execution successful.
+D/ZEGO    ( 4130): [Flutter] [onApiCalledResult] errorCode: 0, funcName: setStreamExtraInfo, info: Execution successful.
+D/ZEGO    ( 4130): [Flutter] [onApiCalledResult] errorCode: 0, funcName: startPreview, info: Execution successful.
+D/ZEGO    ( 4130): [Flutter] [onApiCalledResult] errorCode: 0, funcName: setStreamExtraInfo, info: Execution successful.
+D/ZEGO    ( 4130): [Flutter] [onRecvExperimentalAPI] content: {"method":"liveroom.device.on_device_state_changed","params":{"channel":0,"devcie_type":"camera","reason":0,"state":"on"}}
+D/ZEGO    ( 4130): [Flutter] [onPublisherStreamEvent] eventID: PUBLISH_START, streamID: Room_13_5_2_5_main, extraInfo: {"resourceType":"rtc","streamProtocol":"avertp","url":"avertp://udp1849806754.coolzcloud.com/1849806754/Room_13_5_2_5_main"}
+D/ZEGO    ( 4130): [Flutter] [onPublisherVideoSizeChanged] width: 360, height: 640, channel: MAIN
+I/PLogger ( 4130): {uikit-stream}  {start publish stream}  {stream dict add ZegoStreamType.main Room_13_5_2_5_main for 5, now stream dict:{Room_13_5_2_5_main: user id:5, player state:ZegoPlayerState.NoPlay, publisher state:ZegoPublisherState.NoPublish}}  {04/08/2026 03:38:01}  {INFO}
+I/PLogger ( 4130): {uikit-stream}  {start publish stream}  {start publish, Room_13_5_2_5_main, network state:ZegoUIKitNetworkState.online, }  {04/08/2026 03:38:01}  {INFO}
+I/PLogger ( 4130): {uikit-stream}  {start publish stream}  {call express startPublishingStream, for trace enableCustomVideoRender, isEnableCustomVideoRender:false}  {04/08/2026 03:38:01}  {INFO}
+I/PLogger ( 4130): {uikit-stream}  {start publish stream}  {stream dict add ZegoStreamType.main Room_13_5_2_5_main for 5, now stream dict:{Room_13_5_2_5_main: user id:5, player state:ZegoPlayerState.NoPlay, publisher state:ZegoPublisherState.NoPublish}}  {04/08/2026 03:38:01}  {INFO}
+I/PLogger ( 4130): {uikit-stream}  {start publish stream}  {start publish, Room_13_5_2_5_main, network state:ZegoUIKitNetworkState.online, }  {04/08/2026 03:38:01}  {INFO}
+I/PLogger ( 4130): {uikit-stream}  {start publish stream}  {call express startPublishingStream, for trace enableCustomVideoRender, isEnableCustomVideoRender:false}  {04/08/2026 03:38:01}  {INFO}
+I/NDOP    ( 4130): listening using window listener
+I/PLogger ( 4130): {uikit-service-core}  {event}  {update audio route by onEngineStateUpdate, state:ZegoEngineState.Start, }  {04/08/2026 03:38:01}  {INFO}
+I/PLogger ( 4130): {uikit-service-core}  {local user}  {init default audio route:ZegoAudioRoute.Speaker}  {04/08/2026 03:38:01}  {INFO}
+D/ZEGO    ( 4130): [Flutter] [DartCall] [sendCustomLogMessage]
+D/ZEGO    ( 4130): [Flutter] [WidgetState] initState. widget: 1, state hashCode: 897577750
+D/ZEGO    ( 4130): [Flutter] [DartCall] [sendCustomLogMessage]
+D/ZEGO    ( 4130): [Flutter] [WidgetState] build. widget: 1, rotation: null, viewMode: ZegoViewMode.AspectFill, backgroundColor: Color(alpha: 1.0000, red: 0.0000, green: 0.0000, blue: 0.0000, colorSpace: ColorSpace.sRGB), isMirror: null, size: null
+D/ZEGO    ( 4130): [Flutter] [DartCall] [updateTextureRendererSize]
+D/ZEGO    ( 4130): [Flutter] [updateTextureRendererSize][Result] w: 1064, h: 2384, textureID: 1, success: true
+I/PLogger ( 4130): {uikit-stream}  {set video config}  {config:ZegoUIKitVideoConfig{fps:15, bitrate:600, width:360, height:640, }, streamType:ZegoStreamType.main, }  {04/08/2026 03:38:01}  {INFO}
+I/PLogger ( 4130): {uikit-service-core}  {event}  {onRoomStateChanged roomID: Room_13_5_2, reason: ZegoRoomStateChangedReason.Logined, errorCode: 0, extendedData: {room_session_id: 1304372307481001984}}  {04/08/2026 03:38:01}  {INFO}
+I/PLogger ( 4130): {uikit-room}  {join room}  {result:0,extendedData:{}}  {04/08/2026 03:38:01}  {INFO}
+E/PLogger ( 4130): {uikit-stream}  {start publish stream}  {local user stream id(Room_13_5_2_5_main) of ZegoStreamType.main is not empty}  {04/08/2026 03:38:01}  {WARNING}
+I/PLogger ( 4130): {uikit-stream}  {create local user video view}  {current streamChannel, streamType:ZegoStreamType.main, view id:1,view:ValueNotifier<Widget?>#9383d(ZegoTextureWidget), view hashCode:93927485}  {04/08/2026 03:38:01}  {INFO}
+I/PLogger ( 4130): {uikit-stream}  {create local user video view}  {user view had created, directly call callback, view id:1,view:ValueNotifier<Widget?>#9383d(ZegoTextureWidget)}  {04/08/2026 03:38:01}  {INFO}
+I/PLogger ( 4130): {uikit-stream}  {start publish stream}  {onViewCreatedByStartPublishingStream, view id:1, }  {04/08/2026 03:38:01}  {INFO}
+I/PLogger ( 4130): {uikit-stream}  {start publish stream}  {call express startPreview, for trace enableCustomVideoRender, isEnableCustomVideoRender:false}  {04/08/2026 03:38:01}  {INFO}
+E/PLogger ( 4130): {uikit-stream}  {syncDeviceStatusByStreamExtraInfo}  {not publishing}  {04/08/2026 03:38:01}  {WARNING}
+I/PLogger ( 4130): {uikit-stream}  {create local user video view}  {current streamChannel, streamType:ZegoStreamType.main, view id:1,view:ValueNotifier<Widget?>#9383d(ZegoTextureWidget), view hashCode:93927485}  {04/08/2026 03:38:01}  {INFO}
+I/PLogger ( 4130): {uikit-stream}  {create local user video view}  {user view had created, directly call callback, view id:1,view:ValueNotifier<Widget?>#9383d(ZegoTextureWidget)}  {04/08/2026 03:38:01}  {INFO}
+I/PLogger ( 4130): {uikit-stream}  {start publish stream}  {onViewCreatedByStartPublishingStream, view id:1, }  {04/08/2026 03:38:01}  {INFO}
+I/PLogger ( 4130): {uikit-stream}  {start publish stream}  {call express startPreview, for trace enableCustomVideoRender, isEnableCustomVideoRender:false}  {04/08/2026 03:38:01}  {INFO}
+I/PLogger ( 4130): {uikit-stream}  {create local user video view}  {current streamChannel, streamType:ZegoStreamType.main, view id:1,view:ValueNotifier<Widget?>#9383d(ZegoTextureWidget), view hashCode:93927485}  {04/08/2026 03:38:01}  {INFO}
+I/PLogger ( 4130): {uikit-stream}  {create local user video view}  {user view had created, directly call callback, view id:1,view:ValueNotifier<Widget?>#9383d(ZegoTextureWidget)}  {04/08/2026 03:38:01}  {INFO}
+I/PLogger ( 4130): {uikit-stream}  {start publish stream}  {onViewCreatedByStartPublishingStream, view id:1, }  {04/08/2026 03:38:01}  {INFO}
+I/PLogger ( 4130): {uikit-stream}  {start publish stream}  {call express startPreview, for trace enableCustomVideoRender, isEnableCustomVideoRender:false}  {04/08/2026 03:38:01}  {INFO}
+I/PLogger ( 4130): {uikit-channel}  {reporterEvent}  {event:loginRoom, params:{room_id: Room_13_5_2, token: , start_time: 1785789480088, error: 0, msg: {}}, }  {04/08/2026 03:38:01}  {INFO}
+I/PLogger ( 4130): {call}  {prebuilt}  {initContext done}  {04/08/2026 03:38:01}  {INFO}
+I/PLogger ( 4130): {uikit-service-core}  {event}  {onPublisherStateUpdate, stream id:Room_13_5_2_5_main, state:ZegoPublisherState.PublishRequesting, errorCode:0, extendedData:{}}  {04/08/2026 03:38:01}  {INFO}
+D/ZEGO    ( 4130): [Flutter] [onApiCalledResult] errorCode: 0, funcName: startPreview, info: Execution successful.
+I/NDOP    ( 4130): listening using window listener
+D/ZEGO    ( 4130): [Flutter] [DartCall] [sendCustomLogMessage]
+D/ZEGO    ( 4130): [Flutter] [WidgetState] build. widget: 1, rotation: null, viewMode: ZegoViewMode.AspectFill, backgroundColor: Color(alpha: 1.0000, red: 0.0000, green: 0.0000, blue: 0.0000, colorSpace: ColorSpace.sRGB), isMirror: null, size: null
+D/ZEGO    ( 4130): [Flutter] [DartCall] [updateTextureRendererSize]
+D/ZEGO    ( 4130): [Flutter] [updateTextureRendererSize][Result] w: 1064, h: 2258, textureID: 1, success: true
+I/PLogger ( 4130): {uikit-component}  {audio video container}  {use galleryLayout, userList:({id:5, name:dr.maiphuong@clinic.com, in-room attributes:{}, camera:true, microphone:true, }, ), }  {04/08/2026 03:38:01}  {INFO}
+I/PLogger ( 4130): {uikit-component}  {audio video view}  {5' build,}  {04/08/2026 03:38:01}  {INFO}
+I/PLogger ( 4130): {uikit-component}  {audio video view}  {5's camera changed true,}  {04/08/2026 03:38:01}  {INFO}
+I/PLogger ( 4130): {uikit-camera}  {switch camera}  {turn on local camera, already on}  {04/08/2026 03:38:01}  {INFO}
+I/PLogger ( 4130): {uikit-camera}  {use front facing camera}  {Already front}  {04/08/2026 03:38:01}  {INFO}
+I/PLogger ( 4130): {uikit-microphone}  {switch microphone}  {turn on local microphone, muteMode:false, already on.}  {04/08/2026 03:38:01}  {INFO}
+I/PLogger ( 4130): {uikit-audio-output}  {switch audio output button}  {update audio route by default, target is speaker:true}  {04/08/2026 03:38:01}  {INFO}
+D/ZEGO    ( 4130): [Flutter] [onApiCalledResult] errorCode: 0, funcName: startPreview, info: Execution successful.
+I/PLogger ( 4130): {uikit-service-core(736857931)}  {set audio route to speaker:true}  {already use}  {04/08/2026 03:38:01}  {INFO}
+I/PLogger ( 4130): {uikit-component}  {audio video container}  {use galleryLayout, userList:({id:5, name:dr.maiphuong@clinic.com, in-room attributes:{}, camera:true, microphone:true, }, ), }  {04/08/2026 03:38:01}  {INFO}
+I/PLogger ( 4130): {uikit-component}  {audio video view}  {5' build,}  {04/08/2026 03:38:01}  {INFO}
+D/ZEGO    ( 4130): [Flutter] [onPublisherCapturedVideoFirstFrame] channel: MAIN
+I/PLogger ( 4130): {uikit-component}  {audio video view}  {5's camera changed true,}  {04/08/2026 03:38:01}  {INFO}
+D/ZEGO    ( 4130): [Flutter] [DartCall] [sendSEI]
+I/PLogger ( 4130): {uikit-camera}  {use front facing camera}  {onCapturedVideoFirstFrameAfterSwitchCamera}  {04/08/2026 03:38:01}  {INFO}
+D/ZEGO    ( 4130): [Flutter] [DartCall] [sendCustomLogMessage]
+D/ZEGO    ( 4130): [Flutter] [WidgetState] initState. widget: 1, state hashCode: 251207102
+D/ZEGO    ( 4130): [Flutter] [DartCall] [sendCustomLogMessage]
+D/ZEGO    ( 4130): [Flutter] [WidgetState] build. widget: 1, rotation: null, viewMode: ZegoViewMode.AspectFill, backgroundColor: Color(alpha: 1.0000, red: 0.0000, green: 0.0000, blue: 0.0000, colorSpace: ColorSpace.sRGB), isMirror: null, size: null
+D/ZEGO    ( 4130): [Flutter] [DartCall] [updateTextureRendererSize]
+D/ZEGO    ( 4130): [Flutter] [updateTextureRendererSize][Result] w: 1064, h: 2258, textureID: 1, success: true
+D/ZEGO    ( 4130): [Flutter] [onRecvExperimentalAPI] content: {"method":"liveroom.device.on_device_state_changed","params":{"channel":0,"devcie_type":"camera","reason":0,"state":"on"}}
+D/ZEGO    ( 4130): [Flutter] [onRecvExperimentalAPI] content: {"method":"liveroom.device.on_device_state_changed","params":{"channel":0,"devcie_type":"mic","reason":0,"state":"on"}}
+D/ZEGO    ( 4130): [Flutter] [onPublisherStreamEvent] eventID: PUBLISH_SUCCESS, streamID: Room_13_5_2_5_main, extraInfo: {"resourceType":"rtc","streamProtocol":"avertp","url":"avertp://udp1849806754.coolzcloud.com/1849806754/Room_13_5_2_5_main"}
+D/ZEGO    ( 4130): [Flutter] [DartCall] [sendCustomLogMessage]
+D/ZEGO    ( 4130): [Flutter] [WidgetState] dispose. widget: 1, state hashCode: 897577750
+D/ZEGO    ( 4130): [Flutter] [onPublisherSendAudioFirstFrame] channel: MAIN
+D/ZEGO    ( 4130): [Flutter] [onApiCalledResult] errorCode: 0, funcName: startPreview, info: Execution successful.
+D/ZEGO    ( 4130): [Flutter] [DartCall] [sendSEI]
+D/ZEGO    ( 4130): [Flutter] [onPublisherStateUpdate] streamID: Room_13_5_2_5_main, state: PUBLISHING, errorCode: 0
+I/PLogger ( 4130): {uikit-service-core}  {event}  {onPublisherStateUpdate, stream id:Room_13_5_2_5_main, state:ZegoPublisherState.Publishing, errorCode:0, extendedData:{}}  {04/08/2026 03:38:01}  {INFO}
+D/ZEGO    ( 4130): [Flutter] [onRoomOnlineUserCountUpdate] roomID: Room_13_5_2, count: 1
+D/ZEGO    ( 4130): [Flutter] [onRoomOnlineUserCountUpdate] roomID: Room_13_5_2, count: 1
+D/ZEGO    ( 4130): [Flutter] [DartCall] [useFrontCamera]
+D/ZEGO    ( 4130): [Flutter] [onApiCalledResult] errorCode: 0, funcName: useFrontCamera, info: Execution successful.
+D/ZEGO    ( 4130): [Flutter] [DartCall] [setVideoMirrorMode]
+I/PLogger ( 4130): {uikit-camera}  {use front facing camera}  {use back camera}  {04/08/2026 03:38:08}  {INFO}
+D/ZEGO    ( 4130): [Flutter] [onApiCalledResult] errorCode: 0, funcName: setVideoMirrorMode, info: Execution successful.
+I/PLogger ( 4130): {uikit-camera}  {use front facing camera}  {update video mirror mode:ZegoVideoMirrorMode.NoMirror}  {04/08/2026 03:38:08}  {INFO}
+D/ZEGO    ( 4130): [Flutter] [DartCall] [sendCustomLogMessage]
+D/ZEGO    ( 4130): [Flutter] [WidgetState] initState. widget: 1, state hashCode: 209748009
+D/ZEGO    ( 4130): [Flutter] [DartCall] [sendCustomLogMessage]
+D/ZEGO    ( 4130): [Flutter] [WidgetState] build. widget: 1, rotation: null, viewMode: ZegoViewMode.AspectFill, backgroundColor: Color(alpha: 1.0000, red: 0.0000, green: 0.0000, blue: 0.0000, colorSpace: ColorSpace.sRGB), isMirror: null, size: null
+D/ZEGO    ( 4130): [Flutter] [DartCall] [updateTextureRendererSize]
+D/ZEGO    ( 4130): [Flutter] [updateTextureRendererSize][Result] w: 1064, h: 2258, textureID: 1, success: true
+D/ZEGO    ( 4130): [Flutter] [DartCall] [sendCustomLogMessage]
+D/ZEGO    ( 4130): [Flutter] [WidgetState] dispose. widget: 1, state hashCode: 251207102
+D/ZEGO    ( 4130): [Flutter] [onApiCalledResult] errorCode: 0, funcName: startPreview, info: Execution successful.
+I/PLogger ( 4130): {uikit-camera}  {use front facing camera}  {still requesting, ignore}  {04/08/2026 03:38:20}  {INFO}
+I/PLogger ( 4130): {uikit-camera}  {use front facing camera}  {still requesting, ignore}  {04/08/2026 03:38:26}  {INFO}
+I/PLogger ( 4130): {uikit-camera}  {switch camera}  {Click rate is limited, ignoring the current click}  {04/08/2026 03:38:26}  {INFO}
+I/PLogger ( 4130): {uikit-camera}  {switch camera}  {Click rate is limited, ignoring the current click}  {04/08/2026 03:38:26}  {INFO}
+I/PLogger ( 4130): {uikit-camera}  {use front facing camera}  {still requesting, ignore}  {04/08/2026 03:38:27}  {INFO}
+I/PLogger ( 4130): {uikit-camera}  {switch camera}  {Click rate is limited, ignoring the current click}  {04/08/2026 03:38:27}  {INFO}

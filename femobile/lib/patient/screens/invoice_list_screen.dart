@@ -118,7 +118,20 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
 
                   final invoice = _invoices[index];
                   final status = invoice['status'];
-                  final isUnpaid = status == 'UNPAID';
+                  IconData statusIcon;
+                  Color statusColor;
+
+                  if (status == 'CANCELED') {
+                    statusIcon = Icons.cancel;
+                    statusColor = Colors.red;
+                  } else if (status == 'UNPAID') {
+                    statusIcon = Icons.pending_actions;
+                    statusColor = Colors.orange;
+                  } else {
+                    statusIcon = Icons.check_circle;
+                    statusColor = Colors.green;
+                  }
+
                   final total = invoice['totalAmount'] ?? 0;
                   final createdAt = DateTime.tryParse(
                     invoice['createdAt'] ?? '',
@@ -133,13 +146,8 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
                     child: ListTile(
                       contentPadding: const EdgeInsets.all(16),
                       leading: CircleAvatar(
-                        backgroundColor: isUnpaid
-                            ? Colors.orange.withOpacity(0.1)
-                            : Colors.green.withOpacity(0.1),
-                        child: Icon(
-                          isUnpaid ? Icons.pending_actions : Icons.check_circle,
-                          color: isUnpaid ? Colors.orange : Colors.green,
-                        ),
+                        backgroundColor: statusColor.withOpacity(0.1),
+                        child: Icon(statusIcon, color: statusColor),
                       ),
                       title: Text(
                         'Hóa đơn #${invoice['id']}',

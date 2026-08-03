@@ -31,6 +31,6 @@ class PaymentService {
   Future<String> createPaymentUrl(int invoiceId) async {
     final res = await _dio.post(ApiEndpoints.createPaymentUrl(invoiceId));
 
-    return res.data['paymentUrl'] as String;
+    return res.data['url'] as String;
   }
 }

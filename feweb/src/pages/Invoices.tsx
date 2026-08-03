@@ -7,7 +7,7 @@ import ConfirmModal from '../components/ConfirmModal';
 import toast from 'react-hot-toast';
 import dayjs from 'dayjs';
 import type { Invoice } from '../types';
-import { fetchInvoices, getInvoiceById, markCashPaid } from '../lib/api';
+import { fetchInvoices, getInvoiceById, markCashPaid, getRecordByBooking } from '../lib/api';
 import { useAuth } from '../hooks/useAuth';
 
 export default function InvoicesPage() {
@@ -25,6 +25,9 @@ export default function InvoicesPage() {
   // Detail modal
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [detailLoadingId, setDetailLoadingId] = useState<number | null>(null);
+  const [showPrescription, setShowPrescription] = useState(false);
+  const [prescriptionDetails, setPrescriptionDetails] = useState<any[]>([]);
+  const [loadingPrescription, setLoadingPrescription] = useState(false);
 
   // Pay modal
   const [payTarget, setPayTarget] = useState<Invoice | null>(null);
@@ -61,6 +64,10 @@ export default function InvoicesPage() {
   const handleViewDetails = async (invoice: Invoice) => {
     setDetailLoadingId(invoice.id);
 
+    setShowPrescription(false);
+
+    setPrescriptionDetails([]);
+
     try {
       const detail = await getInvoiceById(invoice.id);
 
@@ -74,6 +81,23 @@ export default function InvoicesPage() {
 
   const closeDetails = () => {
     setSelectedInvoice(null);
+  };
+
+  const fetchPrescription = async (bookingId: number) => {
+    setLoadingPrescription(true);
+
+    setShowPrescription(true);
+    try {
+      const record = await getRecordByBooking(bookingId);
+
+      setPrescriptionDetails(record.prescriptionDetails || []);
+    } catch {
+      toast.error('Không thể tải chi tiết đơn thuốc');
+
+      setShowPrescription(false);
+    } finally {
+      setLoadingPrescription(false);
+    }
   };
 
   const handlePayCash = async () => {
@@ -155,20 +179,31 @@ export default function InvoicesPage() {
       key: 'status',
       header: 'Trạng thái',
       width: '130px',
-      render: (item) =>
-        item.status === 'PAID' ? (
-          <Badge color="green" dot={false}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <CheckCircle size={14} /> Đã trả
-            </span>
-          </Badge>
-        ) : (
-          <Badge color="orange" dot={false}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <DollarSign size={14} /> Chưa trả
-            </span>
-          </Badge>
-        ),
+      render: (item) => (
+        <>
+          {item.status === 'PAID' && (
+            <Badge color="green" dot={false}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <CheckCircle size={14} /> Đã trả
+              </span>
+            </Badge>
+          )}
+          {item.status === 'UNPAID' && (
+            <Badge color="orange" dot={false}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <DollarSign size={14} /> Chưa trả
+              </span>
+            </Badge>
+          )}
+          {item.status === 'CANCELED' && (
+            <Badge color="red" dot={false}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <X size={14} /> Đã hủy
+              </span>
+            </Badge>
+          )}
+        </>
+      ),
     },
     {
       key: 'createdAt',
@@ -214,7 +249,7 @@ export default function InvoicesPage() {
             total={total}
             limit={limit}
             onPageChange={setPage}
-            filters={user?.roleId === 1 ?
+            filters={
               <select
                 className="filter-select"
                 value={filterStatus}
@@ -224,10 +259,11 @@ export default function InvoicesPage() {
                 }}
               >
                 <option value="">Tất cả trạng thái</option>
-                <option value="0">Chưa trả</option>
-                <option value="1">Đã trả</option>
+                <option value="UNPAID">Chưa trả</option>
+                <option value="PAID">Đã trả</option>
+                <option value="CANCELED">Đã hủy</option>
               </select>
-              : null}
+            }
             rowKey={item => item.id}
           />
         </div>
@@ -261,10 +297,14 @@ export default function InvoicesPage() {
                   </div>
                 </div>
                 <div>
-                  {selectedInvoice.status === 'PAID' ? (
+                  {selectedInvoice.status === 'PAID' && (
                     <Badge color="green" dot={false}>Đã thanh toán</Badge>
-                  ) : (
+                  )}
+                  {selectedInvoice.status === 'UNPAID' && (
                     <Badge color="orange" dot={false}>Chưa thanh toán</Badge>
+                  )}
+                  {selectedInvoice.status === 'CANCELED' && (
+                    <Badge color="red" dot={false}>Đã hủy</Badge>
                   )}
                 </div>
               </div>
@@ -293,6 +333,43 @@ export default function InvoicesPage() {
                     <span style={{ fontWeight: 700, color: 'var(--danger)' }}>{formatCurrency(selectedInvoice.totalAmount)}</span>
                   </div>
                 </div>
+              </div>
+
+              {/* Prescription Section */}
+              <div style={{ marginTop: 8 }}>
+                {!showPrescription ? (
+                  <button
+                    className="btn btn-outline"
+                    onClick={() => fetchPrescription(selectedInvoice.bookingId)}
+                    disabled={loadingPrescription}
+                    style={{ width: '100%', padding: '8px' }}
+                  >
+                    {loadingPrescription ? 'Đang tải...' : 'Xem chi tiết đơn thuốc'}
+                  </button>
+                ) : (
+                  <div style={{ background: 'var(--neutral-50)', borderRadius: 8, padding: '16px' }}>
+                    <h3 style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--neutral-900)', marginBottom: 12 }}>
+                      Chi tiết đơn thuốc
+                    </h3>
+                    {prescriptionDetails.length === 0 ? (
+                      <div style={{ fontSize: '0.875rem', color: 'var(--neutral-500)' }}>Không có thuốc nào được kê.</div>
+                    ) : (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        {prescriptionDetails.map((p, index) => (
+                          <div key={index} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem', paddingBottom: 8, borderBottom: index < prescriptionDetails.length - 1 ? '1px dashed var(--neutral-200)' : 'none' }}>
+                            <div>
+                              <div style={{ fontWeight: 500, color: 'var(--neutral-900)' }}>{p.medicine || 'Thuốc không rõ'}</div>
+                              <div style={{ color: 'var(--neutral-500)', fontSize: '0.8125rem', marginTop: 2 }}>Số lượng: {p.quantity} • {p.dosage}</div>
+                            </div>
+                            <div style={{ fontWeight: 500, color: 'var(--neutral-900)' }}>
+                              {formatCurrency(p.priceAtBooking * p.quantity)}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 

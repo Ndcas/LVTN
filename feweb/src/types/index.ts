@@ -255,7 +255,7 @@ export interface Invoice {
   medicineFee: number;
   totalAmount: number;
   paymentMethod?: 'CASH' | 'VNPAY';
-  status: 'UNPAID' | 'PAID';
+  status: 'UNPAID' | 'PAID' | 'CANCELED';
   createdAt?: string;
   updatedAt?: string;
 }

@@ -418,3 +418,13 @@ export async function markCashPaid(id: number): Promise<string> {
 
   return data.message;
 }
+
+// ─────────────────────────────────────────────
+// Medical Records API
+// ─────────────────────────────────────────────
+
+export async function getRecordByBooking(bookingId: number): Promise<any> {
+  const { data } = await api.get(`/records/booking/${bookingId}`);
+
+  return data.data;
+}

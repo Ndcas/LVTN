@@ -27,7 +27,8 @@ import { ChangeRequestsModule } from './modules/changerequests/change-requests.m
       password: process.env.DATABASE_PASSWORD,
       port: parseInt(process.env.DATABASE_PORT!),
       database: process.env.DATABASE_NAME,
-      autoLoadEntities: true
+      autoLoadEntities: true,
+      timezone: 'Z'
     }),
     OpeningTimeModule,
     HolidaysModule,

@@ -303,8 +303,12 @@ class _CreateLeaveFormState extends State<_CreateLeaveForm> {
                 border: OutlineInputBorder(),
               ),
               maxLines: 3,
-              validator: (value) =>
-                  value == null || value.isEmpty ? 'Vui lòng nhập lý do' : null,
+              validator: (value) {
+                if (value == null || value.isEmpty)
+                  return 'Vui lòng nhập lý do';
+                if (value.length > 255) return 'Lý do tối đa 255 ký tự';
+                return null;
+              },
               onSaved: (value) => _reason = value ?? '',
             ),
             const SizedBox(height: 24),

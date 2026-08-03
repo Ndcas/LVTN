@@ -337,6 +337,14 @@ class _ExaminationScreenState extends State<ExaminationScreen> {
                                       labelText: 'SL',
                                     ),
                                     keyboardType: TextInputType.number,
+                                    validator: (v) {
+                                      if (v == null || v.isEmpty)
+                                        return 'Nhập SL';
+                                      final num = int.tryParse(v);
+                                      if (num == null || num < 1)
+                                        return 'SL >= 1';
+                                      return null;
+                                    },
                                     onChanged: (val) =>
                                         _prescriptions[index]['quantity'] = val,
                                   ),
@@ -349,6 +357,13 @@ class _ExaminationScreenState extends State<ExaminationScreen> {
                                     decoration: const InputDecoration(
                                       labelText: 'Liều dùng (VD: 2 viên/ngày)',
                                     ),
+                                    validator: (v) {
+                                      if (v == null || v.isEmpty)
+                                        return 'Bắt buộc nhập';
+                                      if (v.length > 255)
+                                        return 'Tối đa 255 ký tự';
+                                      return null;
+                                    },
                                     onChanged: (val) =>
                                         _prescriptions[index]['dosage'] = val,
                                   ),
