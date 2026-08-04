@@ -133,7 +133,7 @@ export class BookingsController {
      */
     @Patch('cancel/:id')
     @UseGuards(AccessGuard)
-    @Roles(['Patient', 'Doctor'])
+    @Roles(['Patient'])
     async cancelBooking(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
         const correlationId = req.headers['correlation-id'] as string;
 

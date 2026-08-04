@@ -6,7 +6,6 @@ import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Status as TimeSlotStatus, TimeSlot } from '../timeslots/entities/time-slot.entity';
 import { type ClientGrpc, ClientProxy } from '@nestjs/microservices';
 import { lastValueFrom, Observable } from 'rxjs';
-import { ConfigService } from '@nestjs/config';
 
 interface UserServiceClient {
     getDoctorExaminationFee(data: any): Observable<any>;
@@ -36,8 +35,7 @@ export class BookingsService implements OnModuleInit {
         @Inject('USER_PACKAGE') private userClient: ClientGrpc,
         @Inject('MEDICAL_RECORD_PACKAGE') private medicalRecordClient: ClientGrpc,
         @Inject('PAYMENT_PACKAGE') private paymentClient: ClientGrpc,
-        private dataSource: DataSource,
-        private configService: ConfigService
+        private dataSource: DataSource
     ) { }
 
     onModuleInit() {
@@ -211,9 +209,7 @@ export class BookingsService implements OnModuleInit {
                 };
             }
 
-            const [year, month, day] = timeSlot.clinicDate.split('-');
-            const [h, m, s] = timeSlot.startTime.split(':');
-            const startTime = new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(h), parseInt(m), parseInt(s));
+            const startTime = this.getDateObject(timeSlot.clinicDate, timeSlot.startTime);
 
             if (startTime <= new Date()) {
                 await queryRunner.rollbackTransaction();
@@ -295,6 +291,20 @@ export class BookingsService implements OnModuleInit {
                 }
             }
 
+            if (status == BookingStatus.NO_SHOW || status == BookingStatus.FINISHED) {
+                const startTime = this.getDateObject(booking.timeSlot.clinicDate, booking.timeSlot.startTime);
+
+                if (startTime.getTime() >= Date.now()) {
+                    await queryRunner.rollbackTransaction();
+
+                    return {
+                        ok: false,
+                        status: 400,
+                        error: 'Chưa thể cập nhật trạng thái lịch hẹn vào lúc này'
+                    };
+                }
+            }
+
             booking.status = status;
 
             await queryRunner.manager.save(booking);
@@ -310,25 +320,14 @@ export class BookingsService implements OnModuleInit {
             await queryRunner.commitTransaction();
 
             if (status == BookingStatus.CANCELED) {
-                if (userId == booking.patientId) {
-                    this.notificationClient.emit('booking_canceled', {
-                        correlationId,
-                        userId: booking.timeSlot.doctorId,
-                        date: booking.timeSlot.clinicDate,
-                        startTime: booking.timeSlot.startTime,
-                        clinicType: booking.timeSlot.clinicType,
-                        sourceRoleId: 3
-                    });
-                } else {
-                    this.notificationClient.emit('booking_canceled', {
-                        correlationId,
-                        userId: booking.patientId,
-                        date: booking.timeSlot.clinicDate,
-                        startTime: booking.timeSlot.startTime,
-                        clinicType: booking.timeSlot.clinicType,
-                        sourceRoleId: 2
-                    });
-                }
+                this.notificationClient.emit('booking_canceled', {
+                    correlationId,
+                    userId: booking.timeSlot.doctorId,
+                    date: booking.timeSlot.clinicDate,
+                    startTime: booking.timeSlot.startTime,
+                    clinicType: booking.timeSlot.clinicType,
+                    sourceRoleId: 3
+                });
             }
 
             return {
@@ -374,21 +373,15 @@ export class BookingsService implements OnModuleInit {
                 };
             }
 
-            const now = Date.now();
-            const startTime = new Date(booking.timeSlot.clinicDate);
-            const [sH, sM, sS] = this.getTimeComponent(booking.timeSlot.startTime);
+            const startTime = this.getDateObject(booking.timeSlot.clinicDate, booking.timeSlot.startTime);
 
-            startTime.setHours(sH);
-            startTime.setMinutes(sM);
-            startTime.setSeconds(sS);
-
-            if (startTime.getTime() > now + 300000) {
+            if (startTime.getTime() >= Date.now()) {
                 await queryRunner.rollbackTransaction();
 
                 return {
                     ok: false,
                     status: 400,
-                    error: 'Chưa đến giờ khám'
+                    error: 'Chưa thể cập nhật trạng thái lịch hẹn vào lúc này'
                 };
             }
 
@@ -497,15 +490,8 @@ export class BookingsService implements OnModuleInit {
             };
         }
 
-        const expireTime = new Date(booking.timeSlot.clinicDate);
-        const [eH, eM, eS] = this.getTimeComponent(booking.timeSlot.endTime);
+        const expireTime = this.getDateObject(booking.timeSlot.clinicDate, booking.timeSlot.endTime);
         const now = Date.now();
-
-        expireTime.setHours(eH);
-
-        expireTime.setMinutes(eM);
-
-        expireTime.setSeconds(eS);
 
         if (expireTime.getTime() < now) {
             return {
@@ -515,14 +501,7 @@ export class BookingsService implements OnModuleInit {
             };
         }
 
-        const startTime = new Date(booking.timeSlot.clinicDate);
-        const [sH, sM, sS] = this.getTimeComponent(booking.timeSlot.startTime);
-
-        startTime.setHours(sH);
-
-        startTime.setMinutes(sM);
-
-        startTime.setSeconds(sS);
+        const startTime = this.getDateObject(booking.timeSlot.clinicDate, booking.timeSlot.startTime);
 
         if (startTime.getTime() > now + 300000) {
             return {
@@ -558,11 +537,13 @@ export class BookingsService implements OnModuleInit {
         };
     }
 
-    private getTimeComponent(time: string) {
+    private getDateObject(date: string, time: string) {
+        const [year, month, day] = date.split('-');
         const [h, m, s] = time.split(':');
 
-        return [parseInt(h), parseInt(m), parseInt(s)];
+        return new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(h), parseInt(m), parseInt(s));
     }
+
     private getYYYMMDD() {
         const today = new Date();
         const year = today.getFullYear();

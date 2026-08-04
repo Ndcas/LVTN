@@ -74,13 +74,8 @@ export class AppController {
       const clinic = clinicType == 'ONLINE' ? 'trực tuyến' : 'ngoại tuyến';
       let sourceRole = 'hệ thống';
 
-      switch (sourceRoleId) {
-        case 2:
-          sourceRole = 'bác sĩ';
-          break;
-        case 3:
-          sourceRole = 'bệnh nhân';
-          break;
+      if (sourceRoleId == 3) {
+        sourceRole = 'bệnh nhân';
       }
 
       this.processLog('HandleBookingCanceled', correlationId, 'Nhận được yêu cầu gửi thông báo booking đã bị hủy');

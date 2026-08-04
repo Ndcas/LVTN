@@ -10,6 +10,8 @@ import { MedicalRecordModule } from './modules/medicalrecord/medical-record.modu
 import { PaymentModule } from './modules/payment/payment.module';
 import { FeedbackModule } from './modules/feedback/feedback.module';
 import { GeneralModule } from './modules/general/general.module';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -23,6 +25,12 @@ import { GeneralModule } from './modules/general/general.module';
       secret: process.env.JWT_ACCESS_SECRET!,
       signOptions: { expiresIn: '10m' },
     }),
+    ThrottlerModule.forRoot({
+      throttlers: [{
+        ttl: 60000,
+        limit: 60
+      }]
+    }),
     GeneralModule,
     FeedbackModule,
     UserModule,
@@ -30,6 +38,12 @@ import { GeneralModule } from './modules/general/general.module';
     ScheduleModule,
     MedicalRecordModule,
     PaymentModule
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard
+    }
   ]
 })
 export class AppModule { }
