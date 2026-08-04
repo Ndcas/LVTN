@@ -239,6 +239,29 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
           if (clinicType == 'ONLINE')
             ElevatedButton.icon(
               onPressed: () async {
+                final clinicDateStr = _booking['clinicDate']?.toString();
+                final startTimeStr = _booking['startTime']?.toString();
+                if (clinicDateStr != null && startTimeStr != null) {
+                  final datePart = clinicDateStr.split('T')[0];
+                  final startTime = DateTime.tryParse(
+                    '$datePart $startTimeStr',
+                  );
+                  if (startTime != null) {
+                    if (DateTime.now().isBefore(
+                      startTime.subtract(const Duration(minutes: 5)),
+                    )) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'Chỉ có thể tham gia Video Call trước giờ khám tối đa 5 phút.',
+                          ),
+                        ),
+                      );
+                      return;
+                    }
+                  }
+                }
+
                 try {
                   showDialog(
                     context: context,
