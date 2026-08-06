@@ -107,7 +107,6 @@ export interface DoctorMetadata {
   degreeId: number;
   experienceYears: number;
   biography: string | null;
-  workType: 'ONLINE' | 'OFFLINE' | 'BOTH';
   createdAt: string;
   updatedAt: string;
   specialty?: Specialty;
@@ -122,7 +121,6 @@ export interface Doctor extends User {
   degreeName?: string;
   experienceYears?: number;
   biography?: string;
-  workType?: 'ONLINE' | 'OFFLINE' | 'BOTH';
 }
 
 /** Phân trang — response chuẩn từ backend */

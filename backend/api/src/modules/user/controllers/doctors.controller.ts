@@ -109,7 +109,6 @@ export class DoctorsController {
    * @param {number} body.degreeId - ID bằng cấp
    * @param {number} [body.experienceYears] - Số năm kinh nghiệm
    * @param {string} [body.biography] - Tiểu sử
-   * @param {string} [body.workType] - Loại hình khám ('ONLINE', 'OFFLINE', 'BOTH')
    * @param {Request} req - Express request object
    */
   @Post()
@@ -149,7 +148,6 @@ export class DoctorsController {
    * @param {number} [body.degreeId] - ID bằng cấp
    * @param {number} [body.experienceYears] - Số năm kinh nghiệm
    * @param {string} [body.biography] - Tiểu sử
-   * @param {string} [body.workType] - Loại hình khám
    * @param {Request} req - Express request object
    */
   @Patch(':id')

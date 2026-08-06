@@ -83,7 +83,6 @@ export async function createDoctor(payload: {
   degreeId: number;
   experienceYears?: number;
   biography?: string;
-  workType?: 'ONLINE' | 'OFFLINE' | 'BOTH';
 }): Promise<string> {
   const { data } = await api.post('/doctors', payload);
 
@@ -104,7 +103,6 @@ export async function updateDoctor(
     degreeId: number;
     experienceYears: number;
     biography: string;
-    workType: 'ONLINE' | 'OFFLINE' | 'BOTH';
   }>
 ): Promise<string> {
   const { data } = await api.patch(`/doctors/${id}`, payload);
@@ -130,11 +128,55 @@ export async function fetchSpecialties(): Promise<Specialty[]> {
   return data.data;
 }
 
+/** Tạo chuyên khoa mới */
+export async function createSpecialty(payload: {
+  name: string;
+  code: string;
+  description?: string;
+  defaultFee?: number;
+}): Promise<string> {
+  const { data } = await api.post('/catalogs/specialties', payload);
+
+  return data.message;
+}
+
+/** Cập nhật chuyên khoa */
+export async function updateSpecialty(id: number, payload: {
+  name?: string;
+  code?: string;
+  description?: string;
+  defaultFee?: number;
+}): Promise<string> {
+  const { data } = await api.patch(`/catalogs/specialties/${id}`, payload);
+
+  return data.message;
+}
+
 /** Lấy danh sách bằng cấp */
 export async function fetchDegrees(): Promise<Degree[]> {
   const { data } = await api.get('/catalogs/degrees');
 
   return data.data;
+}
+
+/** Tạo bằng cấp mới */
+export async function createDegree(payload: {
+  name: string;
+  description?: string;
+}): Promise<string> {
+  const { data } = await api.post('/catalogs/degrees', payload);
+
+  return data.message;
+}
+
+/** Cập nhật bằng cấp */
+export async function updateDegree(id: number, payload: {
+  name?: string;
+  description?: string;
+}): Promise<string> {
+  const { data } = await api.patch(`/catalogs/degrees/${id}`, payload);
+
+  return data.message;
 }
 
 // ─────────────────────────────────────────────

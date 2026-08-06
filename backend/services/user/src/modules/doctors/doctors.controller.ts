@@ -116,7 +116,6 @@ export class DoctorsController {
    * @param {number} data.degreeId - ID bằng cấp
    * @param {number} data.experienceYears - Số năm kinh nghiệm
    * @param {string} data.biography - Tiểu sử
-   * @param {string} data.workType - Loại hình khám (ONLINE/OFFLINE/BOTH)
    * @param {string} data.correlationId - ID theo dõi request
    */
   @GrpcMethod('UserService', 'CreateDoctor')
@@ -154,7 +153,6 @@ export class DoctorsController {
    * @param {number} data.degreeId - Bằng cấp mới
    * @param {number} data.experienceYears - Năm kinh nghiệm mới
    * @param {string} data.biography - Tiểu sử mới
-   * @param {string} data.workType - Loại hình khám mới
    * @param {string} data.correlationId - ID theo dõi request
    */
   @GrpcMethod('UserService', 'UpdateDoctor')

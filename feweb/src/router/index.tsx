@@ -17,6 +17,8 @@ import Leaves from '../pages/Leaves';
 import ChangeRequests from '../pages/ChangeRequests';
 import Diseases from '../pages/Diseases';
 import Medicines from '../pages/Medicines';
+import Specialties from '../pages/Specialties';
+import Degrees from '../pages/Degrees';
 import Feedback from '../pages/Feedback';
 import Invoices from '../pages/Invoices';
 import Logout from '../pages/Logout';
@@ -212,6 +214,22 @@ export default function AppRouter() {
             element={
               <ProtectedRoute roles={[Role.Admin]}>
                 <Medicines />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/catalogs/specialties"
+            element={
+              <ProtectedRoute roles={[Role.Admin]}>
+                <Specialties />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/catalogs/degrees"
+            element={
+              <ProtectedRoute roles={[Role.Admin]}>
+                <Degrees />
               </ProtectedRoute>
             }
           />

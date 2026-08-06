@@ -17,6 +17,12 @@ class SharedService {
     return res.data;
   }
 
+  Future<Map<String, dynamic>> getMyProfile() async {
+    final res = await _dio.get(ApiEndpoints.myProfile);
+
+    return res.data['data'] as Map<String, dynamic>;
+  }
+
   Future<void> sendFeedback(String title, String content) async {
     await _dio.post(
       ApiEndpoints.feedbacks,

@@ -57,7 +57,6 @@ CREATE TABLE `doctor_metadata` (
   `degree_id` int(11) NOT NULL,
   `experience_years` int(11) NOT NULL DEFAULT 0,
   `biography` text DEFAULT NULL,
-  `work_type` enum('ONLINE','OFFLINE','BOTH') NOT NULL DEFAULT 'BOTH',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -66,9 +65,9 @@ CREATE TABLE `doctor_metadata` (
 -- Đang đổ dữ liệu cho bảng `doctor_metadata`
 --
 
-INSERT INTO `doctor_metadata` (`id`, `user_id`, `specialty_id`, `degree_id`, `experience_years`, `biography`, `work_type`, `created_at`, `updated_at`) VALUES
-(1, 4, 1, 3, 12, 'Hơn 10 năm kinh nghiệm điều trị viêm xoang, viêm mũi dị ứng và các bệnh lý Tai Mũi Họng nhi khoa.', 'BOTH', '2026-06-15 07:41:25', '2026-06-15 07:41:25'),
-(2, 5, 2, 2, 8, 'Chuyên gia về nhãn nhi khoa, phẫu thuật tật khúc xạ và điều trị đục thủy tinh thể.', 'OFFLINE', '2026-06-15 07:41:25', '2026-06-15 07:41:25');
+INSERT INTO `doctor_metadata` (`id`, `user_id`, `specialty_id`, `degree_id`, `experience_years`, `biography`, `created_at`, `updated_at`) VALUES
+(1, 4, 1, 3, 12, 'Hơn 10 năm kinh nghiệm điều trị viêm xoang, viêm mũi dị ứng và các bệnh lý Tai Mũi Họng nhi khoa.', '2026-06-15 07:41:25', '2026-06-15 07:41:25'),
+(2, 5, 2, 2, 8, 'Chuyên gia về nhãn nhi khoa, phẫu thuật tật khúc xạ và điều trị đục thủy tinh thể.', '2026-06-15 07:41:25', '2026-06-15 07:41:25');
 
 -- --------------------------------------------------------
 

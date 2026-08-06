@@ -368,7 +368,7 @@ export class UsersController {
 
     let result;
 
-    if (roleId === 3) {
+    if (roleId == 3) {
       result = await this.usersService.getDoctorById({ id: userId, correlationId });
     } else {
       result = await this.usersService.getUserById({ id: userId, correlationId });

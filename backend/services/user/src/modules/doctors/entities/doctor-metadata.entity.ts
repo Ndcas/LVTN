@@ -3,12 +3,6 @@ import { User } from '../../users/entities/user.entity';
 import { Specialty } from '../../catalogs/entities/specialty.entity';
 import { Degree } from '../../catalogs/entities/degree.entity';
 
-export enum WorkType {
-  ONLINE = 'ONLINE',
-  OFFLINE = 'OFFLINE',
-  BOTH = 'BOTh'
-}
-
 @Entity('doctor_metadata')
 export class DoctorMetadata {
   @PrimaryGeneratedColumn()
@@ -57,14 +51,6 @@ export class DoctorMetadata {
     default: 0
   })
   experienceYears: number;
-
-  @Column({
-    name: 'work_type',
-    type: 'enum',
-    enum: WorkType,
-    default: WorkType.BOTH
-  })
-  workType: WorkType;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

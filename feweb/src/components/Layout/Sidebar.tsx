@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, Stethoscope, CalendarOff, CalendarClock, CalendarCheck, Pill, ShieldAlert, Receipt, Heart, Activity, MessageSquareText, LogOut } from 'lucide-react';
+import { LayoutDashboard, Users, Stethoscope, CalendarOff, CalendarClock, CalendarCheck, Pill, ShieldAlert, Receipt, Heart, Activity, MessageSquareText, LogOut, GraduationCap, BookOpen } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { Role } from '../../types';
 import type { ComponentType } from 'react';
@@ -44,6 +44,13 @@ const navigation: SidebarSection[] = [
     items: [
       { label: 'Danh mục bệnh', path: '/medical/diseases', icon: ShieldAlert, roles: [Role.Admin] },
       { label: 'Kho thuốc', path: '/medical/medicines', icon: Pill, roles: [Role.Admin] },
+    ],
+  },
+  {
+    title: 'Danh mục',
+    items: [
+      { label: 'Chuyên khoa', path: '/catalogs/specialties', icon: BookOpen, roles: [Role.Admin] },
+      { label: 'Bằng cấp', path: '/catalogs/degrees', icon: GraduationCap, roles: [Role.Admin] },
     ],
   },
   {

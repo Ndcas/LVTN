@@ -239,8 +239,7 @@ message DoctorItem {
   string degreeName = 12;
   int32 experienceYears = 13;
   string biography = 14;
-  string workType = 15;
-  string createdAt = 16;
+  string createdAt = 15;
 }
 
 message DoctorListResponse {
@@ -279,8 +278,7 @@ message CreateDoctorRequest {
   int32 degreeId = 9;
   int32 experienceYears = 10;
   optional string biography = 11;
-  optional string workType = 12;
-  string correlationId = 13;
+  string correlationId = 12;
 }
 
 message UpdateDoctorRequest {
@@ -295,8 +293,7 @@ message UpdateDoctorRequest {
   optional int32 degreeId = 9;
   optional int32 experienceYears = 10;
   optional string biography = 11;
-  optional string workType = 12;
-  string correlationId = 13;
+  string correlationId = 12;
 }
 
 // === Catalog Messages ===

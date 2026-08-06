@@ -46,8 +46,4 @@ export class UpdateDoctorDto {
   @IsOptional()
   @IsString()
   biography?: string;
-
-  @IsOptional()
-  @IsIn(['ONLINE', 'OFFLINE', 'BOTH'], { message: 'Loại hình khám không hợp lệ' })
-  workType?: string;
 }

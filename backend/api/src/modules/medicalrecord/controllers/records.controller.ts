@@ -101,7 +101,6 @@ export class RecordsController {
    */
   @Get('booking/:id')
   @UseGuards(AccessGuard)
-  @Roles(['Doctor', 'Patient', 'Nurse'])
   async getRecordByBooking(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
     const correlationId = req.headers['correlation-id'] as string;
 

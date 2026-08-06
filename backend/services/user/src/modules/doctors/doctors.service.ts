@@ -1,8 +1,8 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Not, DataSource, In } from 'typeorm';
+import { Repository, Not, DataSource } from 'typeorm';
 import { DoctorMetadata } from './entities/doctor-metadata.entity';
-import { IsActive, User } from '../users/entities/user.entity';
+import { User } from '../users/entities/user.entity';
 import bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
@@ -65,7 +65,6 @@ export class DoctorsService {
         degreeName: dm.degree?.name || '',
         experienceYears: dm.experienceYears,
         biography: dm.biography || '',
-        workType: dm.workType,
         createdAt: dm.user.createdAt.toISOString()
       })),
       total,
@@ -110,7 +109,6 @@ export class DoctorsService {
         degreeName: dm.degree?.name || '',
         experienceYears: dm.experienceYears,
         biography: dm.biography || '',
-        workType: dm.workType,
         createdAt: dm.user.createdAt.toISOString()
       }
     };
@@ -187,8 +185,7 @@ export class DoctorsService {
         specialtyId: data.specialtyId,
         degreeId: data.degreeId,
         experienceYears: data.experienceYears || 0,
-        biography: data.biography || null,
-        workType: data.workType || 'BOTH'
+        biography: data.biography || null
       });
 
       await queryRunner.manager.save(metadata);
@@ -305,10 +302,6 @@ export class DoctorsService {
 
     if (data.biography != undefined) {
       metadata.biography = data.biography || null;
-    }
-
-    if (data.workType) {
-      metadata.workType = data.workType;
     }
 
     const queryRunner = this.dataSource.createQueryRunner();

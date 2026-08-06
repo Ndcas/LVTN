@@ -28,37 +28,10 @@ const GENDER_OPTIONS = [{
   label: 'Khác'
 }];
 
-const WORK_TYPE_OPTIONS = [{
-  value: 'BOTH',
-  label: 'Online & Offline'
-}, {
-  value: 'ONLINE',
-  label: 'Online'
-},
-{
-  value: 'OFFLINE',
-  label: 'Offline'
-}];
-
 const GENDER_MAP: Record<string, string> = {
   MALE: 'Nam',
   FEMALE: 'Nữ',
   OTHER: 'Khác',
-};
-
-const WORK_TYPE_MAP: Record<string, { label: string; color: 'blue' | 'green' | 'orange' }> = {
-  BOTH: {
-    label: 'Online & Offline',
-    color: 'blue'
-  },
-  ONLINE: {
-    label: 'Online',
-    color: 'green'
-  },
-  OFFLINE: {
-    label: 'Offline',
-    color: 'orange'
-  }
 };
 
 interface DoctorFormState {
@@ -73,7 +46,6 @@ interface DoctorFormState {
   degreeId: string;
   experienceYears: string;
   biography: string;
-  workType: string;
 }
 
 const INITIAL_FORM: DoctorFormState = {
@@ -88,7 +60,6 @@ const INITIAL_FORM: DoctorFormState = {
   degreeId: '',
   experienceYears: '',
   biography: '',
-  workType: 'BOTH',
 };
 
 export default function DoctorsPage() {
@@ -264,7 +235,6 @@ export default function DoctorsPage() {
         degreeId: detail.degreeId?.toString() || '',
         experienceYears: detail.experienceYears?.toString() || '',
         biography: detail.biography || '',
-        workType: detail.workType || 'BOTH',
       });
     } catch {
       toast.error('Không thể tải thông tin bác sĩ');
@@ -305,7 +275,6 @@ export default function DoctorsPage() {
           degreeId: parseInt(form.degreeId),
           experienceYears: form.experienceYears ? parseInt(form.experienceYears) : undefined,
           biography: form.biography || undefined,
-          workType: (form.workType as 'ONLINE' | 'OFFLINE' | 'BOTH') || undefined,
         });
 
         toast.success('Tạo bác sĩ thành công');
@@ -321,7 +290,6 @@ export default function DoctorsPage() {
           degreeId: parseInt(form.degreeId),
           experienceYears: form.experienceYears ? parseInt(form.experienceYears) : undefined,
           biography: form.biography || undefined,
-          workType: (form.workType as 'ONLINE' | 'OFFLINE' | 'BOTH') || undefined,
         });
 
         toast.success('Cập nhật bác sĩ thành công');
@@ -375,16 +343,7 @@ export default function DoctorsPage() {
           : '—',
       width: '110px',
     },
-    {
-      key: 'workType',
-      header: 'Hình thức',
-      render: (d) => {
-        const wt = d.workType || 'BOTH';
-        const info = WORK_TYPE_MAP[wt];
-        return <Badge color={info?.color || 'blue'}>{info?.label || wt}</Badge>;
-      },
-      width: '140px',
-    },
+
     {
       key: 'status',
       header: 'Trạng thái',
@@ -581,13 +540,6 @@ export default function DoctorsPage() {
                   onChange={(v) => updateField('experienceYears', v)}
                   placeholder="VD: 5"
                 />
-                <SelectField
-                  label="Hình thức khám"
-                  id="doc-workType"
-                  value={form.workType}
-                  onChange={(v) => updateField('workType', v)}
-                  options={WORK_TYPE_OPTIONS}
-                />
                 <div className="form-group full-width">
                   <TextareaField
                     label="Tiểu sử"
@@ -641,10 +593,6 @@ export default function DoctorsPage() {
                 <DetailRow label="Chuyên khoa" value={viewDoctor.specialtyName || '—'} />
                 <DetailRow label="Bằng cấp" value={viewDoctor.degreeName || '—'} />
                 <DetailRow label="Kinh nghiệm" value={viewDoctor.experienceYears != null ? `${viewDoctor.experienceYears} năm` : '—'} />
-                <DetailRow
-                  label="Hình thức"
-                  value={WORK_TYPE_MAP[viewDoctor.workType || 'BOTH']?.label || '—'}
-                />
                 {viewDoctor.biography && (
                   <div className="form-group full-width">
                     <span className="form-label">Tiểu sử</span>
