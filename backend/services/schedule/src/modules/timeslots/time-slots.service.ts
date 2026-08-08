@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Between, DataSource, In, Repository } from 'typeorm';
+import { Between, DataSource, In, QueryRunner, Repository } from 'typeorm';
 import { TimeSlot, Status as TimeSlotStatus } from './entities/time-slot.entity';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { ClientProxy } from '@nestjs/microservices';
@@ -90,25 +90,24 @@ export class TimeSlotsService {
 
     @Cron(CronExpression.EVERY_WEEK)
     async scheduleTimeSlots() {
-        if (await this.cacheManager.get('Lock:Scheduling')) {
-            this.processLog('ScheduleTimeSlots', 'system', `Đã có tiến trình đang chạy`, 'warn');
-
-            return;
-        }
-
+        const queryRunner = this.dataSource.createQueryRunner();
         const lockId = randomUUID();
 
-        this.processLog('ScheduleTimeSlots', 'system', `Bắt đầu lên lịch khám cho đến chủ nhật kế tiếp, mã khóa: ${lockId}`);
-
-        await this.cacheManager.set('Lock:Scheduling', lockId, 600000);
-
-        const queryRunner = this.dataSource.createQueryRunner();
-
-        await queryRunner.connect();
-
-        await queryRunner.startTransaction();
-
         try {
+            if (await this.cacheManager.get('Lock:Scheduling')) {
+                this.processLog('ScheduleTimeSlots', 'system', `Đã có tiến trình đang chạy`, 'warn');
+
+                return;
+            }
+
+            this.processLog('ScheduleTimeSlots', 'system', `Bắt đầu lên lịch khám cho đến chủ nhật kế tiếp, mã khóa: ${lockId}`);
+
+            await this.cacheManager.set('Lock:Scheduling', lockId, 600000);
+
+            await queryRunner.connect();
+
+            await queryRunner.startTransaction();
+
             const today = new Date();
             const maxExistedDate = (await queryRunner
                 .manager
@@ -121,7 +120,7 @@ export class TimeSlotsService {
             let maxDate: Date;
 
             if (maxExistedDate) {
-                maxDate = new Date(maxExistedDate.getFullYear(), maxExistedDate.getMonth(), maxExistedDate.getDate());
+                maxDate = new Date(maxExistedDate);
             } else {
                 maxDate = yesterdayDate;
             }
@@ -237,15 +236,17 @@ export class TimeSlotsService {
 
             this.processLog('ScheduleTimeSlots', 'system', `Lên lịch thành công, mã khóa: ${lockId}`);
         } catch (e) {
-            await queryRunner.rollbackTransaction();
+            queryRunner.rollbackTransaction().catch(e => { });
 
             this.processLog('ScheduleTimeSlots', 'system', `Lỗi khi lên lịch, mã khóa: ${lockId}, lỗi: ${e}`, 'error');
         } finally {
-            await queryRunner.release();
+            queryRunner.release().catch(e => { });
 
-            if ((await this.cacheManager.get('Lock:Scheduling')) == lockId) {
-                await this.cacheManager.del('Lock:Scheduling');
-            }
+            try {
+                if ((await this.cacheManager.get('Lock:Scheduling')) == lockId) {
+                    await this.cacheManager.del('Lock:Scheduling');
+                }
+            } catch (e) { }
         }
     }
 
@@ -253,17 +254,36 @@ export class TimeSlotsService {
     async deleteOldTimeSlots() {
         this.processLog('DeleteOldTimeSlots', 'system', `Xóa lịch cũ bắt đầu`);
 
+        const queryRunner = this.dataSource.createQueryRunner();
+
         try {
-            await this.dataSource.query(`
-                DELETE ts, b
+            await queryRunner.connect();
+
+            await queryRunner.startTransaction();
+
+            await queryRunner.manager.query(`
+                UPDATE bookings b
+                INNER JOIN time_slots ts ON b.time_slot_id = ts.id
+                SET b.status = 'CANCELED'
+                WHERE ts.clinic_date < CURDATE() AND b.status = 'CONFIRMED'
+            `);
+
+            await queryRunner.manager.query(`
+                DELETE ts
                 FROM time_slots ts
                 LEFT JOIN bookings b ON b.time_slot_id = ts.id
-                WHERE ts.clinic_date < CURDATE() AND ((ts.status = 'AVAILABLE' AND b.id IS NULL) OR (ts.status = 'BOOKED' AND b.status = 'CONFIRMED'))
+                WHERE ts.clinic_date < CURDATE() AND ts.status = 'AVAILABLE' AND b.id IS NULL
             `);
+
+            await queryRunner.commitTransaction();
 
             this.processLog('DeleteOldTimeSlots', 'system', `Xóa lịch cũ thành công`);
         } catch (e) {
+            queryRunner.rollbackTransaction().catch(e => { });
+
             this.processLog('DeleteOldTimeSlots', 'system', `Lỗi khi xóa lịch cũ, lỗi: ${e}`, 'error');
+        } finally {
+            queryRunner.release().catch(e => { });
         }
     }
 
