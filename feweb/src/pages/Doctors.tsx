@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Plus, Pencil, Eye, X } from 'lucide-react';
+import { Plus, Pencil, Eye, X, ToggleLeft, ToggleRight } from 'lucide-react';
 import Header from '../components/Layout/Header';
 import DataTable, { type Column } from '../components/DataTable';
 import Badge from '../components/Badge';
+import ConfirmModal from '../components/ConfirmModal';
 import FormField from '../components/FormField';
 import { SelectField, TextareaField } from '../components/FormField';
 import toast from 'react-hot-toast';
@@ -15,6 +16,7 @@ import {
   updateDoctor,
   fetchSpecialties,
   fetchDegrees,
+  toggleUserActive,
 } from '../lib/api';
 
 const GENDER_OPTIONS = [{
@@ -87,6 +89,10 @@ export default function DoctorsPage() {
 
   // Detail view
   const [viewDoctor, setViewDoctor] = useState<Doctor | null>(null);
+
+  // Toggle active modal
+  const [toggleTarget, setToggleTarget] = useState<Doctor | null>(null);
+  const [toggleLoading, setToggleLoading] = useState(false);
 
   // ── Load catalogs ──
   useEffect(() => {
@@ -305,6 +311,29 @@ export default function DoctorsPage() {
     }
   };
 
+  // ── Toggle Active ──
+  const handleToggle = async () => {
+    if (!toggleTarget) {
+      return;
+    }
+
+    setToggleLoading(true);
+
+    try {
+      await toggleUserActive(toggleTarget.id);
+
+      toast.success(toggleTarget.isActive == '1' ? 'Đã vô hiệu hóa tài khoản' : 'Đã kích hoạt tài khoản');
+
+      setToggleTarget(null);
+
+      loadDoctors();
+    } catch {
+      toast.error('Thao tác thất bại');
+    } finally {
+      setToggleLoading(false);
+    }
+  };
+
   // ── Table columns ──
   const columns: Column<Doctor>[] = [
     {
@@ -365,9 +394,16 @@ export default function DoctorsPage() {
           <button className="action-btn edit" title="Chỉnh sửa" onClick={() => openEdit(d)}>
             <Pencil size={15} />
           </button>
+          <button
+            className={`action-btn ${d.isActive == '1' ? 'danger' : 'success'}`}
+            title={d.isActive == '1' ? 'Vô hiệu hóa' : 'Kích hoạt'}
+            onClick={() => setToggleTarget(d)}
+          >
+            {d.isActive == '1' ? <ToggleRight size={18} /> : <ToggleLeft size={18} />}
+          </button>
         </div>
       ),
-      width: '90px',
+      width: '110px',
     },
   ];
 
@@ -617,6 +653,28 @@ export default function DoctorsPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* ── Toggle Active Modal ── */}
+      {toggleTarget && (
+        <ConfirmModal
+          title={toggleTarget.isActive == '1' ? 'Vô hiệu hóa tài khoản' : 'Kích hoạt tài khoản'}
+          message={
+            toggleTarget.isActive == '1'
+              ? `Bạn có chắc muốn vô hiệu hóa tài khoản "${toggleTarget.fullName}"?`
+              : `Bạn có chắc muốn kích hoạt lại tài khoản "${toggleTarget.fullName}"?`
+          }
+          subMessage={
+            toggleTarget.isActive == '1'
+              ? 'Bác sĩ sẽ không thể đăng nhập cho đến khi được kích hoạt lại.'
+              : 'Bác sĩ sẽ có thể đăng nhập và sử dụng hệ thống.'
+          }
+          confirmLabel={toggleTarget.isActive == '1' ? 'Vô hiệu hóa' : 'Kích hoạt'}
+          variant={toggleTarget.isActive == '1' ? 'danger' : 'info'}
+          loading={toggleLoading}
+          onConfirm={handleToggle}
+          onClose={() => setToggleTarget(null)}
+        />
       )}
     </>
   );
