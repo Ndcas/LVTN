@@ -127,20 +127,4 @@ export class TimeSlotsController {
 
         return data;
     }
-
-    private formatTimeString(time: string) {
-        const regex = /^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/;
-
-        if (!regex.test(time)) {
-            throw new Error('Thời gian sai định dạng');
-        }
-
-        return time + ':00';
-    }
-
-    private timeStringToSeconds(time: string) {
-        const [hours, minutes, seconds] = time.split(':').map(s => parseInt(s));
-
-        return hours * 3600 + minutes * 60 + seconds;
-    }
 }

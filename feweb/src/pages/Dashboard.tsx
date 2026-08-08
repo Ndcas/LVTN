@@ -1,8 +1,8 @@
 import { useEffect, useState, useMemo } from 'react';
-import { CalendarCheck, Receipt, MessageSquareText, Users, AlertTriangle, XCircle, RefreshCw, Activity } from 'lucide-react';
+import { CalendarCheck, Receipt, MessageSquareText, Users, AlertTriangle, XCircle, RefreshCw, Activity, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Header from '../components/Layout/Header';
-import { fetchAdminDashboard, type DashboardData, type LogItem, triggerScheduleTimeSlots } from '../lib/api';
+import { fetchAdminDashboard, type DashboardData, type LogItem, triggerScheduleTimeSlots, deleteOldTimeSlots } from '../lib/api';
 import dayjs from 'dayjs';
 
 /* ─── Stat Card ─── */
@@ -59,6 +59,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [scheduling, setScheduling] = useState(false);
+  const [deletingOldSlots, setDeletingOldSlots] = useState(false);
 
   const loadDashboard = async (force = false) => {
     try {
@@ -96,6 +97,24 @@ export default function Dashboard() {
         toast.error(e.response?.data?.message || 'Lên lịch thất bại');
       } finally {
         setScheduling(false);
+      }
+    }
+  };
+
+  const handleDeleteOldSlots = async () => {
+    if (confirm('Bạn có chắc chắn muốn xóa các ca khám cũ đã quá hạn không? Hành động này không thể hoàn tác.')) {
+      setDeletingOldSlots(true);
+
+      try {
+        await deleteOldTimeSlots();
+
+        toast.success('Xóa ca khám cũ thành công!');
+
+        loadDashboard(true); // Làm mới dashboard để xem có log nào mới không
+      } catch (e: any) {
+        toast.error(e.response?.data?.message || 'Xóa ca khám cũ thất bại');
+      } finally {
+        setDeletingOldSlots(false);
       }
     }
   };
@@ -140,11 +159,19 @@ export default function Dashboard() {
     <>
       <Header title="Dashboard" subtitle="Tổng quan hệ thống" />
       <div className="page-content">
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginBottom: '16px' }}>
+          <button
+            className="btn btn-danger"
+            onClick={handleDeleteOldSlots}
+            disabled={deletingOldSlots || scheduling}
+          >
+            <Trash2 size={18} style={{ marginRight: '8px' }} />
+            {deletingOldSlots ? 'Đang xử lý...' : 'Xóa ca khám cũ'}
+          </button>
           <button
             className="btn btn-primary"
             onClick={handleSchedule}
-            disabled={scheduling}
+            disabled={scheduling || deletingOldSlots}
           >
             <CalendarCheck size={18} style={{ marginRight: '8px' }} />
             {scheduling ? 'Đang xử lý...' : 'Tạo lịch khám tuần tới'}

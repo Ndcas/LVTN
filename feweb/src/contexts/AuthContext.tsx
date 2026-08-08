@@ -88,7 +88,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data } = await api.post('/users/login', { email, password });
     const payload = decodeJwtPayload(data.accessToken);
 
-    if (![1, 4].includes(payload.roleId as number)) {
+    if (!payload || ![1, 4].includes(payload.roleId as number)) {
       throw new Error('Bạn không có quyền đăng nhập');
     }
 

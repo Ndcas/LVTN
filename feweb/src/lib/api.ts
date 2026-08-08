@@ -399,6 +399,13 @@ export async function triggerScheduleTimeSlots(): Promise<any> {
   return data;
 }
 
+/** Xóa các ca khám cũ đã quá hạn */
+export async function deleteOldTimeSlots(): Promise<any> {
+  const { data } = await api.delete('/time-slots/delete-old-time-slots');
+
+  return data;
+}
+
 // ─────────────────────────────────────────────
 // Feedback API
 // ─────────────────────────────────────────────

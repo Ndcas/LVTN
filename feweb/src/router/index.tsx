@@ -85,7 +85,7 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
 }
 
 /** Placeholder cho các trang chưa xây dựng */
-function ComingSoon({ title }: { title: string }) {
+export function ComingSoon({ title }: { title: string }) {
   return (
     <>
       <header className="header">
