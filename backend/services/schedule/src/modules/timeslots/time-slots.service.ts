@@ -250,7 +250,7 @@ export class TimeSlotsService {
         }
     }
 
-    @Cron('0 1 * * 0')
+    @Cron('0 1 * * *')
     async deleteOldTimeSlots() {
         this.processLog('DeleteOldTimeSlots', 'system', `Xóa lịch cũ bắt đầu`);
 

@@ -39,11 +39,9 @@ import { APP_GUARD } from '@nestjs/core';
     MedicalRecordModule,
     PaymentModule
   ],
-  providers: [
-    {
-      provide: APP_GUARD,
-      useClass: ThrottlerGuard
-    }
-  ]
+  providers: [{
+    provide: APP_GUARD,
+    useClass: ThrottlerGuard
+  }]
 })
 export class AppModule { }
