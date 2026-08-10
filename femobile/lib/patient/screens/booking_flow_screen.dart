@@ -28,6 +28,7 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
   String? _selectedClinicType;
   DateTime? _selectedDate;
   int? _selectedSlotId;
+  String? _selectedDoctorName; // bác sĩ được chọn ở bước 4
 
   @override
   void initState() {
@@ -66,7 +67,8 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
 
     setState(() {
       _isLoadingSlots = true;
-      _selectedSlotId = null; // reset slot selection
+      _selectedSlotId = null;
+      _selectedDoctorName = null; // reset doctor + slot khi đổi ngày
     });
 
     try {
@@ -329,61 +331,178 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
       return const Text('Không có ca khám nào trống trong ngày này');
     }
 
+    // Nhóm ca khám theo bác sĩ
     final Map<String, List<dynamic>> groupedSlots = {};
     for (var slot in _availableSlots) {
-      final doctorName = slot['doctorName'] ?? 'Bác sĩ';
-      if (!groupedSlots.containsKey(doctorName)) {
-        groupedSlots[doctorName] = [];
-      }
-      groupedSlots[doctorName]!.add(slot);
+      final doctorName = slot['doctorName'] as String? ?? 'Bác sĩ';
+      groupedSlots.putIfAbsent(doctorName, () => []).add(slot);
     }
+
+    // --- Giai đoạn 1: Chưa chọn bác sĩ → hiện danh sách bác sĩ ---
+    if (_selectedDoctorName == null) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Chọn bác sĩ',
+            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+          ),
+          const SizedBox(height: 10),
+          ...groupedSlots.entries.map((entry) {
+            final slotCount = entry.value.length;
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 10.0),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(12),
+                onTap: () {
+                  setState(() {
+                    _selectedDoctorName = entry.key;
+                    _selectedSlotId = null;
+                  });
+                },
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey.shade300),
+                    borderRadius: BorderRadius.circular(12),
+                    color: Colors.white,
+                  ),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 22,
+                        backgroundColor: Theme.of(
+                          context,
+                        ).colorScheme.primaryContainer,
+                        child: Icon(
+                          Icons.person,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              entry.key,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15,
+                              ),
+                            ),
+                            const SizedBox(height: 3),
+                            Text(
+                              '$slotCount ca trống',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.green.shade700,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Icon(
+                        Icons.chevron_right,
+                        color: Colors.grey.shade500,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }),
+        ],
+      );
+    }
+
+    // --- Giai đoạn 2: Đã chọn bác sĩ → hiện khung giờ của bác sĩ đó ---
+    final slotsOfDoctor = groupedSlots[_selectedDoctorName] ?? [];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: groupedSlots.entries.map((entry) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: Text(
-                entry.key,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
+      children: [
+        // Header bác sĩ đã chọn + nút đổi
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.4),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Icons.person_pin,
+                color: Theme.of(context).colorScheme.primary,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  _selectedDoctorName!,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
                 ),
               ),
-            ),
-            Wrap(
-              spacing: 8.0,
-              runSpacing: 8.0,
-              children: entry.value.map((item) {
-                final startTimeStr = item['startTime'] as String?;
-                final endTimeStr = item['endTime'] as String?;
-                final timeString =
-                    (startTimeStr != null &&
-                        endTimeStr != null &&
-                        startTimeStr.length >= 5 &&
-                        endTimeStr.length >= 5)
-                    ? '${startTimeStr.substring(0, 5)} - ${endTimeStr.substring(0, 5)}'
-                    : 'Unknown';
-                final isSelected = _selectedSlotId == item['id'];
+              TextButton.icon(
+                onPressed: () {
+                  setState(() {
+                    _selectedDoctorName = null;
+                    _selectedSlotId = null;
+                  });
+                },
+                icon: const Icon(Icons.swap_horiz, size: 16),
+                label: const Text('Đổi bác sĩ'),
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  visualDensity: VisualDensity.compact,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 14),
+        const Text(
+          'Chọn khung giờ',
+          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+        ),
+        const SizedBox(height: 10),
+        Wrap(
+          spacing: 8.0,
+          runSpacing: 8.0,
+          children: slotsOfDoctor.map((item) {
+            final startTimeStr = item['startTime'] as String?;
+            final endTimeStr = item['endTime'] as String?;
+            final timeString =
+                (startTimeStr != null &&
+                    endTimeStr != null &&
+                    startTimeStr.length >= 5 &&
+                    endTimeStr.length >= 5)
+                ? '${startTimeStr.substring(0, 5)} - ${endTimeStr.substring(0, 5)}'
+                : 'Unknown';
+            final isSelected = _selectedSlotId == item['id'];
 
-                return ChoiceChip(
-                  label: Text(timeString),
-                  selected: isSelected,
-                  onSelected: (selected) {
-                    setState(
-                      () => _selectedSlotId = selected ? item['id'] : null,
-                    );
-                  },
+            return ChoiceChip(
+              label: Text(timeString),
+              selected: isSelected,
+              onSelected: (selected) {
+                setState(
+                  () => _selectedSlotId = selected ? item['id'] : null,
                 );
-              }).toList(),
-            ),
-            const SizedBox(height: 16),
-          ],
-        );
-      }).toList(),
+              },
+            );
+          }).toList(),
+        ),
+      ],
     );
   }
 

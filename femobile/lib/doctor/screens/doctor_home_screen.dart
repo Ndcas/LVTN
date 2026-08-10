@@ -49,24 +49,31 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
 
   Future<void> _fetchTodayBookings() async {
     try {
-      final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
       final response = await _doctorService.getBookings(
         page: 1,
-        limit: 100, // Fetch all for today
+        limit: 100,
         status: 'CONFIRMED',
-        date: today,
       );
 
       if (mounted) {
         setState(() {
           _todayBookings = response['data'] ?? [];
-          // Sort by time
+
           _todayBookings.sort((a, b) {
+            final aDate = a['clinicDate'] ?? '';
+            final bDate = b['clinicDate'] ?? '';
+            final dateCmp = aDate.compareTo(bDate);
+
+            if (dateCmp != 0) {
+              return dateCmp;
+            }
+
             final aTime = a['startTime'] ?? '';
             final bTime = b['startTime'] ?? '';
 
             return aTime.compareTo(bTime);
           });
+
           _isLoading = false;
         });
       }
@@ -89,7 +96,7 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Lịch khám hôm nay'),
+        title: const Text('Lịch khám sắp tới'),
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications),
@@ -124,7 +131,7 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Bạn không có ca khám nào hôm nay',
+                    'Bạn không có ca khám nào sắp tới',
                     style: TextStyle(color: Colors.grey.shade600, fontSize: 16),
                   ),
                 ],
@@ -141,9 +148,37 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
       itemBuilder: (context, index) {
         final booking = _todayBookings[index];
         final startTimeStr = booking['startTime'] as String?;
-        final timeString = (startTimeStr != null && startTimeStr.length >= 5)
-            ? startTimeStr.substring(0, 5)
+        final endTimeStr = booking['endTime'] as String?;
+        final clinicDateStr = booking['clinicDate'] as String?;
+
+        final timeString =
+            (startTimeStr != null &&
+                endTimeStr != null &&
+                startTimeStr.length >= 5 &&
+                endTimeStr.length >= 5)
+            ? '${startTimeStr.substring(0, 5)} - ${endTimeStr.substring(0, 5)}'
             : 'Chưa xếp lịch';
+
+        final dateString = () {
+          if (clinicDateStr == null) return '';
+          try {
+            final parsed = DateTime.parse(clinicDateStr);
+            final today = DateTime.now();
+            final tomorrow = today.add(const Duration(days: 1));
+            if (parsed.year == today.year &&
+                parsed.month == today.month &&
+                parsed.day == today.day) {
+              return 'Hôm nay, ${DateFormat('dd/MM/yyyy').format(parsed)}';
+            } else if (parsed.year == tomorrow.year &&
+                parsed.month == tomorrow.month &&
+                parsed.day == tomorrow.day) {
+              return 'Ngày mai, ${DateFormat('dd/MM/yyyy').format(parsed)}';
+            }
+            return DateFormat('dd/MM/yyyy').format(parsed);
+          } catch (_) {
+            return clinicDateStr;
+          }
+        }();
 
         return Card(
           margin: const EdgeInsets.only(bottom: 16),
@@ -165,7 +200,26 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 8),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.calendar_today,
+                      size: 13,
+                      color: Colors.grey.shade600,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      dateString,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey.shade700,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
                 Text(
                   booking['clinicType'] == 'ONLINE'
                       ? 'Khám trực tuyến'

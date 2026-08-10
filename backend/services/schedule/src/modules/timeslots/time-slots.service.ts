@@ -232,6 +232,10 @@ export class TimeSlotsService {
 
             await queryRunner.manager.save(TimeSlot, timeSlots);
 
+            if ((await this.cacheManager.get('Lock:Scheduling')) != lockId) {
+                throw new Error('Invalid lock');
+            }
+
             await queryRunner.commitTransaction();
 
             this.processLog('ScheduleTimeSlots', 'system', `Lên lịch thành công, mã khóa: ${lockId}`);
