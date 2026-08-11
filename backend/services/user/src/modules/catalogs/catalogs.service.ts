@@ -5,6 +5,7 @@ import { Role } from './entities/role.entity';
 import { Degree } from './entities/degree.entity';
 import { Specialty } from './entities/specialty.entity';
 import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
+import { ClientProxy } from '@nestjs/microservices';
 
 @Injectable()
 export class CatalogsService {
@@ -12,55 +13,74 @@ export class CatalogsService {
     @InjectRepository(Role) private roleRepository: Repository<Role>,
     @InjectRepository(Degree) private degreeRepository: Repository<Degree>,
     @InjectRepository(Specialty) private specialtyRepository: Repository<Specialty>,
-    @Inject(CACHE_MANAGER) private cache: Cache
+    @Inject(CACHE_MANAGER) private cache: Cache,
+    @Inject('LOG_SERVICE') private logClient: ClientProxy
   ) { }
 
-  async getAllRoles() {
-    const cachedRoles = await this.cache.get('roles');
+  private processLog(action: string, correlationId: string, info: string, level: string = 'info') {
+    this.logClient.emit('system_log', {
+      level: level,
+      message: `${action} ${info}`,
+      service: 'user_service',
+      correlationId: correlationId,
+      timestamp: new Date().toISOString()
+    });
+  }
 
-    if (cachedRoles) {
-      return {
-        ok: true,
-        status: 200,
-        data: cachedRoles
-      };
+  async getAllRoles(data: any) {
+    try {
+      const cachedRoles = await this.cache.get('roles');
+
+      if (cachedRoles) {
+        return {
+          ok: true,
+          status: 200,
+          data: cachedRoles
+        };
+      }
+    } catch (error) {
+      this.processLog('GetAllRoles', data.correlationId, `Lỗi khi lấy danh sách vai trò từ cache: ${error}`, 'warn');
     }
 
     const roles = await this.roleRepository.find({
       order: { id: 'ASC' }
     });
-
-    const data = roles.map(r => ({
+    const returnData = roles.map(r => ({
       id: r.id,
       name: r.name,
       description: r.description || ''
     }));
 
-    await this.cache.set('roles', data, 1800000);
+    this.cache.set('roles', returnData, 1800000).catch(e => {
+      this.processLog('GetAllRoles', data.correlationId, `Lỗi khi lưu danh sách vai trò vào cache: ${e}`, 'warn');
+    });
 
     return {
       ok: true,
       status: 200,
-      data
+      data: returnData
     };
   }
 
-  async getAllSpecialties() {
-    const cachedSpecialties = await this.cache.get('specialties');
+  async getAllSpecialties(data: any) {
+    try {
+      const cachedSpecialties = await this.cache.get('specialties');
 
-    if (cachedSpecialties) {
-      return {
-        ok: true,
-        status: 200,
-        data: cachedSpecialties
-      };
+      if (cachedSpecialties) {
+        return {
+          ok: true,
+          status: 200,
+          data: cachedSpecialties
+        };
+      }
+    } catch (error) {
+      this.processLog('GetAllSpecialties', data.correlationId, `Lỗi khi lấy danh sách chuyên khoa từ cache: ${error}`, 'warn');
     }
 
     const specialties = await this.specialtyRepository.find({
       order: { name: 'ASC' }
     });
-
-    const data = specialties.map(s => ({
+    const returnData = specialties.map(s => ({
       id: s.id,
       name: s.name,
       code: s.code,
@@ -69,12 +89,14 @@ export class CatalogsService {
       createdAt: s.createdAt.toISOString()
     }));
 
-    await this.cache.set('specialties', data, 1800000);
+    this.cache.set('specialties', returnData, 1800000).catch(e => {
+      this.processLog('GetAllSpecialties', data.correlationId, `Lỗi khi lưu danh sách chuyên khoa vào cache: ${e}`, 'warn');
+    });
 
     return {
       ok: true,
       status: 200,
-      data
+      data: returnData
     };
   }
 
@@ -100,7 +122,9 @@ export class CatalogsService {
 
     await this.specialtyRepository.save(specialty);
 
-    await this.cache.del('specialties');
+    this.cache.del('specialties').catch(e => {
+      this.processLog('CreateSpecialty', data.correlationId, `Lỗi khi xóa danh sách chuyên khoa khỏi cache: ${e}`, 'warn');
+    });
 
     return {
       ok: true,
@@ -140,7 +164,9 @@ export class CatalogsService {
 
     await this.specialtyRepository.save(specialty);
 
-    await this.cache.del('specialties');
+    this.cache.del('specialties').catch(e => {
+      this.processLog('UpdateSpecialty', data.correlationId, `Lỗi khi xóa danh sách chuyên khoa khỏi cache: ${e}`, 'warn');
+    });
 
     return {
       ok: true,
@@ -149,34 +175,39 @@ export class CatalogsService {
     };
   }
 
-  async getAllDegrees() {
-    const cachedDegrees = await this.cache.get('degrees');
+  async getAllDegrees(data: any) {
+    try {
+      const cachedDegrees = await this.cache.get('degrees');
 
-    if (cachedDegrees) {
-      return {
-        ok: true,
-        status: 200,
-        data: cachedDegrees
-      };
+      if (cachedDegrees) {
+        return {
+          ok: true,
+          status: 200,
+          data: cachedDegrees
+        };
+      }
+    } catch (error) {
+      this.processLog('GetAllDegrees', data.correlationId, `Lỗi khi lấy danh sách bằng cấp từ cache: ${error}`, 'warn');
     }
 
     const degrees = await this.degreeRepository.find({
       order: { id: 'ASC' }
     });
-
-    const data = degrees.map(d => ({
+    const returnData = degrees.map(d => ({
       id: d.id,
       name: d.name,
       description: d.description || '',
       createdAt: d.createdAt.toISOString()
     }));
 
-    await this.cache.set('degrees', data, 1800000);
+    this.cache.set('degrees', returnData, 1800000).catch(e => {
+      this.processLog('GetAllDegrees', data.correlationId, `Lỗi khi lưu danh sách bằng cấp vào cache: ${e}`, 'warn');
+    });
 
     return {
       ok: true,
       status: 200,
-      data
+      data: returnData
     };
   }
 
@@ -200,7 +231,9 @@ export class CatalogsService {
 
     await this.degreeRepository.save(degree);
 
-    await this.cache.del('degrees');
+    this.cache.del('degrees').catch(e => {
+      this.processLog('CreateDegree', data.correlationId, `Lỗi khi xóa danh sách bằng cấp khỏi cache: ${e}`, 'warn');
+    });
 
     return {
       ok: true,
@@ -232,7 +265,9 @@ export class CatalogsService {
 
     await this.degreeRepository.save(degree);
 
-    await this.cache.del('degrees');
+    this.cache.del('degrees').catch(e => {
+      this.processLog('UpdateDegree', data.correlationId, `Lỗi khi xóa danh sách bằng cấp khỏi cache: ${e}`, 'warn');
+    });
 
     return {
       ok: true,

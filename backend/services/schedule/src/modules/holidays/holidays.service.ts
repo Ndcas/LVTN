@@ -3,28 +3,43 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { GlobalHoliday } from './entities/global-holiday.entity';
 import { Repository } from 'typeorm';
 import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
+import { ClientProxy } from '@nestjs/microservices';
 
 @Injectable()
 export class HolidaysService {
     constructor(
         @InjectRepository(GlobalHoliday) private globalHolidayRepository: Repository<GlobalHoliday>,
-        @Inject(CACHE_MANAGER) private cacheManager: Cache
+        @Inject(CACHE_MANAGER) private cacheManager: Cache,
+        @Inject('LOG_SERVICE') private logClient: ClientProxy
     ) { }
 
-    async getAll(data: any) {
-        const cachedHolidays = await this.cacheManager.get('globalHolidays');
+    private processLog(action: string, correlationId: string, info: string, level: string = 'info') {
+        this.logClient.emit('system_log', {
+            level: level,
+            message: `${action} ${info}`,
+            service: 'schedule_service',
+            correlationId: correlationId,
+            timestamp: new Date().toISOString()
+        });
+    }
 
-        if (cachedHolidays) {
-            return {
-                ok: true,
-                status: 200,
-                message: 'Lấy danh sách ngày lễ thành công',
-                data: cachedHolidays
-            };
+    async getAll(data: any) {
+        try {
+            const cachedHolidays = await this.cacheManager.get('globalHolidays');
+
+            if (cachedHolidays) {
+                return {
+                    ok: true,
+                    status: 200,
+                    message: 'Lấy danh sách ngày lễ thành công',
+                    data: cachedHolidays
+                };
+            }
+        } catch (error) {
+            this.processLog('GetAllHolidays', data.correlationId, `Lỗi khi lấy danh sách ngày lễ từ cache: ${error}`, 'warn');
         }
 
         const holidays = await this.globalHolidayRepository.find();
-
         const dataResponse = holidays.map(holiday => ({
             id: holiday.id,
             holidayDate: holiday.holidayDate,
@@ -33,7 +48,9 @@ export class HolidaysService {
             createdAt: holiday.createdAt.toISOString()
         }));
 
-        await this.cacheManager.set('globalHolidays', dataResponse, 1800000);
+        this.cacheManager.set('globalHolidays', dataResponse, 1800000).catch(e => {
+            this.processLog('GetAllHolidays', data.correlationId, `Lỗi khi lưu danh sách ngày lễ vào cache: ${e}`, 'warn');
+        });
 
         return {
             ok: true,
@@ -51,7 +68,9 @@ export class HolidaysService {
 
         await this.globalHolidayRepository.save(newHoliday);
 
-        await this.cacheManager.del('globalHolidays');
+        this.cacheManager.del('globalHolidays').catch(e => {
+            this.processLog('CreateHoliday', data.correlationId, `Lỗi khi xóa danh sách ngày lễ khỏi cache: ${e}`, 'warn');
+        });
 
         return {
             ok: true,
@@ -83,7 +102,9 @@ export class HolidaysService {
 
         await this.globalHolidayRepository.save(holiday);
 
-        await this.cacheManager.del('globalHolidays');
+        this.cacheManager.del('globalHolidays').catch(e => {
+            this.processLog('UpdateHoliday', data.correlationId, `Lỗi khi xóa danh sách ngày lễ khỏi cache: ${e}`, 'warn');
+        });
 
         return {
             ok: true,
@@ -107,7 +128,9 @@ export class HolidaysService {
 
         await this.globalHolidayRepository.remove(holiday);
 
-        await this.cacheManager.del('globalHolidays');
+        this.cacheManager.del('globalHolidays').catch(e => {
+            this.processLog('DeleteHoliday', data.correlationId, `Lỗi khi xóa danh sách ngày lễ khỏi cache: ${e}`, 'warn');
+        });
 
         return {
             ok: true,

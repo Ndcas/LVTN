@@ -3,26 +3,42 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Not, Repository } from 'typeorm';
 import { Disease } from './entities/disease.entity';
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
+import { ClientProxy } from '@nestjs/microservices';
 
 @Injectable()
 export class DiseasesService {
   constructor(
     @InjectRepository(Disease) private diseaseRepository: Repository<Disease>,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    @Inject('LOG_SERVICE') private logClient: ClientProxy
   ) { }
+
+  private processLog(action: string, correlationId: string, info: string, level: string = 'info') {
+    this.logClient.emit('system_log', {
+      level: level,
+      message: `${action} ${info}`,
+      service: 'medicalrecord_service',
+      correlationId: correlationId,
+      timestamp: new Date().toISOString()
+    });
+  }
 
   async getAll(data: any) {
     const { keyword } = data;
 
     if (!keyword) {
-      const cachedDiseases = await this.cacheManager.get('diseases');
+      try {
+        const cachedDiseases = await this.cacheManager.get('diseases');
 
-      if (cachedDiseases) {
-        return {
-          ok: true,
-          status: 200,
-          data: cachedDiseases
-        };
+        if (cachedDiseases) {
+          return {
+            ok: true,
+            status: 200,
+            data: cachedDiseases
+          };
+        }
+      } catch (error) {
+        this.processLog('GetAllDiseases', data.correlationId, `Lỗi khi lấy danh sách bệnh lý từ cache: ${error}`, 'warn');
       }
     }
 
@@ -39,7 +55,9 @@ export class DiseasesService {
     }));
 
     if (!keyword) {
-      await this.cacheManager.set('diseases', resultData, 1800000);
+      this.cacheManager.set('diseases', resultData, 1800000).catch(e => {
+        this.processLog('GetAllDiseases', data.correlationId, `Lỗi khi lưu danh sách bệnh lý vào cache: ${e}`, 'warn');
+      });
     }
 
     return {
@@ -89,7 +107,9 @@ export class DiseasesService {
 
     await this.diseaseRepository.save(disease);
 
-    await this.cacheManager.del('diseases');
+    this.cacheManager.del('diseases').catch(e => {
+      this.processLog('CreateDisease', data.correlationId, `Lỗi khi xóa danh sách bệnh lý khỏi cache: ${e}`, 'warn');
+    });
 
     return {
       ok: true,
@@ -141,7 +161,9 @@ export class DiseasesService {
 
     await this.diseaseRepository.save(disease);
 
-    await this.cacheManager.del('diseases');
+    this.cacheManager.del('diseases').catch(e => {
+      this.processLog('UpdateDisease', data.correlationId, `Lỗi khi xóa danh sách bệnh lý khỏi cache: ${e}`, 'warn');
+    });
 
     return {
       ok: true,

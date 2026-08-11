@@ -1,6 +1,6 @@
 import { Cache, CACHE_MANAGER } from "@nestjs/cache-manager";
 import { Inject, Injectable, OnModuleInit } from "@nestjs/common";
-import { type ClientGrpc } from "@nestjs/microservices";
+import { ClientProxy, type ClientGrpc } from "@nestjs/microservices";
 import { lastValueFrom, Observable } from "rxjs";
 
 interface UserServiceClient {
@@ -37,8 +37,19 @@ export class GeneralService implements OnModuleInit {
         @Inject('PAYMENT_PACKAGE') private paymentServiceClient: ClientGrpc,
         @Inject('FEEDBACK_PACKAGE') private feedbackServiceClient: ClientGrpc,
         @Inject('LOG_PACKAGE') private logServiceClient: ClientGrpc,
+        @Inject('LOG_SERVICE') private logClient: ClientProxy,
         @Inject(CACHE_MANAGER) private cache: Cache
     ) { }
+
+    private processLog(action: string, correlationId: string, info: string, level: string = 'info') {
+        this.logClient.emit('system_log', {
+            level: level,
+            message: `${action} ${info}`,
+            service: 'api_gateway',
+            correlationId: correlationId,
+            timestamp: new Date().toISOString()
+        });
+    }
 
     onModuleInit() {
         this.userService = this.userServiceClient.getService<UserServiceClient>('UserService');
@@ -50,14 +61,18 @@ export class GeneralService implements OnModuleInit {
 
     async getAdminDashboardData(data: any) {
         if (!data.forceRefresh) {
-            const cachedData = await this.cache.get('admin_dashboard');
+            try {
+                const cachedData = await this.cache.get('admin_dashboard');
 
-            if (cachedData) {
-                return {
-                    ok: true,
-                    status: 200,
-                    data: cachedData
-                };
+                if (cachedData) {
+                    return {
+                        ok: true,
+                        status: 200,
+                        data: cachedData
+                    };
+                }
+            } catch (error) {
+                this.processLog('GetAdminDashboardData', data.correlationId, `Lỗi khi lấy dữ liệu dashboard từ cache: ${error}`, 'warn');
             }
         }
 
@@ -91,7 +106,9 @@ export class GeneralService implements OnModuleInit {
             logs: responses[4].data
         };
 
-        await this.cache.set('admin_dashboard', dashboardData, 1800000);
+        this.cache.set('admin_dashboard', dashboardData, 1800000).catch(e => {
+            this.processLog('GetAdminDashboardData', data.correlationId, `Lỗi khi lưu dữ liệu dashboard vào cache: ${e}`, 'warn');
+        });
 
         return {
             ok: true,

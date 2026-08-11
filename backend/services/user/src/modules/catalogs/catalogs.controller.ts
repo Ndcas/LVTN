@@ -27,7 +27,7 @@ export class CatalogsController {
     try {
       this.processLog('GetAllRoles', data.correlationId, 'Nhận được yêu cầu lấy danh sách roles');
 
-      const result = await this.catalogsService.getAllRoles();
+      const result = await this.catalogsService.getAllRoles(data);
 
       this.processLog('GetAllRoles', data.correlationId, 'Kết thúc xử lý lấy danh sách roles');
 
@@ -49,7 +49,7 @@ export class CatalogsController {
     try {
       this.processLog('GetAllSpecialties', data.correlationId, 'Nhận được yêu cầu lấy danh sách chuyên khoa');
 
-      const result = await this.catalogsService.getAllSpecialties();
+      const result = await this.catalogsService.getAllSpecialties(data);
 
       this.processLog('GetAllSpecialties', data.correlationId, 'Kết thúc xử lý lấy danh sách chuyên khoa');
 
@@ -132,7 +132,7 @@ export class CatalogsController {
     try {
       this.processLog('GetAllDegrees', data.correlationId, 'Nhận được yêu cầu lấy danh sách bằng cấp');
 
-      const result = await this.catalogsService.getAllDegrees();
+      const result = await this.catalogsService.getAllDegrees(data);
 
       this.processLog('GetAllDegrees', data.correlationId, 'Kết thúc xử lý lấy danh sách bằng cấp');
 

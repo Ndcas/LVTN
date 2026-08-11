@@ -3,26 +3,42 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Not, Repository } from 'typeorm';
 import { IsActive, Medicine } from './entities/medicine.entity';
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
+import { ClientProxy } from '@nestjs/microservices';
 
 @Injectable()
 export class MedicinesService {
   constructor(
     @InjectRepository(Medicine) private medicineRepository: Repository<Medicine>,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    @Inject('LOG_SERVICE') private logClient: ClientProxy
   ) { }
+
+  private processLog(action: string, correlationId: string, info: string, level: string = 'info') {
+    this.logClient.emit('system_log', {
+      level: level,
+      message: `${action} ${info}`,
+      service: 'medicalrecord_service',
+      correlationId: correlationId,
+      timestamp: new Date().toISOString()
+    });
+  }
 
   async getAll(data: any) {
     const { keyword, isActive } = data;
 
     if (!keyword && isActive == IsActive.ACTIVE) {
-      const cachedMedicines = await this.cacheManager.get('medicines:active');
+      try {
+        const cachedMedicines = await this.cacheManager.get('medicines:active');
 
-      if (cachedMedicines) {
-        return {
-          ok: true,
-          status: 200,
-          data: cachedMedicines
-        };
+        if (cachedMedicines) {
+          return {
+            ok: true,
+            status: 200,
+            data: cachedMedicines
+          };
+        }
+      } catch (error) {
+        this.processLog('GetAllMedicines', data.correlationId, `Lỗi khi lấy danh sách thuốc từ cache: ${error}`, 'warn');
       }
     }
 
@@ -44,7 +60,9 @@ export class MedicinesService {
     }));
 
     if (!keyword && isActive == IsActive.ACTIVE) {
-      await this.cacheManager.set('medicines:active', resultData, 1800000);
+      this.cacheManager.set('medicines:active', resultData, 1800000).catch(e => {
+        this.processLog('GetAllMedicines', data.correlationId, `Lỗi khi lưu danh sách thuốc vào cache: ${e}`, 'warn');
+      });
     }
 
     return {
@@ -95,7 +113,9 @@ export class MedicinesService {
 
     await this.medicineRepository.save(medicine);
 
-    await this.cacheManager.del('medicines:active');
+    this.cacheManager.del('medicines:active').catch(e => {
+      this.processLog('CreateMedicine', data.correlationId, `Lỗi khi xóa danh sách thuốc khỏi cache: ${e}`, 'warn');
+    });
 
     return {
       ok: true,
@@ -148,7 +168,9 @@ export class MedicinesService {
 
     await this.medicineRepository.save(medicine);
 
-    await this.cacheManager.del('medicines:active');
+    this.cacheManager.del('medicines:active').catch(e => {
+      this.processLog('UpdateMedicine', data.correlationId, `Lỗi khi xóa danh sách thuốc khỏi cache: ${e}`, 'warn');
+    });
 
     return {
       ok: true,
@@ -174,7 +196,9 @@ export class MedicinesService {
 
     await this.medicineRepository.save(medicine);
 
-    await this.cacheManager.del('medicines:active');
+    this.cacheManager.del('medicines:active').catch(e => {
+      this.processLog('ToggleMedicineActive', data.correlationId, `Lỗi khi xóa danh sách thuốc khỏi cache: ${e}`, 'warn');
+    });
 
     return {
       ok: true,
