@@ -35,6 +35,7 @@ export class BookingsService implements OnModuleInit {
         @Inject('USER_PACKAGE') private userClient: ClientGrpc,
         @Inject('MEDICAL_RECORD_PACKAGE') private medicalRecordClient: ClientGrpc,
         @Inject('PAYMENT_PACKAGE') private paymentClient: ClientGrpc,
+        @Inject('LOG_SERVICE') private logClient: ClientProxy,
         private dataSource: DataSource
     ) { }
 
@@ -42,6 +43,16 @@ export class BookingsService implements OnModuleInit {
         this.userService = this.userClient.getService<UserServiceClient>('UserService');
         this.medicalRecordService = this.medicalRecordClient.getService<MedicalRecordServiceClient>('MedicalRecordService');
         this.paymentService = this.paymentClient.getService<PaymentServiceClient>('PaymentService');
+    }
+
+    private processLog(action: string, correlationId: string, info: string, level: string = 'info') {
+        this.logClient.emit('system_log', {
+            level: level,
+            message: `${action} ${info}`,
+            service: 'schedule_service',
+            correlationId: correlationId,
+            timestamp: new Date().toISOString()
+        });
     }
 
     async getAll(data: any) {
@@ -353,6 +364,9 @@ export class BookingsService implements OnModuleInit {
 
         await queryRunner.startTransaction();
 
+        let recordId;
+        let invoiceId;
+
         try {
             const booking = await queryRunner.manager.findOne(Booking, {
                 where: {
@@ -395,7 +409,6 @@ export class BookingsService implements OnModuleInit {
             };
 
             const examinationFee = feeResp.fee;
-            let recordId = null;
             let medicineFee = 0;
             const recordResp: any = await lastValueFrom(this.medicalRecordService.createRecord({
                 bookingId,
@@ -417,7 +430,6 @@ export class BookingsService implements OnModuleInit {
             medicineFee = recordResp.medicineFee;
 
             const totalAmount = examinationFee + medicineFee;
-            let invoiceId = null;
             const invoiceResp: any = await lastValueFrom(this.paymentService.createInvoice({
                 bookingId,
                 patientId: booking.patientId,
@@ -428,32 +440,15 @@ export class BookingsService implements OnModuleInit {
             }));
 
             if (!invoiceResp.ok) {
-                lastValueFrom(this.medicalRecordService.deleteRecord({
-                    id: recordId,
-                    correlationId
-                })).catch(() => { });
-
                 throw new Error(invoiceResp.error);
             }
 
             invoiceId = invoiceResp.id;
+            booking.status = BookingStatus.FINISHED;
 
-            try {
-                booking.status = BookingStatus.FINISHED;
+            await queryRunner.manager.save(Booking, booking);
 
-                await queryRunner.manager.save(Booking, booking);
-
-                await queryRunner.commitTransaction();
-            } catch (bookingError) {
-                if (invoiceId) {
-                    lastValueFrom(this.paymentService.deleteInvoice({ id: invoiceId, correlationId })).catch(() => { });
-                }
-                if (recordId) {
-                    lastValueFrom(this.medicalRecordService.deleteRecord({ id: recordId, correlationId })).catch(() => { });
-                }
-
-                throw bookingError;
-            }
+            await queryRunner.commitTransaction();
 
             return {
                 ok: true,
@@ -463,6 +458,23 @@ export class BookingsService implements OnModuleInit {
         } catch (error) {
             await queryRunner.rollbackTransaction();
 
+            if (recordId) {
+                lastValueFrom(this.medicalRecordService.deleteRecord({
+                    id: recordId,
+                    correlationId
+                })).catch(e => {
+                    this.processLog('FinishBooking', correlationId, `Lỗi khi thực hiện compensate xóa medical record ${e}`, 'error');
+                });
+            }
+
+            if (invoiceId) {
+                lastValueFrom(this.paymentService.deleteInvoice({
+                    id: invoiceId,
+                    correlationId
+                })).catch(e => {
+                    this.processLog('FinishBooking', correlationId, `Lỗi khi thực hiện compensate xóa invoice ${e}`, 'error');
+                });
+            }
             throw error;
         } finally {
             await queryRunner.release();
