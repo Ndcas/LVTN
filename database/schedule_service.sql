@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: mysql
--- Thời gian đã tạo: Th7 10, 2026 lúc 10:06 AM
+-- Thời gian đã tạo: Th8 15, 2026 lúc 11:32 AM
 -- Phiên bản máy phục vụ: 9.7.1
 -- Phiên bản PHP: 8.3.32
 
@@ -31,7 +31,7 @@ CREATE TABLE `bookings` (
   `id` int NOT NULL,
   `patient_id` int NOT NULL,
   `time_slot_id` int NOT NULL,
-  `status` enum('CONFIRMED','FINISHED','CANCELED','NO_SHOW') COLLATE utf8mb4_unicode_ci DEFAULT 'CONFIRMED',
+  `status` enum('CONFIRMED','FINISHED','CANCELED','NO_SHOW') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'CONFIRMED',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -41,9 +41,7 @@ CREATE TABLE `bookings` (
 --
 
 INSERT INTO `bookings` (`id`, `patient_id`, `time_slot_id`, `status`, `created_at`, `updated_at`) VALUES
-(1, 2, 1, 'CONFIRMED', '2026-06-15 08:05:28', '2026-06-15 08:05:28'),
-(2, 2, 5, 'FINISHED', '2026-06-15 08:08:15', '2026-06-15 08:08:15'),
-(3, 3, 6, 'FINISHED', '2026-06-15 08:08:15', '2026-06-15 08:08:15');
+(1, 2, 1, 'FINISHED', '2026-06-15 08:05:28', '2026-06-15 08:08:15');
 
 -- --------------------------------------------------------
 
@@ -55,19 +53,12 @@ CREATE TABLE `doctor_leaves` (
   `id` int NOT NULL,
   `doctor_id` int NOT NULL,
   `leave_date` date NOT NULL,
-  `reason` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `status` enum('PENDING','APPROVED','REJECTED') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'PENDING',
-  `rejected_reason` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `reason` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `status` enum('PENDING','APPROVED','REJECTED') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'PENDING',
+  `rejected_reason` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Đang đổ dữ liệu cho bảng `doctor_leaves`
---
-
-INSERT INTO `doctor_leaves` (`id`, `doctor_id`, `leave_date`, `reason`, `status`, `rejected_reason`, `created_at`, `updated_at`) VALUES
-(1, 5, '2026-06-17', 'Đi hội thảo chuyên đề Mắt tại TP.HCM', 'APPROVED', NULL, '2026-06-15 08:05:28', '2026-06-15 08:05:28');
 
 -- --------------------------------------------------------
 
@@ -81,7 +72,7 @@ CREATE TABLE `doctor_weekly_templates` (
   `day_of_week` tinyint NOT NULL,
   `start_time` time NOT NULL,
   `end_time` time NOT NULL,
-  `clinic_type` enum('ONLINE','OFFLINE') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `clinic_type` enum('ONLINE','OFFLINE') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -90,10 +81,35 @@ CREATE TABLE `doctor_weekly_templates` (
 --
 
 INSERT INTO `doctor_weekly_templates` (`id`, `doctor_id`, `day_of_week`, `start_time`, `end_time`, `clinic_type`, `created_at`) VALUES
-(1, 4, 3, '08:00:00', '08:30:00', 'OFFLINE', '2026-06-15 08:05:28'),
-(2, 4, 3, '08:30:00', '09:00:00', 'OFFLINE', '2026-06-15 08:05:28'),
-(3, 5, 3, '14:00:00', '14:30:00', 'OFFLINE', '2026-06-15 08:05:28'),
-(4, 5, 3, '14:30:00', '15:00:00', 'ONLINE', '2026-06-15 08:05:28');
+(1, 4, 1, '11:00:00', '12:30:00', 'OFFLINE', '2026-06-15 08:05:28'),
+(2, 4, 1, '17:00:00', '19:30:00', 'OFFLINE', '2026-06-15 08:05:28'),
+(3, 4, 1, '19:30:00', '21:00:00', 'ONLINE', '2026-06-15 08:05:28'),
+(4, 4, 2, '11:00:00', '12:30:00', 'OFFLINE', '2026-06-15 08:05:28'),
+(5, 4, 2, '17:00:00', '19:30:00', 'OFFLINE', '2026-06-15 08:05:28'),
+(6, 4, 3, '11:00:00', '12:30:00', 'OFFLINE', '2026-06-15 08:05:28'),
+(7, 4, 3, '17:00:00', '19:30:00', 'OFFLINE', '2026-06-15 08:05:28'),
+(8, 4, 3, '19:30:00', '21:00:00', 'ONLINE', '2026-06-15 08:05:28'),
+(9, 4, 4, '11:00:00', '12:30:00', 'OFFLINE', '2026-06-15 08:05:28'),
+(10, 4, 4, '17:00:00', '19:30:00', 'OFFLINE', '2026-06-15 08:05:28'),
+(11, 4, 5, '11:00:00', '12:30:00', 'OFFLINE', '2026-06-15 08:05:28'),
+(12, 4, 5, '17:00:00', '19:30:00', 'OFFLINE', '2026-06-15 08:05:28'),
+(13, 4, 5, '19:30:00', '21:00:00', 'ONLINE', '2026-06-15 08:05:28'),
+(14, 4, 6, '08:00:00', '12:00:00', 'OFFLINE', '2026-06-15 08:05:28'),
+(15, 4, 0, '08:30:00', '11:30:00', 'ONLINE', '2026-06-15 08:05:28'),
+(16, 5, 1, '11:00:00', '12:30:00', 'OFFLINE', '2026-06-15 08:05:28'),
+(17, 5, 1, '17:00:00', '19:30:00', 'OFFLINE', '2026-06-15 08:05:28'),
+(18, 5, 2, '11:00:00', '12:30:00', 'OFFLINE', '2026-06-15 08:05:28'),
+(19, 5, 2, '17:00:00', '19:30:00', 'OFFLINE', '2026-06-15 08:05:28'),
+(20, 5, 2, '19:30:00', '21:00:00', 'ONLINE', '2026-06-15 08:05:28'),
+(21, 5, 3, '11:00:00', '12:30:00', 'OFFLINE', '2026-06-15 08:05:28'),
+(22, 5, 3, '17:00:00', '19:30:00', 'OFFLINE', '2026-06-15 08:05:28'),
+(23, 5, 4, '11:00:00', '12:30:00', 'OFFLINE', '2026-06-15 08:05:28'),
+(24, 5, 4, '17:00:00', '19:30:00', 'OFFLINE', '2026-06-15 08:05:28'),
+(25, 5, 4, '19:30:00', '21:00:00', 'ONLINE', '2026-06-15 08:05:28'),
+(26, 5, 5, '11:00:00', '12:30:00', 'OFFLINE', '2026-06-15 08:05:28'),
+(27, 5, 5, '17:00:00', '19:30:00', 'OFFLINE', '2026-06-15 08:05:28'),
+(28, 5, 6, '08:00:00', '12:00:00', 'OFFLINE', '2026-06-15 08:05:28'),
+(29, 5, 0, '14:30:00', '17:30:00', 'ONLINE', '2026-06-15 08:05:28');
 
 -- --------------------------------------------------------
 
@@ -104,8 +120,8 @@ INSERT INTO `doctor_weekly_templates` (`id`, `doctor_id`, `day_of_week`, `start_
 CREATE TABLE `global_holidays` (
   `id` int NOT NULL,
   `holiday_date` date NOT NULL,
-  `name` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `description` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `name` varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -129,7 +145,7 @@ CREATE TABLE `opening_time` (
   `end_time` time NOT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Đang đổ dữ liệu cho bảng `opening_time`
@@ -157,8 +173,8 @@ INSERT INTO `opening_time` (`id`, `day_of_week`, `start_time`, `end_time`, `crea
 CREATE TABLE `schedule_change_requests` (
   `id` int NOT NULL,
   `doctor_id` int NOT NULL,
-  `status` enum('PENDING','APPROVED','REJECTED') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'PENDING',
-  `rejected_reason` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `status` enum('PENDING','APPROVED','REJECTED') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'PENDING',
+  `rejected_reason` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -175,7 +191,7 @@ CREATE TABLE `schedule_change_request_details` (
   `day_of_week` tinyint NOT NULL,
   `start_time` time NOT NULL,
   `end_time` time NOT NULL,
-  `clinic_type` enum('ONLINE','OFFLINE') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `clinic_type` enum('ONLINE','OFFLINE') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -191,8 +207,8 @@ CREATE TABLE `time_slots` (
   `clinic_date` date NOT NULL,
   `start_time` time NOT NULL,
   `end_time` time NOT NULL,
-  `clinic_type` enum('ONLINE','OFFLINE') COLLATE utf8mb4_unicode_ci NOT NULL,
-  `status` enum('AVAILABLE','BOOKED') COLLATE utf8mb4_unicode_ci DEFAULT 'AVAILABLE',
+  `clinic_type` enum('ONLINE','OFFLINE') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `status` enum('AVAILABLE','BOOKED') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'AVAILABLE',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -202,12 +218,7 @@ CREATE TABLE `time_slots` (
 --
 
 INSERT INTO `time_slots` (`id`, `doctor_id`, `clinic_date`, `start_time`, `end_time`, `clinic_type`, `status`, `created_at`, `updated_at`) VALUES
-(1, 4, '2026-06-16', '08:00:00', '08:30:00', 'OFFLINE', 'BOOKED', '2026-06-15 08:05:28', '2026-06-15 08:05:28'),
-(2, 4, '2026-06-16', '08:30:00', '09:00:00', 'OFFLINE', 'AVAILABLE', '2026-06-15 08:05:28', '2026-06-15 08:05:28'),
-(3, 5, '2026-06-16', '14:00:00', '14:30:00', 'OFFLINE', 'AVAILABLE', '2026-06-15 08:05:28', '2026-06-15 08:05:28'),
-(4, 5, '2026-06-16', '14:30:00', '15:00:00', 'ONLINE', 'AVAILABLE', '2026-06-15 08:05:28', '2026-06-15 08:05:28'),
-(5, 4, '2026-06-14', '08:00:00', '08:30:00', 'OFFLINE', 'BOOKED', '2026-06-15 08:08:15', '2026-06-15 08:08:15'),
-(6, 5, '2026-06-14', '14:00:00', '14:30:00', 'ONLINE', 'BOOKED', '2026-06-15 08:08:15', '2026-06-15 08:08:15');
+(1, 4, '2026-06-15', '11:00:00', '11:30:00', 'OFFLINE', 'BOOKED', '2026-06-15 08:05:28', '2026-06-15 08:05:28');
 
 --
 -- Chỉ mục cho các bảng đã đổ
@@ -279,19 +290,19 @@ ALTER TABLE `time_slots`
 -- AUTO_INCREMENT cho bảng `bookings`
 --
 ALTER TABLE `bookings`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT cho bảng `doctor_leaves`
 --
 ALTER TABLE `doctor_leaves`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT cho bảng `doctor_weekly_templates`
 --
 ALTER TABLE `doctor_weekly_templates`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
 
 --
 -- AUTO_INCREMENT cho bảng `global_holidays`
@@ -303,7 +314,7 @@ ALTER TABLE `global_holidays`
 -- AUTO_INCREMENT cho bảng `opening_time`
 --
 ALTER TABLE `opening_time`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT cho bảng `schedule_change_requests`
@@ -321,7 +332,7 @@ ALTER TABLE `schedule_change_request_details`
 -- AUTO_INCREMENT cho bảng `time_slots`
 --
 ALTER TABLE `time_slots`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- Ràng buộc đối với các bảng kết xuất

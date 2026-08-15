@@ -26,14 +26,16 @@ class _MedicalHistoryScreenState extends State<MedicalHistoryScreen> {
 
     _fetchRecords();
 
-    _scrollController.addListener(() {
-      if (_scrollController.position.pixels ==
-          _scrollController.position.maxScrollExtent) {
-        if (!_isLoading && _hasMore) {
-          _fetchRecords(loadMore: true);
-        }
+    _scrollController.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
+      if (!_isLoading && _hasMore) {
+        _fetchRecords(loadMore: true);
       }
-    });
+    }
   }
 
   @override
@@ -49,13 +51,9 @@ class _MedicalHistoryScreenState extends State<MedicalHistoryScreen> {
     }
 
     if (loadMore) {
-      _page++;
+      setState(() => _page++);
     } else {
       _page = 1;
-
-      _records.clear();
-
-      setState(() => _isLoading = true);
     }
 
     try {
@@ -94,45 +92,49 @@ class _MedicalHistoryScreenState extends State<MedicalHistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Hồ sơ y tế')),
-      body: _buildBody(),
-    );
-  }
-
-  Widget _buildBody() {
     if (_isLoading && _records.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    if (_records.isEmpty) {
-      return Center(
-        child: Text(
-          'Chưa có hồ sơ y tế nào',
-          style: TextStyle(color: Colors.grey.shade600),
-        ),
+      return Scaffold(
+        appBar: AppBar(title: const Text('Hồ sơ y tế')),
+        body: const Center(child: CircularProgressIndicator()),
       );
     }
 
-    return RefreshIndicator(
-      onRefresh: () => _fetchRecords(),
-      child: ListView.builder(
-        controller: _scrollController,
-        padding: const EdgeInsets.all(16.0),
-        itemCount: _records.length + (_hasMore ? 1 : 0),
-        itemBuilder: (context, index) {
-          if (index == _records.length) {
-            return const Center(
-              child: Padding(
-                padding: EdgeInsets.all(16.0),
-                child: CircularProgressIndicator(),
-              ),
-            );
-          }
+    return Scaffold(
+      appBar: AppBar(title: const Text('Hồ sơ y tế')),
+      body: RefreshIndicator(
+        onRefresh: () => _fetchRecords(),
+        child: _records.isEmpty
+            ? SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.7,
+                  child: Center(
+                    child: Text(
+                      'Chưa có hồ sơ y tế nào',
+                      style: TextStyle(color: Colors.grey.shade600),
+                    ),
+                  ),
+                ),
+              )
+            : ListView.builder(
+                controller: _scrollController,
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.all(16.0),
+                itemCount: _records.length + (_hasMore ? 1 : 0),
+                itemBuilder: (context, index) {
+                  if (index == _records.length) {
+                    return const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: CircularProgressIndicator(),
+                      ),
+                    );
+                  }
 
-          final record = _records[index];
-          return _buildRecordCard(record);
-        },
+                  final record = _records[index];
+                  return _buildRecordCard(record);
+                },
+              ),
       ),
     );
   }

@@ -142,6 +142,7 @@ export class TimeSlotsService {
 
             while (currentDate <= nextSunday) {
                 dates.add(this.dateToYYYYMMDD(currentDate));
+
                 currentDate.setDate(currentDate.getDate() + 1);
             }
 

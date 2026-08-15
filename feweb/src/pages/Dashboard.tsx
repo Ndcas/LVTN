@@ -44,7 +44,18 @@ function LogRow({ log }: { log: LogItem }) {
         }
         <span>{log.level.toUpperCase()}</span>
       </div>
-      <div className="log-message">{log.message}</div>
+      <div
+        className="log-message"
+        title={log.message}
+        style={{
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          minWidth: 0,
+        }}
+      >
+        {log.message}
+      </div>
       <div className="log-meta">
         <span className="log-service">{log.service}</span>
         <span className="log-time">{timeStr}</span>
